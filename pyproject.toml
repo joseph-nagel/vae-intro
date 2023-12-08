@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["varautoenc"]
+
+[project]
+name = "varautoenc"
+version = "0.0.1"
+description = "Introduction to variational autoencoders"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Joseph Nagel", email = "JosephBNagel@gmail.com"}
+]
+keywords = ["VAE", "generative model"]
+dependencies = [
+    "numpy",
+    "torch",
+    "lightning",
+    "tensorboard",
+    "mlflow"
+]
+
+[project.optional-dependencies]
+interactive = [
+    "matplotlib",
+    "notebook"
+]
+
+[project.urls]
+source = "https://github.com/joseph-nagel/vae-intro"
+

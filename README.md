@@ -1,5 +1,11 @@
 # Introduction to variational autoencoders
 
+## Installation
+
+```
+pip install -e .
+```
+
 ## Training
 
 ```
