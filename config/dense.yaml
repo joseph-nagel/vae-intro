@@ -1,0 +1,39 @@
+seed_everything: true
+
+ckpt_path: null
+
+data:
+  data_dir: "run/data"
+  batch_size: 32
+  num_workers: 0
+
+model:
+  class_path: "varautoenc.DenseBernoulliVAE"
+  init_args:
+    num_features: [784, 512, 128, 32, 2]
+    reshape: [1, 28, 28]
+    activation: "leaky_relu"
+    lr: 0.0001
+
+trainer:
+  max_epochs: 50
+  logger:
+    class_path: "lightning.pytorch.loggers.TensorBoardLogger"
+    init_args:
+      save_dir: "run/"
+      name: "dense"
+      version: null
+  callbacks:
+    - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
+      init_args:
+        filename: "best"
+        monitor: "val_loss"
+        mode: "min"
+        save_top_k: 1
+    - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
+      init_args:
+        filename: "{epoch}_{val_loss:.4f}"
+        save_top_k: -1
+        every_n_epochs: 1
+        save_last: true
+
