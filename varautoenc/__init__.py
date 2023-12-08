@@ -3,14 +3,20 @@ Variational autoencoder.
 
 Modules
 -------
+data : Data tools.
 layers : Model layers.
+model : Encoder and decoder models.
 vae : Variational autoencoder.
 
 '''
 
+from . import data
 from . import layers
+from . import model
 from . import vae
 
+
+from .data import BinarizedMNIST
 
 from .layers import (
     make_activation,
@@ -24,12 +30,17 @@ from .layers import (
     ConvUp
 )
 
-from .vae import (
-    BernoulliVAE,
+from .model import (
     ConvEncoder,
     ConvDecoder,
     DenseEncoder,
-    DenseDecoder,
+    DenseDecoder
+)
+
+from .vae import (
+    BernoulliVAE,
+    ConvBernoulliVAE,
+    DenseBernoulliVAE,
     encode_loader
 )
 

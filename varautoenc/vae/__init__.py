@@ -8,9 +8,9 @@ from . import utils
 
 from .base import BernoulliVAE
 
-from .conv import ConvEncoder, ConvDecoder
+from .conv import ConvBernoulliVAE
 
-from .dense import DenseEncoder, DenseDecoder
+from .dense import DenseBernoulliVAE
 
 from .utils import encode_loader
 

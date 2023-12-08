@@ -2,49 +2,68 @@
 
 import torch
 import torch.distributions as dist
+from lightning.pytorch import LightningModule
 
 
-class BernoulliVAE():
+class BernoulliVAE(LightningModule):
     '''
     Variational autoencoder with Bernoulli likelihood.
 
     Summary
     -------
-    This class establishes a Bernoulli VAE scheme.
-    It is initialized with an encoder and decoder model.
-    The encoder represents the variational distribution
-    of the latent variables as a diagonal Gaussian.
-    It predicts means and logarithms of standard deviations.
-    The decoder realizes a multivariate Bernoulli distribution
-    over the data space, which also defines the likelihood.
-    It predicts the corresponding logits to that end.
+    A VAE algorithm based on a Bernoulli likelihood is implemented.
+    The overall architecture is composed of a probabilistic encoder and decoder
+    that establish the inference model and generative model, respectively.
+
+    The encoder represents the posterior distribution of the latent variables.
+    It predicts the means and (logarithmic) standard deviations of a diagonal Gaussian.
+
+    The decoder realizes a multivariate Bernoulli distribution over the data space.
+    To that end, it predicts the logits (inverse sigmoid) of "success" probabilities.
 
     Parameters
     ----------
     encoder : PyTorch module
-        Encoder model predicting means and
-        logarithms of standard deviations.
+        Encoder model that, for given inputs, predicts means and
+        logarithmic standard deviations of the latent variables.
     decoder : PyTorch module
-        Decoder model predicting Bernoulli logits.
-    device : PyTorch device
-        Device the computations are performed on.
+        Decoder model predicting Bernoulli logits
+        for given values of the latent variables.
+    lr : float
+        Initial optimizer learning rate.
 
     '''
 
-    def __init__(self, encoder, decoder, device=None):
+    def __init__(self,
+                 encoder,
+                 decoder,
+                 lr=1e-04):
+
+        super().__init__()
+
+        # set encoder and decoder
         self.encoder = encoder
         self.decoder = decoder
 
-        if device is None:
-            self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        else:
-            self.device = device
+        # set initial learning rate
+        self.lr = abs(lr)
 
-        self.encoder = self.encoder.to(self.device)
-        self.decoder = self.decoder.to(self.device)
+        # set initial sampling mode
+        self.sample(True)
 
-        self.sampling = True
-        self.epoch = 0
+        # store hyperparams
+        self.save_hyperparameters(
+            ignore=['encoder', 'decoder'],
+            logger=True
+        )
+
+    @property
+    def sampling(self):
+        return self._sampling
+
+    @sampling.setter
+    def sampling(self, sample_mode):
+        self._sampling = sample_mode
 
     def sample(self, sample_mode=True):
         '''Set sampling mode.'''
@@ -52,25 +71,34 @@ class BernoulliVAE():
 
     def train(self, train_mode=True):
         '''Set training mode.'''
-        self.encoder.train(train_mode)
-        self.decoder.train(train_mode)
 
+        # set module training mode
+        super().train(train_mode)
+
+        # turn on sampling for training
         if train_mode:
             self.sample(True)
 
-    def encode(self, X):
+        return self
+
+    def encode(self, x):
         '''Encode the input variables.'''
-        mu, logsigma = self.encoder(X)
+        mu, logsigma = self.encoder(x)
         return mu, logsigma
 
-    def reparametrize(self, mu, logsigma):
+    def reparametrize(self, mu, logsigma=None):
         '''Sample the latent variables.'''
+
+        # sample around the mean
         if self.sampling:
             sigma = torch.exp(logsigma)
             eps = torch.randn_like(sigma)
             z = mu + sigma * eps
+
+        # return the mean value
         else:
             z = mu
+
         return z
 
     def decode(self, z):
@@ -78,38 +106,47 @@ class BernoulliVAE():
         logits = self.decoder(z)
         return logits
 
-    def __call__(self, X):
+    def __call__(self, x):
         '''Encode, sample, decode.'''
-        mu, logsigma = self.encode(X)
+
+        # encode inputs
+        mu, logsigma = self.encode(x)
+
+        # sample latent variables
         z = self.reparametrize(mu, logsigma)
+
+        # decode logits
         logits = self.decode(z)
+
+        # compute probabilities
         probs = torch.sigmoid(logits)
+
         return probs
 
     def kl(self, mu, logsigma):
         '''Compute the KL divergence.'''
         kl = 0.5 * torch.sum(
             mu**2 + torch.exp(logsigma)**2 - 2*logsigma - 1,
-            dim=[_ for _ in range(1, mu.ndim)] # sum over data dimensions (all but batch)
+            dim=list(range(1, mu.ndim)) # sum over data dimensions (all but batch)
         )
         return kl
 
     def ll(self, x_logits, x):
         '''Compute the log-likelihood.'''
         # ll = torch.sum(
-        #     -nn.functional.binary_cross_entropy_with_logits(X_logits, X, reduction='none'),
-        #     dim=[_ for _ in range(1, X.ndim)]
+        #     -nn.functional.binary_cross_entropy_with_logits(x_logits, x, reduction='none'),
+        #     dim=list(range(1, x.ndim))
         # )
         ll = torch.sum(
             dist.Bernoulli(logits=x_logits).log_prob(x.float()),
-            dim=[_ for _ in range(1, x.ndim)] # sum over data dimensions (all but batch)
+            dim=list(range(1, x.ndim)) # sum over data dimensions (all but batch)
         )
         return ll
 
     def elbo(self, x, num_samples=1):
         '''Estimate the ELBO objective.'''
 
-        # run encoder
+        # encode inputs
         mu, logsigma = self.encode(x)
 
         # calculate KL divergence
@@ -119,124 +156,61 @@ class BernoulliVAE():
         ll = torch.zeros_like(kl)
 
         for _ in range(num_samples):
-            z_sample = self.reparametrize(mu, logsigma) # sample
-            x_logits = self.decode(z_sample) # run decoder
+            z_sample = self.reparametrize(mu, logsigma) # sample latent variables
+            x_logits = self.decode(z_sample) # decode logits
 
-            ll = ll + self.ll(x_logits, x)
+            ll = ll + self.ll(x_logits, x) # sum log-likelihood samples
 
-        ll = ll / num_samples
+        ll = ll / num_samples # compute avarage over samples
 
         # compute ELBO
         elbo = torch.mean(ll - kl) # mean over data points (only batch dimension)
 
         return elbo
 
-    def loss(self, X, num_samples=1):
+    def loss(self, x, num_samples=1):
         '''Estimate the negative-ELBO loss.'''
-        loss = -self.elbo(X, num_samples)
+        loss = -self.elbo(x, num_samples)
         return loss
 
-    def compile(self, optimizer, train_loader, test_loader=None):
-        '''Compile for training.'''
-        self.optimizer = optimizer
-        self.train_loader = train_loader
-        self.test_loader = test_loader
+    @staticmethod
+    def _get_features(batch):
+        '''Get only batch features and discard the rest.'''
 
-    def fit(self,
-            num_epochs,
-            num_samples=1,
-            log_interval=None,
-            initial_test=True):
-        '''Perform a number of training epochs.'''
+        if isinstance(batch, torch.Tensor):
+            x_batch = batch
 
-        train_losses = []
-        test_losses = []
+        elif isinstance(batch, (tuple, list)):
+            x_batch = batch[0]
 
-        if initial_test:
-            train_loss = self.test_loss(self.train_loader, num_samples, all_batches=False)
-            test_loss = self.test_loss(self.test_loader, num_samples, all_batches=False)
+        elif isinstance(batch, dict):
+            x_batch = batch['features']
 
-            train_losses.append(train_loss)
-            test_losses.append(test_loss)
+        else:
+            raise TypeError(f'Invalid batch type: {type(batch)}')
 
-            print('Started training: {}, test loss: {:.4e}'.format(self.epoch, test_loss))
+        return x_batch
 
-        for epoch_idx in range(num_epochs):
-            train_loss = self.train_epoch(num_samples, log_interval)
-            train_losses.append(train_loss)
+    def training_step(self, batch, batch_idx):
+        x_batch = self._get_features(batch)
+        loss = self.loss(x_batch)
+        self.log('train_loss', loss.item()) # Lightning logs batch-wise metrics during training per default
+        return loss
 
-            self.epoch += 1
+    def validation_step(self, batch, batch_idx):
+        x_batch = self._get_features(batch)
+        loss = self.loss(x_batch)
+        self.log('val_loss', loss.item()) # Lightning automatically averages metrics over batches for validation
+        return loss
 
-            if self.test_loader is not None:
-                test_loss = self.test_loss(num_samples=num_samples, all_batches=False)
-                test_losses.append(test_loss)
+    def test_step(self, batch, batch_idx):
+        x_batch = self._get_features(batch)
+        loss = self.loss(x_batch)
+        self.log('test_loss', loss.item()) # Lightning automatically averages metrics over batches for testing
+        return loss
 
-                print('Finished epoch: {}, test loss: {:.4e}'.format(self.epoch, test_loss))
-
-        history = {
-            'num_epochs': num_epochs,
-            'train_loss': train_losses,
-            'test_loss': test_losses
-        }
-
-        return history
-
-    def train_epoch(self, num_samples=1, log_interval=None):
-        '''Perform a single training epoch.'''
-
-        self.sample(True)
-        self.train(True)
-
-        batch_losses = []
-        for batch_idx, (x_batch, _) in enumerate(self.train_loader):
-            x_batch = x_batch.to(self.device)
-
-            self.optimizer.zero_grad()
-
-            loss = self.loss(x_batch, num_samples=num_samples)
-
-            loss.backward()
-            self.optimizer.step()
-
-            batch_loss = loss.data.item()
-            batch_losses.append(batch_loss)
-
-            if len(batch_losses) < 3:
-                running_loss = batch_loss
-            else:
-                running_loss = sum(batch_losses[-3:]) / 3
-
-            if log_interval is not None:
-                if (batch_idx+1) % log_interval == 0 or (batch_idx+1) == len(self.train_loader):
-                    print('Epoch: {} ({}/{}), batch loss: {:.4e}, running loss: {:.4e}' \
-                          .format(self.epoch+1, batch_idx+1, len(self.train_loader), batch_loss, running_loss))
-
-        return running_loss
-
-    @torch.no_grad()
-    def test_loss(self,
-                  test_loader=None,
-                  num_samples=1,
-                  all_batches=False):
-        '''Compute loss over a test set.'''
-
-        if test_loader is None:
-            test_loader = self.test_loader
-
-        self.sample(True)
-        self.train(False)
-
-        if all_batches: # all batches
-            test_loss = 0.0
-            for x_batch, _ in test_loader:
-                x_batch = x_batch.to(self.device)
-                loss = self.loss(x_batch, num_samples=num_samples)
-                test_loss += loss.data.item()
-        else: # only one batch
-            x_batch, _ = next(iter(test_loader))
-            x_batch = x_batch.to(self.device)
-            loss = self.loss(x_batch, num_samples=num_samples)
-            test_loss = loss.data.item()
-
-        return test_loss
+    # TODO: enable LR scheduling
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        return optimizer
 
