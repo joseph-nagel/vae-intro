@@ -13,7 +13,7 @@ from lightning.pytorch.callbacks import (
 )
 
 from varautoenc import (
-    BinarizedMNIST,
+    MNIST,
     DenseBernoulliVAE,
     ConvBernoulliVAE
 )
@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument('--activation', type=str, default='leaky_relu', help='nonlinearity type')
 
     parser.add_argument('--batchnorm', dest='batchnorm', action='store_true', help='use batchnorm for conv. layers')
-    parser.add_argument('--no-batchnorm', dest='batchnorm', action='store_false', help='do not use batchnorm')
+    parser.add_argument('--no-batchnorm', dest='batchnorm', action='store_false', help='do not use batchnorm for conv. layers')
     parser.set_defaults(batchnorm=True)
 
     parser.add_argument('--pool-last', dest='pool-last', action='store_true', help='pool after last conv.')
@@ -71,6 +71,10 @@ def parse_args():
     parser.add_argument('--gradient-clip-val', type=float, default=0.0, help='gradient clipping value')
     parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
 
+    parser.add_argument('--binarize', dest='binarize', action='store_true', help='binarize MNIST data')
+    parser.add_argument('--no-binarize', dest='binarize', action='store_false', help='do not binarize MNIST data')
+    parser.set_defaults(binarize=True)
+
     parser.add_argument('--gpu', dest='gpu', action='store_true', help='use GPU if available')
     parser.add_argument('--cpu', dest='gpu', action='store_false', help='do not use GPU')
     parser.set_defaults(gpu=True)
@@ -90,10 +94,11 @@ def main(args):
         )
 
     # initialize datamodule
-    binarized_mnist = BinarizedMNIST(
+    binarized_mnist = MNIST(
         data_dir=args.data_dir,
         batch_size=args.batch_size,
-        num_workers=args.num_workers
+        num_workers=args.num_workers,
+        binarize_threshold=0.5 if args.binarize else None
     )
 
     # initialize model

@@ -16,7 +16,7 @@ from . import model
 from . import vae
 
 
-from .data import BinarizedMNIST
+from .data import MNISTDataModule
 
 from .layers import (
     make_activation,
@@ -31,16 +31,18 @@ from .layers import (
 )
 
 from .model import (
-    ConvEncoder,
-    ConvDecoder,
     DenseEncoder,
-    DenseDecoder
+    DenseDecoder,
+    ConvEncoder,
+    ConvDecoder
 )
 
 from .vae import (
+    generate,
+    reconstruct,
+    encode_loader,
     BernoulliVAE,
     ConvBernoulliVAE,
-    DenseBernoulliVAE,
-    encode_loader
+    DenseBernoulliVAE
 )
 

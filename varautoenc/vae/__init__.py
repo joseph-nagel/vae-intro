@@ -12,5 +12,9 @@ from .conv import ConvBernoulliVAE
 
 from .dense import DenseBernoulliVAE
 
-from .utils import encode_loader
+from .utils import (
+    generate,
+    reconstruct,
+    encode_loader
+)
 

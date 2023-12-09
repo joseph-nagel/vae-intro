@@ -6,6 +6,7 @@ data:
   data_dir: "run/data"
   batch_size: 32
   num_workers: 0
+  binarize_threshold: 0.5
 
 model:
   class_path: "varautoenc.ConvBernoulliVAE"

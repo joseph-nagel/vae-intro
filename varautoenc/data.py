@@ -6,13 +6,14 @@ from torchvision import datasets, transforms
 from lightning import LightningDataModule
 
 
-class BinarizedMNIST(LightningDataModule):
-    '''DataModule for the binarized MNIST dataset.'''
+class MNISTDataModule(LightningDataModule):
+    '''DataModule for the (binarized) MNIST dataset.'''
 
     def __init__(self,
                  data_dir,
                  batch_size=32,
-                 num_workers=0):
+                 num_workers=0,
+                 binarize_threshold=0.5):
 
         super().__init__()
 
@@ -21,16 +22,21 @@ class BinarizedMNIST(LightningDataModule):
         self.num_workers = num_workers
 
         # create transforms
-        self.train_transform = transforms.Compose([
+        train_transforms = [
             transforms.RandomRotation(5),
-            transforms.ToTensor(),
-            lambda x: torch.where(x > 0.5, 1, 0).float()
-        ]) # TODO: refine data augmentation
+            transforms.ToTensor()
+        ] # TODO: refine data augmentation
 
-        self.test_transform = transforms.Compose([
-            transforms.ToTensor(),
-            lambda x: torch.where(x > 0.5, 1, 0).float()
-        ])
+        test_transforms = [transforms.ToTensor()]
+
+        if binarize_threshold is not None:
+            binarize_fn = lambda x: torch.where(x > binarize_threshold, 1, 0).float()
+
+            train_transforms.append(binarize_fn)
+            test_transforms.append(binarize_fn)
+
+        self.train_transform = transforms.Compose(train_transforms)
+        self.test_transform = transforms.Compose(test_transforms)
 
     def prepare_data(self):
         '''Download data.'''
@@ -78,7 +84,7 @@ class BinarizedMNIST(LightningDataModule):
             drop_last=True,
             shuffle=True,
             num_workers=self.num_workers,
-            pin_memory=True
+            pin_memory=self.num_workers > 0
         )
 
     def val_dataloader(self):
@@ -88,7 +94,7 @@ class BinarizedMNIST(LightningDataModule):
             drop_last=False,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True
+            pin_memory=self.num_workers > 0
         )
 
     def test_dataloader(self):
@@ -98,6 +104,6 @@ class BinarizedMNIST(LightningDataModule):
             drop_last=False,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True
+            pin_memory=self.num_workers > 0
         )
 
