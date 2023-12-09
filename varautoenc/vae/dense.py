@@ -11,6 +11,7 @@ class DenseBernoulliVAE(BernoulliVAE):
                  num_features,
                  reshape,
                  activation='leaky_relu',
+                 num_samples=1,
                  lr=1e-04):
 
         # create encoder
@@ -31,6 +32,7 @@ class DenseBernoulliVAE(BernoulliVAE):
         super().__init__(
             encoder,
             decoder,
+            num_samples=num_samples,
             lr=lr
         )
 

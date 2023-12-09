@@ -6,9 +6,7 @@ from varautoenc import BinarizedMNIST
 
 
 def main():
-    cli = LightningCLI(
-        datamodule_class=BinarizedMNIST
-    )
+    cli = LightningCLI(datamodule_class=BinarizedMNIST)
 
 
 if __name__ == '__main__':

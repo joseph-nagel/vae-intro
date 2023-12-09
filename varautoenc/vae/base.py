@@ -29,6 +29,8 @@ class BernoulliVAE(LightningModule):
     decoder : PyTorch module
         Decoder model predicting Bernoulli logits
         for given values of the latent variables.
+    num_samples : int
+        Number of MC samples to simulate the ELBO.
     lr : float
         Initial optimizer learning rate.
 
@@ -37,6 +39,7 @@ class BernoulliVAE(LightningModule):
     def __init__(self,
                  encoder,
                  decoder,
+                 num_samples=1,
                  lr=1e-04):
 
         super().__init__()
@@ -44,6 +47,9 @@ class BernoulliVAE(LightningModule):
         # set encoder and decoder
         self.encoder = encoder
         self.decoder = decoder
+
+        # set number of MC samples
+        self.num_samples = abs(int(num_samples))
 
         # set initial learning rate
         self.lr = abs(lr)
@@ -168,9 +174,9 @@ class BernoulliVAE(LightningModule):
 
         return elbo
 
-    def loss(self, x, num_samples=1):
+    def loss(self, x):
         '''Estimate the negative-ELBO loss.'''
-        loss = -self.elbo(x, num_samples)
+        loss = -self.elbo(x, num_samples=self.num_samples)
         return loss
 
     @staticmethod

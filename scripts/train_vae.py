@@ -52,6 +52,8 @@ def parse_args():
     parser.add_argument('--no-pool-last', dest='pool-last', action='store_false', help='do not pool after last conv.')
     parser.set_defaults(pool_last=True)
 
+    parser.add_argument('--num-samples', type=int, default=1, help='number of MC samples')
+
     parser.add_argument('--lr', type=float, default=1e-04, help='optimizer learning rate')
 
     parser.add_argument('--max-epochs', type=int, default=20, help='max. number of training epochs')
@@ -100,6 +102,7 @@ def main(args):
             num_features=args.num_features,
             reshape=args.reshape,
             activation=args.activation,
+            num_samples=args.num_samples,
             lr=args.lr
         )
     else:
@@ -114,6 +117,7 @@ def main(args):
             activation=args.activation,
             last_activation=None,
             pool_last=args.pool_last,
+            num_samples=args.num_samples,
             lr=args.lr
         )
 

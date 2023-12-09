@@ -18,6 +18,7 @@ class ConvBernoulliVAE(BernoulliVAE):
                  activation='leaky_relu',
                  last_activation=None,
                  pool_last=True,
+                 num_samples=1,
                  lr=1e-04):
 
         # create encoder
@@ -48,6 +49,7 @@ class ConvBernoulliVAE(BernoulliVAE):
         super().__init__(
             encoder,
             decoder,
+            num_samples=num_samples,
             lr=lr
         )
 
