@@ -4,9 +4,9 @@ ckpt_path: null
 
 data:
   data_dir: "run/data"
+  binarize_threshold: 0.5
   batch_size: 32
   num_workers: 0
-  binarize_threshold: 0.5
 
 model:
   class_path: "varautoenc.DenseBernoulliVAE"

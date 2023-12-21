@@ -16,7 +16,10 @@ from . import model
 from . import vae
 
 
-from .data import MNISTDataModule
+from .data import (
+    BaseDataModule,
+    MNISTDataModule
+)
 
 from .layers import (
     make_activation,
