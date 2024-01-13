@@ -17,6 +17,7 @@ from . import vae
 
 
 from .data import (
+    get_features,
     BaseDataModule,
     MNISTDataModule,
     CIFAR10DataModule
