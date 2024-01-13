@@ -23,12 +23,12 @@ class BaseDataModule(LightningDataModule):
     def set_dataset(self, mode, data_set):
         '''Set dataset.'''
         if mode in ('train', 'val', 'test'):
-            setattr(self, mode, data_set)
+            setattr(self, mode + '_set', data_set)
         else:
             raise ValueError(f'Unknown dataset mode: {mode}')
 
     def train_dataloader(self):
-        if self.train_set is not None:
+        if hasattr(self, 'train_set') and self.train_set is not None:
             return DataLoader(
                 self.train_set,
                 batch_size=self.batch_size,
@@ -41,7 +41,7 @@ class BaseDataModule(LightningDataModule):
             raise AttributeError('Train set has not been set')
 
     def val_dataloader(self):
-        if self.val_set is not None:
+        if hasattr(self, 'val_set') and self.val_set is not None:
             return DataLoader(
                 self.val_set,
                 batch_size=self.batch_size,
@@ -54,7 +54,7 @@ class BaseDataModule(LightningDataModule):
             raise AttributeError('Val. set has not been set')
 
     def test_dataloader(self):
-        if self.test_set is not None:
+        if hasattr(self, 'test_set') and self.test_set is not None:
             return DataLoader(
                 self.test_set,
                 batch_size=self.batch_size,
@@ -142,104 +142,68 @@ class MNISTDataModule(BaseDataModule):
             )
 
 
-# class MNISTDataModule(LightningDataModule):
-#     '''DataModule for the (binarized) MNIST dataset.'''
+class CIFAR10DataModule(BaseDataModule):
+    '''DataModule for the CIFAR-10 dataset.'''
 
-#     def __init__(self,
-#                  data_dir,
-#                  binarize_threshold=0.5,
-#                  batch_size=32,
-#                  num_workers=0):
+    def __init__(self,
+                 data_dir,
+                 batch_size=32,
+                 num_workers=0):
 
-#         super().__init__()
+        # call base class init
+        super().__init__(
+            batch_size=batch_size,
+            num_workers=num_workers
+        )
 
-#         self.data_dir = data_dir
-#         self.batch_size = batch_size
-#         self.num_workers = num_workers
+        # set data location
+        self.data_dir = data_dir
 
-#         # create transforms
-#         train_transforms = [
-#             transforms.RandomRotation(5), # TODO: refine data augmentation
-#             transforms.ToTensor()
-#         ]
+        # create transforms
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=(0.5, 0.5, 0.5),
+                std=(0.5, 0.5, 0.5)
+            )
+        ])
 
-#         test_transforms = [transforms.ToTensor()]
+    def prepare_data(self):
+        '''Download data.'''
+        train_set = datasets.CIFAR10(
+            self.data_dir,
+            train=True,
+            download=True
+        )
 
-#         if binarize_threshold is not None:
-#             binarize_fn = lambda x: torch.where(x > binarize_threshold, 1, 0).float()
+        test_set = datasets.CIFAR10(
+            self.data_dir,
+            train=False,
+            download=True
+        )
 
-#             train_transforms.append(binarize_fn)
-#             test_transforms.append(binarize_fn)
+    def setup(self, stage):
+        '''Set up train/test/val. datasets.'''
 
-#         self.train_transform = transforms.Compose(train_transforms)
-#         self.test_transform = transforms.Compose(test_transforms)
+        # create train/val. datasets
+        if stage in ('fit', 'validate'):
+            train_set = datasets.CIFAR10(
+                self.data_dir,
+                train=True,
+                transform=self.transform
+            )
 
-#     def prepare_data(self):
-#         '''Download data.'''
-#         train_set = datasets.MNIST(
-#             self.data_dir,
-#             train=True,
-#             download=True
-#         )
+            self.train_set, self.val_set = random_split(
+                train_set,
+                [40000, 10000],
+                generator=torch.Generator().manual_seed(42)
+            )
 
-#         test_set = datasets.MNIST(
-#             self.data_dir,
-#             train=False,
-#             download=True
-#         )
-
-#     def setup(self, stage):
-#         '''Set up train/test/val. datasets.'''
-
-#         # create train/val. datasets
-#         if stage in ('fit', 'validate'):
-#             train_set = datasets.MNIST(
-#                 self.data_dir,
-#                 train=True,
-#                 transform=self.train_transform
-#             )
-
-#             self.train_set, self.val_set = random_split(
-#                 train_set,
-#                 [50000, 10000],
-#                 generator=torch.Generator().manual_seed(42)
-#             )
-
-#         # create test dataset
-#         elif stage == 'test':
-#             self.test_set = datasets.MNIST(
-#                 self.data_dir,
-#                 train=False,
-#                 transform=self.test_transform
-#             )
-
-#     def train_dataloader(self):
-#         return DataLoader(
-#             self.train_set,
-#             batch_size=self.batch_size,
-#             drop_last=True,
-#             shuffle=True,
-#             num_workers=self.num_workers,
-#             pin_memory=self.num_workers > 0
-#         )
-
-#     def val_dataloader(self):
-#         return DataLoader(
-#             self.val_set,
-#             batch_size=self.batch_size,
-#             drop_last=False,
-#             shuffle=False,
-#             num_workers=self.num_workers,
-#             pin_memory=self.num_workers > 0
-#         )
-
-#     def test_dataloader(self):
-#         return DataLoader(
-#             self.test_set,
-#             batch_size=self.batch_size,
-#             drop_last=False,
-#             shuffle=False,
-#             num_workers=self.num_workers,
-#             pin_memory=self.num_workers > 0
-#         )
+        # create test dataset
+        elif stage == 'test':
+            self.test_set = datasets.CIFAR10(
+                self.data_dir,
+                train=False,
+                transform=self.transform
+            )
 

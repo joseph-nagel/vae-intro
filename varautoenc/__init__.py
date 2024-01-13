@@ -18,7 +18,8 @@ from . import vae
 
 from .data import (
     BaseDataModule,
-    MNISTDataModule
+    MNISTDataModule,
+    CIFAR10DataModule
 )
 
 from .layers import (
