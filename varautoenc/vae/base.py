@@ -1,5 +1,7 @@
 '''Variational autoencoder.'''
 
+from warnings import warn
+
 import torch
 import torch.distributions as dist
 from lightning.pytorch import LightningModule
@@ -7,13 +9,13 @@ from lightning.pytorch import LightningModule
 from ..data import get_features
 
 
-class BernoulliVAE(LightningModule):
+class VAE(LightningModule):
     '''
-    Variational autoencoder with Bernoulli likelihood.
+    Variational autoencoder with a Bernoulli or Gaussian likelihood.
 
     Summary
     -------
-    A VAE algorithm based on a Bernoulli likelihood is implemented.
+    A VAE algorithm based on a Bernoulli or Gaussian likelihood is implemented.
     The overall architecture is composed of a probabilistic encoder and decoder
     that establish the inference model and generative model, respectively.
 
@@ -29,10 +31,12 @@ class BernoulliVAE(LightningModule):
         Encoder model that, for given inputs, predicts means and
         logarithmic standard deviations of the latent variables.
     decoder : PyTorch module
-        Decoder model predicting Bernoulli logits
-        for given values of the latent variables.
+        Decoder model predicting Bernoulli logits or Gaussian
+        parameters for given values of the latent variables.
     num_samples : int
         Number of MC samples to simulate the ELBO.
+    likelihood_type : {'Bernoulli', 'Gauss', 'Gaussian'}
+        Determines the type of the likelihood.
     lr : float
         Initial optimizer learning rate.
 
@@ -42,6 +46,7 @@ class BernoulliVAE(LightningModule):
                  encoder,
                  decoder,
                  num_samples=1,
+                 likelihood_type='Bernoulli',
                  lr=1e-04):
 
         super().__init__()
@@ -52,6 +57,12 @@ class BernoulliVAE(LightningModule):
 
         # set number of MC samples
         self.num_samples = abs(int(num_samples))
+
+        # set likelihood type
+        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian'):
+            self.likelihood_type = likelihood_type
+        else:
+            raise ValueError(f'Unknown likelihood type: {likelihood_type}')
 
         # set initial learning rate
         self.lr = abs(lr)
@@ -111,8 +122,16 @@ class BernoulliVAE(LightningModule):
 
     def decode(self, z):
         '''Decode the latent variables.'''
-        logits = self.decoder(z)
-        return logits
+
+        # compute Bernoulli logits
+        if self.likelihood_type == 'Bernoulli':
+            logits = self.decoder(z)
+            return logits
+
+        # compute Gaussian parameters
+        else:
+            mu, logsigma = self.decoder(z)
+            return mu, logsigma
 
     def __call__(self, x):
         '''Encode, sample, decode.'''
@@ -123,13 +142,17 @@ class BernoulliVAE(LightningModule):
         # sample latent variables
         z = self.reparametrize(mu, logsigma)
 
-        # decode logits
-        logits = self.decode(z)
+        # compute Bernoulli probabilities
+        if self.likelihood_type == 'Bernoulli':
+            logits = self.decode(z)
+            probs = torch.sigmoid(logits)
+            return probs
 
-        # compute probabilities
-        probs = torch.sigmoid(logits)
-
-        return probs
+        # compute Gaussian parameters
+        else:
+            mu, logsigma = self.decode(z)
+            sigma = torch.exp(logsigma)
+            return mu, sigma
 
     def kl(self, mu, logsigma):
         '''Compute the KL divergence.'''
@@ -139,16 +162,32 @@ class BernoulliVAE(LightningModule):
         )
         return kl
 
-    def ll(self, x_logits, x):
+    def ll(self,
+           x,
+           bernoulli_logits=None,
+           gaussian_mu=None,
+           gaussian_logsigma=None):
         '''Compute the log-likelihood.'''
-        # ll = torch.sum(
-        #     -nn.functional.binary_cross_entropy_with_logits(x_logits, x, reduction='none'),
-        #     dim=list(range(1, x.ndim))
-        # )
-        ll = torch.sum(
-            dist.Bernoulli(logits=x_logits).log_prob(x.float()),
-            dim=list(range(1, x.ndim)) # sum over data dimensions (all but batch)
-        )
+
+        # compute Bernoulli likelihood
+        if self.likelihood_type == 'Bernoulli':
+            if gaussian_mu is not None or gaussian_logsigma is not None:
+                warn('Gaussian parameters are ignored for the Bernoulli log-likelihood')
+
+            ll_terms = dist.Bernoulli(logits=bernoulli_logits).log_prob(x.float())
+
+        # compute Gaussian likelihood
+        else:
+            if bernoulli_logits is not None:
+                warn('Bernoulli logits are ignored for the Gaussian log-likelihood')
+
+            gaussian_sigma = torch.exp(gaussian_logsigma)
+
+            ll_terms = dist.Normal(loc=gaussian_mu, scale=gaussian_sigma).log_prob(x)
+
+        # sum over data dimensions (all but batch)
+        ll = torch.sum(ll_terms, dim=list(range(1, x.ndim)))
+
         return ll
 
     def elbo(self, x, num_samples=1):
@@ -165,14 +204,21 @@ class BernoulliVAE(LightningModule):
 
         for _ in range(num_samples):
             z_sample = self.reparametrize(mu, logsigma) # sample latent variables
-            x_logits = self.decode(z_sample) # decode logits
 
-            ll = ll + self.ll(x_logits, x) # sum log-likelihood samples
+            # compute sample log-likelihood
+            if self.likelihood_type == 'Bernoulli':
+                logits = self.decode(z_sample)
+                ll_sample = self.ll(x, bernoulli_logits=logits)
+            else:
+                mu, logsigma = self.decode(z_sample)
+                ll_sample = self.ll(x, gaussian_mu=mu, gaussian_logsigma=logsigma)
+
+            ll = ll + ll_sample # sum log-likelihood samples
 
         ll = ll / num_samples # compute avarage over samples
 
-        # compute ELBO
-        elbo = torch.mean(ll - kl) # mean over data points (only batch dimension)
+        # compute mean over data points (only batch dimension)
+        elbo = torch.mean(ll - kl)
 
         return elbo
 

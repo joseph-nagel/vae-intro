@@ -13,11 +13,15 @@ pip install -e .
 ## Training
 
 ```
-python scripts/main.py fit --config config/dense.yaml
+python scripts/main.py fit --config config/mnist_dense.yaml
 ```
 
 ```
-python scripts/main.py fit --config config/conv.yaml
+python scripts/main.py fit --config config/mnist_conv.yaml
+```
+
+```
+python scripts/main.py fit --config config/cifar10.yaml
 ```
 
 ## Notebooks

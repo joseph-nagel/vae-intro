@@ -1,4 +1,4 @@
-'''VAE training on MNIST.'''
+'''Gaussian VAE training on CIFAR-10.'''
 
 from argparse import ArgumentParser
 from pathlib import Path
@@ -12,11 +12,7 @@ from lightning.pytorch.callbacks import (
     StochasticWeightAveraging
 )
 
-from varautoenc import (
-    MNIST,
-    DenseBernoulliVAE,
-    ConvBernoulliVAE
-)
+from varautoenc import CIFAR10DataModule, ConvGaussianVAE
 
 
 def parse_args():
@@ -28,7 +24,7 @@ def parse_args():
 
     parser.add_argument('--logger', type=str, default='tensorboard', help='logger')
     parser.add_argument('--save-dir', type=Path, default='run/', help='save dir')
-    parser.add_argument('--name', type=str, default='mnist', help='experiment name')
+    parser.add_argument('--name', type=str, default='cifar10', help='experiment name')
     parser.add_argument('--version', type=str, required=False, help='experiment version')
 
     parser.add_argument('--data-dir', type=Path, default='run/data/', help='data dir')
@@ -36,7 +32,7 @@ def parse_args():
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--num-workers', type=int, default=0, help='number of workers')
 
-    parser.add_argument('--num-channels', type=int, nargs='+', required=False, help='channel numbers of conv. layers')
+    parser.add_argument('--num-channels', type=int, nargs='+', required=True, help='channel numbers of conv. layers')
     parser.add_argument('--num-features', type=int, nargs='+', required=True, help='feature numbers of linear layers')
     parser.add_argument('--reshape', type=int, nargs='+', required=True, help='shape between linear and conv. layers')
     parser.add_argument('--kernel-size', type=int, default=3, help='conv. kernel size')
@@ -51,6 +47,10 @@ def parse_args():
     parser.add_argument('--pool-last', dest='pool-last', action='store_true', help='pool after last conv.')
     parser.add_argument('--no-pool-last', dest='pool-last', action='store_false', help='do not pool after last conv.')
     parser.set_defaults(pool_last=True)
+
+    parser.add_argument('--per-channel', dest='per_channel', action='store_true', help='use channel-specific sigmas')
+    parser.add_argument('--same-sigma', dest='per_channel', action='store_false', help='use same sigma for all channels')
+    parser.set_defaults(per_channel=False)
 
     parser.add_argument('--num-samples', type=int, default=1, help='number of MC samples')
 
@@ -71,10 +71,6 @@ def parse_args():
     parser.add_argument('--gradient-clip-val', type=float, default=0.0, help='gradient clipping value')
     parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
 
-    parser.add_argument('--binarize', dest='binarize', action='store_true', help='binarize MNIST data')
-    parser.add_argument('--no-binarize', dest='binarize', action='store_false', help='do not binarize MNIST data')
-    parser.set_defaults(binarize=True)
-
     parser.add_argument('--gpu', dest='gpu', action='store_true', help='use GPU if available')
     parser.add_argument('--cpu', dest='gpu', action='store_false', help='do not use GPU')
     parser.set_defaults(gpu=True)
@@ -94,37 +90,29 @@ def main(args):
         )
 
     # initialize datamodule
-    binarized_mnist = MNIST(
+    cifar = CIFAR10DataModule(
         data_dir=args.data_dir,
         batch_size=args.batch_size,
-        num_workers=args.num_workers,
-        binarize_threshold=0.5 if args.binarize else None
+        num_workers=args.num_workers
     )
 
     # initialize model
-    if args.num_channels is None:
-        vae = DenseBernoulliVAE(
-            num_features=args.num_features,
-            reshape=args.reshape,
-            activation=args.activation,
-            num_samples=args.num_samples,
-            lr=args.lr
-        )
-    else:
-        vae = ConvBernoulliVAE(
-            num_channels=args.num_channels,
-            num_features=args.num_features,
-            reshape=args.reshape,
-            kernel_size=args.kernel_size,
-            pooling=args.pooling,
-            upsample_mode=args.upsample_mode,
-            batchnorm=args.batchnorm,
-            activation=args.activation,
-            last_activation=None,
-            pool_last=args.pool_last,
-            num_samples=args.num_samples,
-            lr=args.lr
-        )
+    vae = ConvGaussianVAE(
+        num_channels=args.num_channels,
+        num_features=args.num_features,
+        reshape=args.reshape,
+        kernel_size=args.kernel_size,
+        pooling=args.pooling,
+        upsample_mode=args.upsample_mode,
+        batchnorm=args.batchnorm,
+        activation=args.activation,
+        last_activation=None,
+        pool_last=args.pool_last,
+        sigma=None,
+        per_channel=args.per_channel,
+        num_samples=args.num_samples,
+        lr=args.lr
+    )
 
     # set accelerator
     if args.gpu:
@@ -205,7 +193,7 @@ def main(args):
     # check validation loss
     trainer.validate(
         model=vae,
-        datamodule=binarized_mnist,
+        datamodule=cifar,
         ckpt_path=args.ckpt_file,
         verbose=False
     )
@@ -213,7 +201,7 @@ def main(args):
     # train model
     trainer.fit(
         vae,
-        datamodule=binarized_mnist,
+        datamodule=cifar,
         ckpt_path=args.ckpt_file
     )
 

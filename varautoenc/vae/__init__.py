@@ -1,16 +1,16 @@
 '''Variational autoencoder.'''
 
 from . import base
-from . import conv
-from . import dense
+from . import bernoulli
+from . import gauss
 from . import utils
 
 
-from .base import BernoulliVAE
+from .base import VAE
 
-from .conv import ConvBernoulliVAE
+from .bernoulli import DenseBernoulliVAE, ConvBernoulliVAE
 
-from .dense import DenseBernoulliVAE
+from .gauss import ConvGaussianVAE
 
 from .utils import (
     generate,

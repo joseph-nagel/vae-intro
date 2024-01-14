@@ -17,8 +17,8 @@ class ConvDown(nn.Sequential):
                  batchnorm=False,
                  activation='leaky_relu',
                  last_activation='same',
-                 pool_last=True,
-                 normalize_last=True):
+                 normalize_last=True,
+                 pool_last=True):
 
         # determine last activation
         if last_activation == 'same':
@@ -52,6 +52,7 @@ class ConvDown(nn.Sequential):
             if pooling is not None:
                 if is_not_last or pool_last:
                     down = nn.MaxPool2d(pooling)
+
                     layers.append(down)
 
         # initialize module
@@ -70,7 +71,8 @@ class ConvUp(nn.Sequential):
                  batchnorm=False,
                  activation='leaky_relu',
                  last_activation='same',
-                 normalize_last=True):
+                 normalize_last=True,
+                 conv_last=True):
 
         # determine last activation
         if last_activation == 'same':
@@ -99,17 +101,18 @@ class ConvUp(nn.Sequential):
             layers.append(up)
 
             # create conv layer
-            conv = make_conv(
-                in_channels,
-                out_channels,
-                kernel_size=kernel_size,
-                stride=1,
-                padding=padding,
-                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
-                activation=activation if is_not_last else last_activation
-            )
+            if is_not_last or conv_last:
+                conv = make_conv(
+                    in_channels,
+                    out_channels,
+                    kernel_size=kernel_size,
+                    stride=1,
+                    padding=padding,
+                    batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
+                    activation=activation if is_not_last else last_activation
+                )
 
-            layers.append(conv)
+                layers.append(conv)
 
         # initialize module
         super().__init__(*layers)

@@ -1,12 +1,10 @@
-'''VAE training on MNIST.'''
+'''Training script.'''
 
 from lightning.pytorch.cli import LightningCLI
 
-from varautoenc import MNISTDataModule
-
 
 def main():
-    cli = LightningCLI(datamodule_class=MNISTDataModule)
+    cli = LightningCLI()
 
 
 if __name__ == '__main__':

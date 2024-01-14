@@ -27,7 +27,7 @@ class DenseEncoder(nn.Module):
 
         else:
             self.dense_layers = DenseModel(
-                num_features=num_features[:-1],
+                num_features[:-1],
                 activation=activation,
                 last_activation='same'
             )
@@ -69,7 +69,7 @@ class DenseDecoder(nn.Module):
         self.reshape = reshape
 
         self.dense_layers = DenseModel(
-            num_features=num_features,
+            num_features,
             activation=activation,
             last_activation=None
         )

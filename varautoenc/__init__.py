@@ -31,6 +31,8 @@ from .layers import (
     make_up,
     DenseModel,
     MultiDense,
+    ProbDense,
+    ProbConv,
     ConvDown,
     ConvUp
 )
@@ -39,15 +41,17 @@ from .model import (
     DenseEncoder,
     DenseDecoder,
     ConvEncoder,
-    ConvDecoder
+    ConvDecoder,
+    ProbDecoder
 )
 
 from .vae import (
     generate,
     reconstruct,
     encode_loader,
-    BernoulliVAE,
+    VAE,
+    DenseBernoulliVAE,
     ConvBernoulliVAE,
-    DenseBernoulliVAE
+    ConvGaussianVAE
 )
 

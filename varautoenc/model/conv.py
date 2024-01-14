@@ -35,8 +35,8 @@ class ConvEncoder(nn.Module):
             batchnorm=batchnorm,
             activation=activation,
             last_activation='same',
-            pool_last=pool_last,
-            normalize_last=True
+            normalize_last=True,
+            pool_last=pool_last
         )
 
         # create dense layers
@@ -48,7 +48,7 @@ class ConvEncoder(nn.Module):
 
         else:
             self.dense_layers = DenseModel(
-                num_features=num_features[:-1],
+                num_features[:-1],
                 activation=activation,
                 last_activation='same'
             )
@@ -98,7 +98,7 @@ class ConvDecoder(nn.Module):
 
         # create dense layers
         self.dense_layers = DenseModel(
-            num_features=num_features,
+            num_features,
             activation=activation,
             last_activation='same'
         )
@@ -113,7 +113,8 @@ class ConvDecoder(nn.Module):
             batchnorm=batchnorm,
             activation=activation,
             last_activation=last_activation,
-            normalize_last=False
+            normalize_last=False,
+            conv_last=True
         )
 
     def forward(self, x):

@@ -1,0 +1,79 @@
+'''Probabilistic layers.'''
+
+import torch
+import torch.nn as nn
+
+from .utils import make_dense, make_conv
+
+
+class ProbDense(nn.Module):
+    '''Probabilistic dense layer with constant sigma (fixed or learnable).'''
+
+    def __init__(self,
+                 in_features,
+                 out_features,
+                 sigma=None,
+                 per_feature=False,
+                 **kwargs):
+
+        super().__init__()
+
+        # create dense layer predicting mu
+        self.mu = make_dense(
+            in_features,
+            out_features,
+            **kwargs
+        )
+
+        # create log-sigma parameters
+        if sigma is None:
+            num_sigmas = out_features if per_feature else 1
+            logsigma = torch.randn(num_sigmas)
+            self.logsigma = nn.Parameter(logsigma, requires_grad=True)
+        else:
+            sigma = torch.as_tensor(sigma, dtype=torch.float32).detach().clone()
+            logsigma = sigma.log().view(-1)
+            self.logsigma = nn.Parameter(logsigma, requires_grad=False)
+
+    def forward(self, x):
+        mu = self.mu(x)
+        logsigma = self.logsigma
+        return mu, logsigma
+
+
+class ProbConv(nn.Module):
+    '''Probabilistic conv. layer with constant sigma (fixed or learnable).'''
+
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 kernel_size=3,
+                 sigma=None,
+                 per_channel=False,
+                 **kwargs):
+
+        super().__init__()
+
+        # create conv layer predicting mu
+        self.mu = make_conv(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            **kwargs
+        )
+
+        # create log-sigma parameters
+        if sigma is None:
+            num_sigmas = out_channels if per_channel else 1
+            logsigma = torch.randn(num_sigmas, 1, 1)
+            self.logsigma = nn.Parameter(logsigma, requires_grad=True)
+        else:
+            sigma = torch.as_tensor(sigma, dtype=torch.float32).detach().clone()
+            logsigma = sigma.log().view(-1, 1, 1)
+            self.logsigma = nn.Parameter(logsigma, requires_grad=False)
+
+    def forward(self, x):
+        mu = self.mu(x)
+        logsigma = self.logsigma
+        return mu, logsigma
+

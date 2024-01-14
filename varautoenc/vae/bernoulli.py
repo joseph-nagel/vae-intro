@@ -1,10 +1,52 @@
-'''Convolutional Bernoulli VAE.'''
+'''Bernoulli VAE.'''
 
-from .base import BernoulliVAE
-from ..model import ConvEncoder, ConvDecoder
+from .base import VAE
+from ..model import (
+    DenseEncoder,
+    DenseDecoder,
+    ConvEncoder,
+    ConvDecoder
+)
 
 
-class ConvBernoulliVAE(BernoulliVAE):
+class DenseBernoulliVAE(VAE):
+    '''Fully connected Bernoulli VAE.'''
+
+    def __init__(self,
+                 num_features,
+                 reshape,
+                 activation='leaky_relu',
+                 num_samples=1,
+                 lr=1e-04):
+
+        # create encoder (predicts Gaussian mu and logsigma)
+        encoder = DenseEncoder(
+            num_features,
+            activation=activation,
+            flatten=True,
+        )
+
+        # create decoder (predicts Bernoulli logits)
+        decoder = DenseDecoder(
+            num_features[::-1],
+            activation=activation,
+            reshape=reshape
+        )
+
+        # initialize VAE class
+        super().__init__(
+            encoder,
+            decoder,
+            num_samples=num_samples,
+            likelihood_type='Bernoulli',
+            lr=lr
+        )
+
+        # store hyperparams
+        self.save_hyperparameters(logger=True)
+
+
+class ConvBernoulliVAE(VAE):
     '''Convolutional Bernoulli VAE.'''
 
     def __init__(self,
@@ -21,7 +63,7 @@ class ConvBernoulliVAE(BernoulliVAE):
                  num_samples=1,
                  lr=1e-04):
 
-        # create encoder
+        # create encoder (predicts Gaussian mu and logsigma)
         encoder = ConvEncoder(
             num_channels,
             num_features,
@@ -32,7 +74,7 @@ class ConvBernoulliVAE(BernoulliVAE):
             pool_last=pool_last
         )
 
-        # create decoder
+        # create decoder (predicts Bernoulli logits)
         decoder = ConvDecoder(
             num_features[::-1],
             num_channels[::-1] if num_channels is not None else None,
@@ -50,6 +92,7 @@ class ConvBernoulliVAE(BernoulliVAE):
             encoder,
             decoder,
             num_samples=num_samples,
+            likelihood_type='Bernoulli',
             lr=lr
         )
 

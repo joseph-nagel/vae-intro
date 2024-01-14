@@ -3,29 +3,38 @@ seed_everything: true
 ckpt_path: null
 
 data:
-  data_dir: "run/data"
-  binarize_threshold: 0.5
-  batch_size: 32
-  num_workers: 0
+  class_path: "varautoenc.MNISTDataModule"
+  init_args:
+    data_dir: "run/data"
+    binarize_threshold: 0.5
+    batch_size: 32
+    num_workers: 0
 
 model:
-  class_path: "varautoenc.DenseBernoulliVAE"
+  class_path: "varautoenc.ConvBernoulliVAE"
   init_args:
-    num_features: [784, 512, 128, 32, 2]
-    reshape: [1, 28, 28]
+    num_channels: [1, 16, 24]
+    num_features: [1176, 256, 32]
+    reshape: [24, 7, 7]
+    kernel_size: 3
+    pooling: 2
+    upsample_mode: "conv_transpose"
+    batchnorm: true
     activation: "leaky_relu"
+    last_activation: null
+    pool_last: true
     num_samples: 1
     lr: 0.0001
 
 trainer:
-  accelerator: "cpu"
-  max_epochs: 20
+  accelerator: "gpu"
+  max_epochs: 50
   log_every_n_steps: 100
   logger:
     class_path: "lightning.pytorch.loggers.TensorBoardLogger"
     init_args:
       save_dir: "run/"
-      name: "dense"
+      name: "mnist_conv"
       version: null
   callbacks:
     - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
