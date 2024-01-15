@@ -17,6 +17,7 @@ class ConvGaussianVAE(VAE):
                  batchnorm=True,
                  activation='leaky_relu',
                  last_activation=None,
+                 drop_rate=None,
                  pool_last=True,
                  sigma=None,
                  per_channel=False,
@@ -31,13 +32,14 @@ class ConvGaussianVAE(VAE):
             pooling=pooling,
             batchnorm=batchnorm,
             activation=activation,
+            drop_rate=drop_rate,
             pool_last=pool_last
         )
 
         # create decoder (predicts Gaussian mu and logsigma)
         decoder = ProbDecoder(
             num_features[::-1],
-            num_channels[::-1] if num_channels is not None else None,
+            num_channels[::-1],
             reshape,
             kernel_size=kernel_size,
             scaling=pooling,
@@ -45,6 +47,7 @@ class ConvGaussianVAE(VAE):
             batchnorm=batchnorm,
             activation=activation,
             last_activation=last_activation,
+            drop_rate=drop_rate,
             sigma=sigma,
             per_channel=per_channel
         )

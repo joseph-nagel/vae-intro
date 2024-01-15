@@ -21,6 +21,7 @@ class ConvEncoder(nn.Module):
                  pooling=2,
                  batchnorm=True,
                  activation='leaky_relu',
+                 drop_rate=None,
                  pool_last=True):
 
         super().__init__()
@@ -50,14 +51,17 @@ class ConvEncoder(nn.Module):
             self.dense_layers = DenseModel(
                 num_features[:-1],
                 activation=activation,
-                last_activation='same'
+                last_activation='same',
+                drop_rate=drop_rate
             )
 
         # create mu and logsigma
         self.mu_logsigma = MultiDense(
             num_features[-2],
             num_features[-1],
-            num_outputs=2
+            num_outputs=2,
+            activation=None,
+            drop_rate=drop_rate
         )
 
     def forward(self, x):
@@ -90,7 +94,8 @@ class ConvDecoder(nn.Module):
                  upsample_mode='conv_transpose',
                  batchnorm=False,
                  activation='leaky_relu',
-                 last_activation=None):
+                 last_activation=None,
+                 drop_rate=None):
 
         super().__init__()
 
@@ -100,7 +105,8 @@ class ConvDecoder(nn.Module):
         self.dense_layers = DenseModel(
             num_features,
             activation=activation,
-            last_activation='same'
+            last_activation='same',
+            drop_rate=drop_rate
         )
 
         # create conv layers

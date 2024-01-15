@@ -12,6 +12,7 @@ class DenseEncoder(nn.Module):
     def __init__(self,
                  num_features,
                  activation='leaky_relu',
+                 drop_rate=None,
                  flatten=True):
 
         super().__init__()
@@ -29,7 +30,8 @@ class DenseEncoder(nn.Module):
             self.dense_layers = DenseModel(
                 num_features[:-1],
                 activation=activation,
-                last_activation='same'
+                last_activation='same',
+                drop_rate=drop_rate
             )
 
         # create mu and logsigma
@@ -37,7 +39,8 @@ class DenseEncoder(nn.Module):
             num_features[-2],
             num_features[-1],
             num_outputs=2,
-            activation=None
+            activation=None,
+            drop_rate=drop_rate
         )
 
     def forward(self, x):
@@ -62,6 +65,7 @@ class DenseDecoder(nn.Module):
     def __init__(self,
                  num_features,
                  activation='leaky_relu',
+                 drop_rate=None,
                  reshape=None):
 
         super().__init__()
@@ -71,7 +75,8 @@ class DenseDecoder(nn.Module):
         self.dense_layers = DenseModel(
             num_features,
             activation=activation,
-            last_activation=None
+            last_activation=None,
+            drop_rate=drop_rate
         )
 
     def forward(self, x):

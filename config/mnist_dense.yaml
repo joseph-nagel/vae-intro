@@ -16,6 +16,7 @@ model:
     num_features: [784, 512, 128, 32, 2]
     reshape: [1, 28, 28]
     activation: "leaky_relu"
+    drop_rate: null
     num_samples: 1
     lr: 0.0001
 

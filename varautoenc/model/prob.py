@@ -2,8 +2,11 @@
 
 import torch.nn as nn
 
-from .conv import ConvDecoder
-from ..layers import DenseModel, ConvUp, ProbConv
+from ..layers import (
+    DenseModel,
+    ConvUp,
+    ProbConv
+)
 
 
 class ProbDecoder(nn.Module):
@@ -19,6 +22,7 @@ class ProbDecoder(nn.Module):
                  batchnorm=False,
                  activation='leaky_relu',
                  last_activation=None,
+                 drop_rate=None,
                  sigma=None,
                  per_channel=False):
 
@@ -30,7 +34,8 @@ class ProbDecoder(nn.Module):
         self.dense_layers = DenseModel(
             num_features,
             activation=activation,
-            last_activation='same'
+            last_activation='same',
+            drop_rate=drop_rate
         )
 
         # create conv layers

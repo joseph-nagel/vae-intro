@@ -16,6 +16,7 @@ class DenseBernoulliVAE(VAE):
                  num_features,
                  reshape,
                  activation='leaky_relu',
+                 drop_rate=None,
                  num_samples=1,
                  lr=1e-04):
 
@@ -23,6 +24,7 @@ class DenseBernoulliVAE(VAE):
         encoder = DenseEncoder(
             num_features,
             activation=activation,
+            drop_rate=drop_rate,
             flatten=True,
         )
 
@@ -30,6 +32,7 @@ class DenseBernoulliVAE(VAE):
         decoder = DenseDecoder(
             num_features[::-1],
             activation=activation,
+            drop_rate=drop_rate,
             reshape=reshape
         )
 
@@ -59,6 +62,7 @@ class ConvBernoulliVAE(VAE):
                  batchnorm=True,
                  activation='leaky_relu',
                  last_activation=None,
+                 drop_rate=None,
                  pool_last=True,
                  num_samples=1,
                  lr=1e-04):
@@ -71,6 +75,7 @@ class ConvBernoulliVAE(VAE):
             pooling=pooling,
             batchnorm=batchnorm,
             activation=activation,
+            drop_rate=drop_rate,
             pool_last=pool_last
         )
 
@@ -84,7 +89,8 @@ class ConvBernoulliVAE(VAE):
             upsample_mode=upsample_mode,
             batchnorm=batchnorm,
             activation=activation,
-            last_activation=last_activation
+            last_activation=last_activation,
+            drop_rate=drop_rate
         )
 
         # initialize VAE class

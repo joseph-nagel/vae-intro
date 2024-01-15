@@ -62,10 +62,22 @@ def make_block(layers):
     return block
 
 
+def make_dropout(drop_rate=None):
+    '''Create a dropout layer.'''
+
+    if drop_rate is None:
+        dropout = None
+    else:
+        dropout = nn.Dropout(p=drop_rate)
+
+    return dropout
+
+
 def make_dense(in_features,
                out_features,
                bias=True,
-               activation=None):
+               activation=None,
+               drop_rate=None):
     '''
     Create fully connected layer.
 
@@ -79,8 +91,13 @@ def make_dense(in_features,
         Determines whether a bias is used.
     activation : None or str
         Determines the nonlinearity.
+    drop_rate : float
+        Dropout probability.
 
     '''
+
+    # create dropout layer
+    dropout = make_dropout(drop_rate=drop_rate)
 
     # create dense layer
     linear = nn.Linear(in_features, out_features, bias=bias)
@@ -89,7 +106,7 @@ def make_dense(in_features,
     activation = make_activation(activation)
 
     # assemble block
-    layers = [linear, activation]
+    layers = [dropout, linear, activation]
     dense_block = make_block(layers)
 
     return dense_block

@@ -11,7 +11,8 @@ class DenseModel(nn.Sequential):
     def __init__(self,
                  num_features,
                  activation='leaky_relu',
-                 last_activation='same'):
+                 last_activation='same',
+                 drop_rate=None):
 
         # determine last activation
         if last_activation == 'same':
@@ -31,7 +32,8 @@ class DenseModel(nn.Sequential):
             dense = make_dense(
                 in_features,
                 out_features,
-                activation=activation if is_not_last else last_activation
+                activation=activation if is_not_last else last_activation,
+                drop_rate=drop_rate
             )
 
             layers.append(dense)
@@ -47,7 +49,8 @@ class MultiDense(nn.Module):
                  in_features,
                  out_features,
                  num_outputs,
-                 activation=None):
+                 activation=None,
+                 drop_rate=None):
 
         super().__init__()
 
@@ -57,7 +60,8 @@ class MultiDense(nn.Module):
             dense = make_dense(
                 in_features,
                 out_features,
-                activation=activation
+                activation=activation,
+                drop_rate=drop_rate
             )
 
             layers.append(dense)

@@ -26,6 +26,7 @@ from .data import (
 from .layers import (
     make_activation,
     make_block,
+    make_dropout,
     make_dense,
     make_conv,
     make_up,

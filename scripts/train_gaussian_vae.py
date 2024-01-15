@@ -39,6 +39,7 @@ def parse_args():
     parser.add_argument('--pooling', type=int, default=2, help='pooling parameter')
     parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='conv. upsampling mode')
     parser.add_argument('--activation', type=str, default='leaky_relu', help='nonlinearity type')
+    parser.add_argument('--drop-rate', type=float, required=False, help='dropout probability for dense layers')
 
     parser.add_argument('--batchnorm', dest='batchnorm', action='store_true', help='use batchnorm for conv. layers')
     parser.add_argument('--no-batchnorm', dest='batchnorm', action='store_false', help='do not use batchnorm for conv. layers')
@@ -107,6 +108,7 @@ def main(args):
         batchnorm=args.batchnorm,
         activation=args.activation,
         last_activation=None,
+        drop_rate=args.drop_rate,
         pool_last=args.pool_last,
         sigma=None,
         per_channel=args.per_channel,

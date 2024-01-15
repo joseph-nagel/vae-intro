@@ -22,6 +22,7 @@ model:
     batchnorm: true
     activation: "leaky_relu"
     last_activation: null
+    drop_rate: null
     pool_last: true
     num_samples: 1
     lr: 0.0001

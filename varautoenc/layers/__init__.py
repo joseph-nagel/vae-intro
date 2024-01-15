@@ -15,6 +15,7 @@ from .prob import ProbDense, ProbConv
 from .utils import (
     make_activation,
     make_block,
+    make_dropout,
     make_dense,
     make_conv,
     make_up
