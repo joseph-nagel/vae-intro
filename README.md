@@ -30,3 +30,5 @@ python scripts/main.py fit --config config/cifar10.yaml
 
 - [Bernoulli VAEs for MNIST](notebooks/binarized_mnist.ipynb)
 
+- [Gaussian VAE for CIFAR-10](notebooks/cifar10.ipynb)
+

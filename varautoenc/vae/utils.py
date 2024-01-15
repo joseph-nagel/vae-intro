@@ -15,6 +15,10 @@ def generate(vae, sample_shape, num_samples=1):
 
     # run decoder
     x_gen = vae.decode(z_samples)
+
+    if isinstance(x_gen, (tuple, list)):
+        x_gen = x_gen[0] # get first entry of a (mu, logsigma)-tuple
+
     x_gen = x_gen.cpu()
 
     return x_gen
@@ -29,6 +33,10 @@ def reconstruct(vae, x, sample_mode=False):
 
     # run encoder and decoder
     x_recon = vae(x.to(vae.device))
+
+    if isinstance(x_recon, (tuple, list)):
+        x_recon = x_recon[0] # get first entry of a (mu, logsigma)-tuple
+
     x_recon = x_recon.cpu()
 
     return x_recon
