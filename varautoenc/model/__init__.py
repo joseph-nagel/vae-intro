@@ -1,4 +1,13 @@
-'''Encoder and decoder models.'''
+'''
+Encoder and decoder models.
+
+Modules
+-------
+conv : Convolutional encoder/decoder.
+dense : Dense encoder/decoder.
+prob : Probabilistic decoder.
+
+'''
 
 from . import conv
 from . import dense

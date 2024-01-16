@@ -1,4 +1,14 @@
-'''Model layers.'''
+'''
+Model layers.
+
+Modules
+-------
+conv : Convolutional layers.
+dense : Dense layers.
+prob : Probabilistic layers.
+utils : Model layer utils.
+
+'''
 
 from . import conv
 from . import dense

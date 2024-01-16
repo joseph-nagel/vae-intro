@@ -1,4 +1,14 @@
-'''Variational autoencoder.'''
+'''
+Variational autoencoder.
+
+Modules
+-------
+base : Variational autoencoder.
+bernoulli : Bernoulli VAE.
+gauss : Gaussian VAE.
+utils : Utilities.
+
+'''
 
 from . import base
 from . import bernoulli

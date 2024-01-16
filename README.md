@@ -3,6 +3,7 @@
 This project provides an experimentation environment for VAE algorithms.
 They can be used for generative modeling and representation learning.
 The models are implemented in PyTorch and trained with Lightning.
+Application examples based on MNIST and CIFAR-10 are provided.
 
 ## Installation
 

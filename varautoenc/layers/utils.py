@@ -1,4 +1,4 @@
-'''Model utils.'''
+'''Model layer utils.'''
 
 from inspect import isfunction, isclass
 
