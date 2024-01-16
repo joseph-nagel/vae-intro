@@ -19,6 +19,7 @@ keywords = ["VAE", "generative model"]
 dependencies = [
     "numpy",
     "torch",
+    "torchvision",
     "lightning",
     "tensorboard",
     "mlflow"
