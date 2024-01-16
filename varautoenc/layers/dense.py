@@ -5,8 +5,8 @@ import torch.nn as nn
 from .utils import make_dense
 
 
-class DenseModel(nn.Sequential):
-    '''Fully connected model.'''
+class DenseBlock(nn.Sequential):
+    '''Multiple (serial) dense layers.'''
 
     def __init__(self,
                  num_features,
@@ -43,7 +43,7 @@ class DenseModel(nn.Sequential):
 
 
 class MultiDense(nn.Module):
-    '''Multiple dense layers.'''
+    '''Multiple (parallel) dense layers.'''
 
     def __init__(self,
                  in_features,

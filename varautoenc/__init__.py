@@ -38,10 +38,13 @@ from .layers import (
     make_dense,
     make_conv,
     make_up,
-    DenseModel,
+    DenseBlock,
     MultiDense,
     ProbDense,
     ProbConv,
+    SingleConv,
+    DoubleConv,
+    ConvBlock,
     ConvDown,
     ConvUp
 )

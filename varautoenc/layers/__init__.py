@@ -16,9 +16,15 @@ from . import prob
 from . import utils
 
 
-from .conv import ConvDown, ConvUp
+from .conv import (
+    SingleConv,
+    DoubleConv,
+    ConvBlock,
+    ConvDown,
+    ConvUp
+)
 
-from .dense import DenseModel, MultiDense
+from .dense import DenseBlock, MultiDense
 
 from .prob import ProbDense, ProbConv
 

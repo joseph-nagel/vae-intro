@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 from ..layers import (
-    DenseModel,
+    DenseBlock,
     MultiDense,
     ConvDown,
     ConvUp
@@ -48,7 +48,7 @@ class ConvEncoder(nn.Module):
             self.dense_layers = None
 
         else:
-            self.dense_layers = DenseModel(
+            self.dense_layers = DenseBlock(
                 num_features[:-1],
                 activation=activation,
                 last_activation='same',
@@ -102,7 +102,7 @@ class ConvDecoder(nn.Module):
         self.reshape = reshape
 
         # create dense layers
-        self.dense_layers = DenseModel(
+        self.dense_layers = DenseBlock(
             num_features,
             activation=activation,
             last_activation='same',

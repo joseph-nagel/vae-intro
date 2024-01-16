@@ -3,7 +3,7 @@
 import torch
 import torch.nn as nn
 
-from ..layers import DenseModel, MultiDense
+from ..layers import DenseBlock, MultiDense
 
 
 class DenseEncoder(nn.Module):
@@ -27,7 +27,7 @@ class DenseEncoder(nn.Module):
             self.dense_layers = None
 
         else:
-            self.dense_layers = DenseModel(
+            self.dense_layers = DenseBlock(
                 num_features[:-1],
                 activation=activation,
                 last_activation='same',
@@ -72,7 +72,7 @@ class DenseDecoder(nn.Module):
 
         self.reshape = reshape
 
-        self.dense_layers = DenseModel(
+        self.dense_layers = DenseBlock(
             num_features,
             activation=activation,
             last_activation=None,

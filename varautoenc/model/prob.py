@@ -3,7 +3,7 @@
 import torch.nn as nn
 
 from ..layers import (
-    DenseModel,
+    DenseBlock,
     ConvUp,
     ProbConv
 )
@@ -31,7 +31,7 @@ class ProbDecoder(nn.Module):
         self.reshape = reshape
 
         # create dense layers
-        self.dense_layers = DenseModel(
+        self.dense_layers = DenseBlock(
             num_features,
             activation=activation,
             last_activation='same',

@@ -2,7 +2,140 @@
 
 import torch.nn as nn
 
-from .utils import make_conv, make_up
+from .utils import (
+    make_activation,
+    make_conv,
+    make_up
+)
+
+
+class SingleConv(nn.Sequential):
+    '''Single conv. block.'''
+
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 kernel_size=3,
+                 stride=1,
+                 padding='same',
+                 bias=True,
+                 batchnorm=False,
+                 activation='leaky_relu'):
+
+        # create conv layer
+        conv = nn.Conv2d(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            bias=bias # the bias should be disabled if a batchnorm directly follows after the convolution
+        )
+
+        # create activation function
+        activation = make_activation(activation)
+
+        # create normalization
+        norm = nn.BatchNorm2d(out_channels) if batchnorm else None
+
+        # assemble block
+        layers = [conv, activation, norm] # note that the normalization follows the activation (which could be reversed of course)
+        layers = [l for l in layers if l is not None]
+
+        # initialize module
+        super().__init__(*layers)
+
+
+class DoubleConv(nn.Sequential):
+    '''Double conv. blocks.'''
+
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 kernel_size=3,
+                 padding='same',
+                 bias=True,
+                 batchnorm=False,
+                 activation='leaky_relu',
+                 last_activation='same',
+                 normalize_last=True):
+
+        # determine last activation
+        if last_activation == 'same':
+            last_activation = activation
+
+        # create first conv
+        conv_block1 = SingleConv(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=1,
+            padding=padding,
+            bias=bias,
+            batchnorm=batchnorm,
+            activation=activation
+        )
+
+        # create second conv
+        conv_block2 = SingleConv(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=1,
+            padding=padding,
+            bias=bias,
+            batchnorm=(batchnorm and normalize_last),
+            activation=last_activation
+        )
+
+        # initialize module
+        super().__init__(conv_block1, conv_block2)
+
+
+class ConvBlock(nn.Sequential):
+    '''Multiple (serial) conv. blocks.'''
+
+    def __init__(self,
+                 num_channels,
+                 kernel_size=3,
+                 padding='same',
+                 bias=True,
+                 batchnorm=False,
+                 activation='leaky_relu',
+                 last_activation='same',
+                 normalize_last=True):
+
+        # determine last activation
+        if last_activation == 'same':
+            last_activation = activation
+
+        # check number of layers
+        if len(num_channels) >= 2:
+            num_layers = len(num_channels) - 1
+        else:
+            raise ValueError('Number of channels needs at least two entries')
+
+        # assemble layers
+        layers = []
+        for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
+            is_not_last = (idx < num_layers - 1)
+
+            # create conv layer
+            conv_block = make_conv(
+                in_channels,
+                out_channels,
+                kernel_size=kernel_size,
+                stride=1,
+                padding=padding,
+                bias=bias,
+                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
+                activation=activation if is_not_last else last_activation
+            )
+
+            layers.append(conv_block)
+
+        # initialize module
+        super().__init__(*layers)
 
 
 class ConvDown(nn.Sequential):
