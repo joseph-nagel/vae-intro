@@ -148,7 +148,7 @@ def main(args):
     )
 
     save_every_ckpt = ModelCheckpoint(
-        filename='{epoch}_{val_loss:.4f}',
+        filename='{epoch}_{val_loss:.2f}',
         save_top_k=-1,
         every_n_epochs=args.save_every,
         save_last=True
