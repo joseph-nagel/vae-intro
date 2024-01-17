@@ -22,7 +22,8 @@ class ConvEncoder(nn.Module):
                  batchnorm=True,
                  activation='leaky_relu',
                  drop_rate=None,
-                 pool_last=True):
+                 pool_last=True,
+                 double_conv=False):
 
         super().__init__()
 
@@ -37,7 +38,8 @@ class ConvEncoder(nn.Module):
             activation=activation,
             last_activation='same',
             normalize_last=True,
-            pool_last=pool_last
+            pool_last=pool_last,
+            double_conv=double_conv
         )
 
         # create dense layers
@@ -95,7 +97,8 @@ class ConvDecoder(nn.Module):
                  batchnorm=False,
                  activation='leaky_relu',
                  last_activation=None,
-                 drop_rate=None):
+                 drop_rate=None,
+                 double_conv=False):
 
         super().__init__()
 
@@ -120,7 +123,8 @@ class ConvDecoder(nn.Module):
             activation=activation,
             last_activation=last_activation,
             normalize_last=False,
-            conv_last=True
+            conv_last=True,
+            double_conv=double_conv
         )
 
     def forward(self, x):

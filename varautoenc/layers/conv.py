@@ -2,11 +2,7 @@
 
 import torch.nn as nn
 
-from .utils import (
-    make_activation,
-    make_conv,
-    make_up
-)
+from .utils import make_activation, make_up
 
 
 class SingleConv(nn.Sequential):
@@ -53,6 +49,7 @@ class DoubleConv(nn.Sequential):
                  in_channels,
                  out_channels,
                  kernel_size=3,
+                 stride=1,
                  padding='same',
                  bias=True,
                  batchnorm=False,
@@ -69,7 +66,7 @@ class DoubleConv(nn.Sequential):
             in_channels,
             out_channels,
             kernel_size=kernel_size,
-            stride=1,
+            stride=stride,
             padding=padding,
             bias=bias,
             batchnorm=batchnorm,
@@ -78,7 +75,7 @@ class DoubleConv(nn.Sequential):
 
         # create second conv
         conv_block2 = SingleConv(
-            in_channels,
+            out_channels,
             out_channels,
             kernel_size=kernel_size,
             stride=1,
@@ -98,6 +95,7 @@ class ConvBlock(nn.Sequential):
     def __init__(self,
                  num_channels,
                  kernel_size=3,
+                 stride=1,
                  padding='same',
                  bias=True,
                  batchnorm=False,
@@ -121,11 +119,11 @@ class ConvBlock(nn.Sequential):
             is_not_last = (idx < num_layers - 1)
 
             # create conv layer
-            conv_block = make_conv(
+            conv_block = SingleConv(
                 in_channels,
                 out_channels,
                 kernel_size=kernel_size,
-                stride=1,
+                stride=stride,
                 padding=padding,
                 bias=bias,
                 batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
@@ -151,7 +149,11 @@ class ConvDown(nn.Sequential):
                  activation='leaky_relu',
                  last_activation='same',
                  normalize_last=True,
-                 pool_last=True):
+                 pool_last=True,
+                 double_conv=False):
+
+        # determine conv type
+        ConvType = DoubleConv if double_conv else SingleConv
 
         # determine last activation
         if last_activation == 'same':
@@ -169,7 +171,7 @@ class ConvDown(nn.Sequential):
             is_not_last = (idx < num_layers - 1)
 
             # create conv layer
-            conv = make_conv(
+            conv = ConvType(
                 in_channels,
                 out_channels,
                 kernel_size=kernel_size,
@@ -205,7 +207,11 @@ class ConvUp(nn.Sequential):
                  activation='leaky_relu',
                  last_activation='same',
                  normalize_last=True,
-                 conv_last=True):
+                 conv_last=True,
+                 double_conv=False):
+
+        # determine conv type
+        ConvType = DoubleConv if double_conv else SingleConv
 
         # determine last activation
         if last_activation == 'same':
@@ -235,7 +241,7 @@ class ConvUp(nn.Sequential):
 
             # create conv layer
             if is_not_last or conv_last:
-                conv = make_conv(
+                conv = ConvType(
                     in_channels,
                     out_channels,
                     kernel_size=kernel_size,

@@ -19,6 +19,7 @@ class ConvGaussianVAE(VAE):
                  last_activation=None,
                  drop_rate=None,
                  pool_last=True,
+                 double_conv=False,
                  sigma=None,
                  per_channel=False,
                  num_samples=1,
@@ -33,7 +34,8 @@ class ConvGaussianVAE(VAE):
             batchnorm=batchnorm,
             activation=activation,
             drop_rate=drop_rate,
-            pool_last=pool_last
+            pool_last=pool_last,
+            double_conv=double_conv
         )
 
         # create decoder (predicts Gaussian mu and logsigma)
@@ -48,6 +50,7 @@ class ConvGaussianVAE(VAE):
             activation=activation,
             last_activation=last_activation,
             drop_rate=drop_rate,
+            double_conv=double_conv,
             sigma=sigma,
             per_channel=per_channel
         )

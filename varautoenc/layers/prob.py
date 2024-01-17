@@ -3,7 +3,8 @@
 import torch
 import torch.nn as nn
 
-from .utils import make_dense, make_conv
+from .utils import make_dense
+from .conv import SingleConv, DoubleConv
 
 
 class ProbDense(nn.Module):
@@ -48,14 +49,18 @@ class ProbConv(nn.Module):
                  in_channels,
                  out_channels,
                  kernel_size=3,
+                 double_conv=False,
                  sigma=None,
                  per_channel=False,
                  **kwargs):
 
         super().__init__()
 
+        # determine conv type
+        ConvType = DoubleConv if double_conv else SingleConv
+
         # create conv layer predicting mu
-        self.mu = make_conv(
+        self.mu = ConvType(
             in_channels,
             out_channels,
             kernel_size=kernel_size,

@@ -23,6 +23,7 @@ class ProbDecoder(nn.Module):
                  activation='leaky_relu',
                  last_activation=None,
                  drop_rate=None,
+                 double_conv=False,
                  sigma=None,
                  per_channel=False):
 
@@ -56,8 +57,11 @@ class ProbDecoder(nn.Module):
                 activation=activation,
                 last_activation='same',
                 normalize_last=True,
-                conv_last=False # note that the last conv. is replaced by the mu/logsigma-layer below
+                conv_last=False, # note that the last conv. is replaced by the mu/logsigma-layer below,
+                double_conv=double_conv
             )
+
+        print(num_channels)
 
         # create mu and logsigma
         self.mu_logsigma = ProbConv(

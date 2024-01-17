@@ -45,9 +45,13 @@ def parse_args():
     parser.add_argument('--no-batchnorm', dest='batchnorm', action='store_false', help='do not use batchnorm for conv. layers')
     parser.set_defaults(batchnorm=True)
 
-    parser.add_argument('--pool-last', dest='pool-last', action='store_true', help='pool after last conv.')
-    parser.add_argument('--no-pool-last', dest='pool-last', action='store_false', help='do not pool after last conv.')
+    parser.add_argument('--pool-last', dest='pool_last', action='store_true', help='pool after last conv.')
+    parser.add_argument('--no-pool-last', dest='pool_last', action='store_false', help='do not pool after last conv.')
     parser.set_defaults(pool_last=True)
+
+    parser.add_argument('--double-conv', dest='double_conv', action='store_true', help='use double conv. blocks')
+    parser.add_argument('--single-conv', dest='double_conv', action='store_false', help='use single convolutions')
+    parser.set_defaults(double_conv=False)
 
     parser.add_argument('--per-channel', dest='per_channel', action='store_true', help='use channel-specific sigmas')
     parser.add_argument('--same-sigma', dest='per_channel', action='store_false', help='use same sigma for all channels')
@@ -110,6 +114,7 @@ def main(args):
         last_activation=None,
         drop_rate=args.drop_rate,
         pool_last=args.pool_last,
+        double_conv=args.double_conv,
         sigma=None,
         per_channel=args.per_channel,
         num_samples=args.num_samples,

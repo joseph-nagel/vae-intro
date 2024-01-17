@@ -64,6 +64,7 @@ class ConvBernoulliVAE(VAE):
                  last_activation=None,
                  drop_rate=None,
                  pool_last=True,
+                 double_conv=False,
                  num_samples=1,
                  lr=1e-04):
 
@@ -76,7 +77,8 @@ class ConvBernoulliVAE(VAE):
             batchnorm=batchnorm,
             activation=activation,
             drop_rate=drop_rate,
-            pool_last=pool_last
+            pool_last=pool_last,
+            double_conv=double_conv
         )
 
         # create decoder (predicts Bernoulli logits)
@@ -90,7 +92,8 @@ class ConvBernoulliVAE(VAE):
             batchnorm=batchnorm,
             activation=activation,
             last_activation=last_activation,
-            drop_rate=drop_rate
+            drop_rate=drop_rate,
+            double_conv=double_conv
         )
 
         # initialize VAE class

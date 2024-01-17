@@ -13,7 +13,7 @@ model:
   class_path: "varautoenc.ConvGaussianVAE"
   init_args:
     num_channels: [3, 16, 32]
-    num_features: [2048, 256, 32]
+    num_features: [2048, 256, 64]
     reshape: [32, 8, 8]
     kernel_size: 3
     pooling: 2
@@ -23,10 +23,11 @@ model:
     last_activation: null
     drop_rate: null
     pool_last: true
+    double_conv: true
     sigma: null
     per_channel: false
     num_samples: 1
-    lr: 0.0001
+    lr: 0.001
 
 trainer:
   accelerator: "cpu"
