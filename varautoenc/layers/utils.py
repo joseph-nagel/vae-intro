@@ -76,6 +76,7 @@ def make_dropout(drop_rate=None):
 def make_dense(in_features,
                out_features,
                bias=True,
+               batchnorm=False,
                activation=None,
                drop_rate=None):
     '''
@@ -89,8 +90,10 @@ def make_dense(in_features,
         Number of outputs.
     bias : bool
         Determines whether a bias is used.
+    batchnorm : bool
+        Determines whether batchnorm is used.
     activation : None or str
-        Determines the nonlinearity.
+        Nonlinearity type.
     drop_rate : float
         Dropout probability.
 
@@ -100,13 +103,20 @@ def make_dense(in_features,
     dropout = make_dropout(drop_rate=drop_rate)
 
     # create dense layer
-    linear = nn.Linear(in_features, out_features, bias=bias)
+    linear = nn.Linear(
+        in_features,
+        out_features,
+        bias=bias # the bias should be disabled if a batchnorm directly follows after the convolution
+    )
 
     # create activation function
     activation = make_activation(activation)
 
+    # create normalization
+    norm = nn.BatchNorm1d(out_features) if batchnorm else None
+
     # assemble block
-    layers = [dropout, linear, activation]
+    layers = [dropout, linear, activation, norm] # note that the normalization follows the activation (which could be reversed of course)
     dense_block = make_block(layers)
 
     return dense_block
@@ -137,10 +147,10 @@ def make_conv(in_channels,
         Padding parameter.
     bias : bool
         Determines whether a bias is used.
-    batchnorm : None or str
+    batchnorm : bool
         Determines whether batchnorm is used.
     activation : None or str
-        Determines the nonlinearity.
+        Nonlinearity type.
 
     '''
 

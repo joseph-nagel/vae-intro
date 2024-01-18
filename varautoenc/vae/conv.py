@@ -23,7 +23,7 @@ class ConvVAE(VAE):
     upsample_mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
         Conv. upsampling mode.
     batchnorm : bool
-        Controls batchnorm for conv. layers.
+        Determines whether batchnorm is used.
     activation : str
         Nonlinearity type.
     last_activation : str

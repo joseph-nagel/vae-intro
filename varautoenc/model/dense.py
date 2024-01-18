@@ -16,6 +16,7 @@ class DenseEncoder(nn.Module):
 
     def __init__(self,
                  num_features,
+                 batchnorm=False,
                  activation='leaky_relu',
                  drop_rate=None,
                  flatten=True):
@@ -34,6 +35,7 @@ class DenseEncoder(nn.Module):
         else:
             self.dense_layers = DenseBlock(
                 num_features[:-1],
+                batchnorm=batchnorm,
                 activation=activation,
                 last_activation='same',
                 drop_rate=drop_rate
@@ -44,6 +46,7 @@ class DenseEncoder(nn.Module):
             num_features[-2],
             num_features[-1],
             num_outputs=2,
+            batchnorm=False,
             activation=None,
             drop_rate=drop_rate
         )
@@ -69,6 +72,7 @@ class DenseDecoder(nn.Module):
 
     def __init__(self,
                  num_features,
+                 batchnorm=False,
                  activation='leaky_relu',
                  drop_rate=None,
                  reshape=None,
@@ -96,6 +100,7 @@ class DenseDecoder(nn.Module):
         else:
             self.dense_layers = DenseBlock(
                 num_features[:-1], # the last layer is replaced by the prob. layer below
+                batchnorm=batchnorm,
                 activation=activation,
                 last_activation=None,
                 drop_rate=drop_rate
@@ -106,6 +111,7 @@ class DenseDecoder(nn.Module):
             self.bernoulli_logits = make_dense(
                 num_features[-2],
                 num_features[-1],
+                batchnorm=False,
                 activation=None,
                 drop_rate=drop_rate
             )

@@ -19,7 +19,7 @@ model:
     pooling: 2
     upsample_mode: "conv_transpose"
     batchnorm: true
-    activation: "leaky_relu"
+    activation: "elu"
     last_activation: null
     drop_rate: null
     pool_last: true

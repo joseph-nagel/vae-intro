@@ -13,14 +13,14 @@ data:
 model:
   class_path: "varautoenc.ConvVAE"
   init_args:
-    num_channels: [1, 16, 24]
-    num_features: [1176, 256, 64]
-    reshape: [24, 7, 7]
+    num_channels: [1, 16, 32]
+    num_features: [1568, 512, 128]
+    reshape: [32, 7, 7]
     kernel_size: 3
     pooling: 2
     upsample_mode: "conv_transpose"
     batchnorm: true
-    activation: "leaky_relu"
+    activation: "elu"
     last_activation: null
     drop_rate: null
     pool_last: true

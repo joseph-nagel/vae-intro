@@ -55,6 +55,7 @@ class ConvEncoder(nn.Module):
         else:
             self.dense_layers = DenseBlock(
                 num_features[:-1], # the last layer is replaced by the prob. layer below
+                batchnorm=batchnorm,
                 activation=activation,
                 last_activation='same',
                 drop_rate=drop_rate
@@ -65,6 +66,7 @@ class ConvEncoder(nn.Module):
             num_features[-2],
             num_features[-1],
             num_outputs=2,
+            batchnorm=False,
             activation=None,
             drop_rate=drop_rate
         )
@@ -119,6 +121,7 @@ class ConvDecoder(nn.Module):
         # create dense layers
         self.dense_layers = DenseBlock(
             num_features,
+            batchnorm=batchnorm,
             activation=activation,
             last_activation='same',
             drop_rate=drop_rate

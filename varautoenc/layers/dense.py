@@ -10,6 +10,7 @@ class DenseBlock(nn.Sequential):
 
     def __init__(self,
                  num_features,
+                 batchnorm=False,
                  activation='leaky_relu',
                  last_activation='same',
                  drop_rate=None):
@@ -32,6 +33,7 @@ class DenseBlock(nn.Sequential):
             dense = make_dense(
                 in_features,
                 out_features,
+                batchnorm=batchnorm,
                 activation=activation if is_not_last else last_activation,
                 drop_rate=drop_rate
             )
@@ -49,6 +51,7 @@ class MultiDense(nn.Module):
                  in_features,
                  out_features,
                  num_outputs,
+                 batchnorm=False,
                  activation=None,
                  drop_rate=None):
 
@@ -60,6 +63,7 @@ class MultiDense(nn.Module):
             dense = make_dense(
                 in_features,
                 out_features,
+                batchnorm=batchnorm,
                 activation=activation,
                 drop_rate=drop_rate
             )

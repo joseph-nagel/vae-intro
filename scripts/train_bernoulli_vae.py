@@ -115,6 +115,7 @@ def main(args):
         vae = DenseVAE(
             num_features=args.num_features,
             reshape=args.reshape,
+            batchnorm=args.batchnorm,
             activation=args.activation,
             drop_rate=args.drop_rate,
             num_samples=args.num_samples,
