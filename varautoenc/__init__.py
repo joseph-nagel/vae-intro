@@ -53,8 +53,7 @@ from .model import (
     DenseEncoder,
     DenseDecoder,
     ConvEncoder,
-    ConvDecoder,
-    ProbDecoder
+    ConvDecoder
 )
 
 from .vae import (
@@ -62,8 +61,7 @@ from .vae import (
     reconstruct,
     encode_loader,
     VAE,
-    DenseBernoulliVAE,
-    ConvBernoulliVAE,
-    ConvGaussianVAE
+    DenseVAE,
+    ConvVAE
 )
 

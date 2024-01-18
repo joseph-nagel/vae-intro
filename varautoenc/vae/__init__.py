@@ -4,23 +4,23 @@ Variational autoencoder.
 Modules
 -------
 base : Variational autoencoder.
-bernoulli : Bernoulli VAE.
-gauss : Gaussian VAE.
+conv : Convolutional VAE.
+dense : Dense VAE
 utils : Utilities.
 
 '''
 
 from . import base
-from . import bernoulli
-from . import gauss
+from . import conv
+from . import dense
 from . import utils
 
 
 from .base import VAE
 
-from .bernoulli import DenseBernoulliVAE, ConvBernoulliVAE
+from .conv import ConvVAE
 
-from .gauss import ConvGaussianVAE
+from .dense import DenseVAE
 
 from .utils import (
     generate,

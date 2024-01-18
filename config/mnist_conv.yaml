@@ -11,10 +11,10 @@ data:
     num_workers: 0
 
 model:
-  class_path: "varautoenc.ConvBernoulliVAE"
+  class_path: "varautoenc.ConvVAE"
   init_args:
     num_channels: [1, 16, 24]
-    num_features: [1176, 256, 32]
+    num_features: [1176, 256, 64]
     reshape: [24, 7, 7]
     kernel_size: 3
     pooling: 2
@@ -24,8 +24,11 @@ model:
     last_activation: null
     drop_rate: null
     pool_last: true
-    double_conv: false
+    double_conv: true
     num_samples: 1
+    likelihood_type: "Bernoulli"
+    sigma: null
+    per_channel: false
     lr: 0.001
 
 trainer:

@@ -12,7 +12,7 @@ from lightning.pytorch.callbacks import (
     StochasticWeightAveraging
 )
 
-from varautoenc import CIFAR10DataModule, ConvGaussianVAE
+from varautoenc import CIFAR10DataModule, ConvVAE
 
 
 def parse_args():
@@ -51,7 +51,7 @@ def parse_args():
 
     parser.add_argument('--double-conv', dest='double_conv', action='store_true', help='use double conv. blocks')
     parser.add_argument('--single-conv', dest='double_conv', action='store_false', help='use single convolutions')
-    parser.set_defaults(double_conv=False)
+    parser.set_defaults(double_conv=True)
 
     parser.add_argument('--per-channel', dest='per_channel', action='store_true', help='use channel-specific sigmas')
     parser.add_argument('--same-sigma', dest='per_channel', action='store_false', help='use same sigma for all channels')
@@ -102,7 +102,7 @@ def main(args):
     )
 
     # initialize model
-    vae = ConvGaussianVAE(
+    vae = ConvVAE(
         num_channels=args.num_channels,
         num_features=args.num_features,
         reshape=args.reshape,
@@ -115,9 +115,10 @@ def main(args):
         drop_rate=args.drop_rate,
         pool_last=args.pool_last,
         double_conv=args.double_conv,
+        num_samples=args.num_samples,
+        likelihood_type='Gaussian',
         sigma=None,
         per_channel=args.per_channel,
-        num_samples=args.num_samples,
         lr=args.lr
     )
 

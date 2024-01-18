@@ -6,8 +6,11 @@ import torch.nn as nn
 from ..layers import (
     DenseBlock,
     MultiDense,
+    SingleConv,
+    DoubleConv,
     ConvDown,
-    ConvUp
+    ConvUp,
+    ProbConv
 )
 
 
@@ -23,7 +26,7 @@ class ConvEncoder(nn.Module):
                  activation='leaky_relu',
                  drop_rate=None,
                  pool_last=True,
-                 double_conv=False):
+                 double_conv=True):
 
         super().__init__()
 
@@ -51,14 +54,14 @@ class ConvEncoder(nn.Module):
 
         else:
             self.dense_layers = DenseBlock(
-                num_features[:-1],
+                num_features[:-1], # the last layer is replaced by the prob. layer below
                 activation=activation,
                 last_activation='same',
                 drop_rate=drop_rate
             )
 
-        # create mu and logsigma
-        self.mu_logsigma = MultiDense(
+        # create Gaussian param layers
+        self.gaussian_params = MultiDense(
             num_features[-2],
             num_features[-1],
             num_outputs=2,
@@ -78,8 +81,8 @@ class ConvEncoder(nn.Module):
         if self.dense_layers is not None:
             x = self.dense_layers(x)
 
-        # predict mu and logsigma
-        mu, logsigma = self.mu_logsigma(x)
+        # predict Gaussian params
+        mu, logsigma = self.gaussian_params(x)
 
         return mu, logsigma
 
@@ -98,11 +101,20 @@ class ConvDecoder(nn.Module):
                  activation='leaky_relu',
                  last_activation=None,
                  drop_rate=None,
-                 double_conv=False):
+                 double_conv=True,
+                 likelihood_type='Bernoulli',
+                 sigma=None,
+                 per_channel=False):
 
         super().__init__()
 
         self.reshape = reshape
+
+        # set likelihood type
+        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian'):
+            self.likelihood_type = likelihood_type
+        else:
+            raise ValueError(f'Unknown likelihood type: {likelihood_type}')
 
         # create dense layers
         self.dense_layers = DenseBlock(
@@ -113,19 +125,66 @@ class ConvDecoder(nn.Module):
         )
 
         # create conv layers
-        self.conv_layers = ConvUp(
-            num_channels,
-            kernel_size=kernel_size,
-            padding='same',
-            scaling=scaling,
-            upsample_mode=upsample_mode,
-            batchnorm=batchnorm,
-            activation=activation,
-            last_activation=last_activation,
-            normalize_last=False,
-            conv_last=True,
-            double_conv=double_conv
-        )
+        if len(num_channels) < 2:
+            raise ValueError('Number of channels needs at least two entries')
+
+        else:
+            self.conv_layers = ConvUp(
+                num_channels, # the last channel is passed for upscaling purposes
+                kernel_size=kernel_size,
+                padding='same',
+                scaling=scaling,
+                upsample_mode=upsample_mode,
+                batchnorm=batchnorm,
+                activation=activation,
+                last_activation='same',
+                normalize_last=True,
+                conv_last=False, # the last layer is replaced by the prob. layer below
+                double_conv=double_conv
+            )
+
+        # create last layer options
+        kwargs = {
+            'kernel_size': kernel_size,
+            'stride': 1,
+            'padding': 'same'
+        }
+
+        if double_conv:
+            kwargs = {
+                **kwargs,
+                'batchnorm': batchnorm,
+                'activation': activation,
+                'last_activation': last_activation,
+                'normalize_last': False
+            }
+        else:
+            kwargs = {
+                **kwargs,
+                'batchnorm': False,
+                'activation': last_activation,
+            }
+
+        # create Bernoulli logits
+        if self.likelihood_type == 'Bernoulli':
+            ConvType = DoubleConv if double_conv else SingleConv
+
+            self.bernoulli_logits = ConvType(
+                num_channels[-2],
+                num_channels[-1],
+                **kwargs
+            )
+
+        # create Gaussian params
+        else:
+            self.gaussian_params = ProbConv(
+                num_channels[-2],
+                num_channels[-1],
+                double_conv=double_conv,
+                sigma=sigma,
+                per_channel=per_channel,
+                **kwargs
+            )
 
     def forward(self, x):
 
@@ -138,5 +197,13 @@ class ConvDecoder(nn.Module):
         # run conv layers
         x = self.conv_layers(x)
 
-        return x
+        # predict Bernoulli logits
+        if self.likelihood_type == 'Bernoulli':
+            logits = self.bernoulli_logits(x)
+            return logits
+
+        # predict Gaussian params
+        else:
+            mu, logsigma = self.gaussian_params(x)
+            return mu, logsigma
 

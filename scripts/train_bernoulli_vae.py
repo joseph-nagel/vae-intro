@@ -14,8 +14,8 @@ from lightning.pytorch.callbacks import (
 
 from varautoenc import (
     MNISTDataModule,
-    DenseBernoulliVAE,
-    ConvBernoulliVAE
+    DenseVAE,
+    ConvVAE
 )
 
 
@@ -55,7 +55,11 @@ def parse_args():
 
     parser.add_argument('--double-conv', dest='double_conv', action='store_true', help='use double conv. blocks')
     parser.add_argument('--single-conv', dest='double_conv', action='store_false', help='use single convolutions')
-    parser.set_defaults(double_conv=False)
+    parser.set_defaults(double_conv=True)
+
+    parser.add_argument('--per-variable', dest='per_variable', action='store_true', help='use variable-specific sigmas')
+    parser.add_argument('--same-sigma', dest='per_variable', action='store_false', help='use same sigma for all variable')
+    parser.set_defaults(per_variable=False)
 
     parser.add_argument('--num-samples', type=int, default=1, help='number of MC samples')
 
@@ -108,16 +112,19 @@ def main(args):
 
     # initialize model
     if args.num_channels is None:
-        vae = DenseBernoulliVAE(
+        vae = DenseVAE(
             num_features=args.num_features,
             reshape=args.reshape,
             activation=args.activation,
             drop_rate=args.drop_rate,
             num_samples=args.num_samples,
+            likelihood_type='Bernoulli',
+            sigma=None,
+            per_feature=args.per_variable,
             lr=args.lr
         )
     else:
-        vae = ConvBernoulliVAE(
+        vae = ConvVAE(
             num_channels=args.num_channels,
             num_features=args.num_features,
             reshape=args.reshape,
@@ -131,6 +138,9 @@ def main(args):
             pool_last=args.pool_last,
             double_conv=args.double_conv,
             num_samples=args.num_samples,
+            likelihood_type='Bernoulli',
+            sigma=None,
+            per_channel=args.per_variable,
             lr=args.lr
         )
 

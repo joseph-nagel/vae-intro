@@ -48,7 +48,6 @@ class ProbConv(nn.Module):
     def __init__(self,
                  in_channels,
                  out_channels,
-                 kernel_size=3,
                  double_conv=False,
                  sigma=None,
                  per_channel=False,
@@ -63,7 +62,6 @@ class ProbConv(nn.Module):
         self.mu = ConvType(
             in_channels,
             out_channels,
-            kernel_size=kernel_size,
             **kwargs
         )
 
