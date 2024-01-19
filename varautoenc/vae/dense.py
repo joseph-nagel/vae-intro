@@ -36,7 +36,7 @@ class DenseVAE(VAE):
     def __init__(self,
                  num_features,
                  reshape=None,
-                 batchnorm=True,
+                 batchnorm=False,
                  activation='leaky_relu',
                  drop_rate=None,
                  num_samples=1,

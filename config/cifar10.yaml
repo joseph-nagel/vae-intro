@@ -19,7 +19,7 @@ model:
     pooling: 2
     upsample_mode: "conv_transpose"
     batchnorm: true
-    activation: "elu"
+    activation: "leaky_relu"
     last_activation: null
     drop_rate: null
     pool_last: true
@@ -49,8 +49,8 @@ trainer:
         save_top_k: 1
     - class_path: "lightning.pytorch.callbacks.ModelCheckpoint"
       init_args:
-        filename: "{epoch}_{val_loss:.2f}"
+        filename: "{epoch}"
         save_top_k: -1
-        every_n_epochs: 1
+        every_n_epochs: 2
         save_last: true
 

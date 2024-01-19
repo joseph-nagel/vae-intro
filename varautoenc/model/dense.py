@@ -123,6 +123,7 @@ class DenseDecoder(nn.Module):
                 num_features[-1],
                 sigma=sigma,
                 per_feature=per_feature,
+                batchnorm=False,
                 activation=None,
                 drop_rate=drop_rate
             )

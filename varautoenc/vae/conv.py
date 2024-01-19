@@ -31,7 +31,7 @@ class ConvVAE(VAE):
     drop_rate : float
         Dropout probability for dense layers.
     pool_last : bool
-        Controls the last pooling operation.
+        Controls the last pooling operation (also first upscaling).
     double_conv : bool
         Determines whether double conv. blocks are used.
     num_samples : int
@@ -91,6 +91,7 @@ class ConvVAE(VAE):
             activation=activation,
             last_activation=last_activation,
             drop_rate=drop_rate,
+            up_first=pool_last,
             double_conv=double_conv,
             likelihood_type=likelihood_type,
             sigma=sigma,

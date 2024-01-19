@@ -103,6 +103,7 @@ class ConvDecoder(nn.Module):
                  activation='leaky_relu',
                  last_activation=None,
                  drop_rate=None,
+                 up_first=True,
                  double_conv=True,
                  likelihood_type='Bernoulli',
                  sigma=None,
@@ -143,6 +144,7 @@ class ConvDecoder(nn.Module):
                 last_activation='same',
                 normalize_last=True,
                 conv_last=False, # the last layer is replaced by the prob. layer below
+                up_first=up_first,
                 double_conv=double_conv
             )
 

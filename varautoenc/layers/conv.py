@@ -208,6 +208,7 @@ class ConvUp(nn.Sequential):
                  last_activation='same',
                  normalize_last=True,
                  conv_last=True,
+                 up_first=True,
                  double_conv=False):
 
         # determine conv type
@@ -226,18 +227,20 @@ class ConvUp(nn.Sequential):
         # assemble layers
         layers = []
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
+            is_not_first = (idx > 0)
             is_not_last = (idx < num_layers - 1)
 
             # create upsampling layer
-            up = make_up(
-                scaling,
-                mode=upsample_mode,
-                in_channels=in_channels,
-                out_channels=in_channels,
-                kernel_size=kernel_size
-            )
+            if is_not_first or up_first:
+                up = make_up(
+                    scaling,
+                    mode=upsample_mode,
+                    in_channels=in_channels,
+                    out_channels=in_channels,
+                    kernel_size=kernel_size
+                )
 
-            layers.append(up)
+                layers.append(up)
 
             # create conv layer
             if is_not_last or conv_last:
