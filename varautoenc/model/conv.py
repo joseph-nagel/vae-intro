@@ -26,7 +26,8 @@ class ConvEncoder(nn.Module):
                  activation='leaky_relu',
                  drop_rate=None,
                  pool_last=True,
-                 double_conv=True):
+                 double_conv=True,
+                 inout_first=True):
 
         super().__init__()
 
@@ -42,7 +43,8 @@ class ConvEncoder(nn.Module):
             last_activation='same',
             normalize_last=True,
             pool_last=pool_last,
-            double_conv=double_conv
+            double_conv=double_conv,
+            inout_first=inout_first
         )
 
         # create dense layers
@@ -105,6 +107,7 @@ class ConvDecoder(nn.Module):
                  drop_rate=None,
                  up_first=True,
                  double_conv=True,
+                 inout_first=True,
                  likelihood_type='Bernoulli',
                  sigma=None,
                  per_channel=False):
@@ -145,7 +148,8 @@ class ConvDecoder(nn.Module):
                 normalize_last=True,
                 conv_last=False, # the last layer is replaced by the prob. layer below
                 up_first=up_first,
-                double_conv=double_conv
+                double_conv=double_conv,
+                inout_first=inout_first
             )
 
         # create last layer options
@@ -161,7 +165,8 @@ class ConvDecoder(nn.Module):
                 'batchnorm': batchnorm,
                 'activation': activation,
                 'last_activation': last_activation,
-                'normalize_last': False
+                'normalize_last': False,
+                'inout_first': inout_first
             }
         else:
             kwargs = {

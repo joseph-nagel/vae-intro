@@ -55,7 +55,8 @@ class DoubleConv(nn.Sequential):
                  batchnorm=False,
                  activation='leaky_relu',
                  last_activation='same',
-                 normalize_last=True):
+                 normalize_last=True,
+                 inout_first=True):
 
         # determine last activation
         if last_activation == 'same':
@@ -64,7 +65,7 @@ class DoubleConv(nn.Sequential):
         # create first conv
         conv_block1 = SingleConv(
             in_channels,
-            out_channels,
+            out_channels if inout_first else in_channels,
             kernel_size=kernel_size,
             stride=stride,
             padding=padding,
@@ -75,7 +76,7 @@ class DoubleConv(nn.Sequential):
 
         # create second conv
         conv_block2 = SingleConv(
-            out_channels,
+            out_channels if inout_first else in_channels,
             out_channels,
             kernel_size=kernel_size,
             stride=1,
@@ -150,10 +151,14 @@ class ConvDown(nn.Sequential):
                  last_activation='same',
                  normalize_last=True,
                  pool_last=True,
-                 double_conv=False):
+                 double_conv=False,
+                 inout_first=True):
 
         # determine conv type
         ConvType = DoubleConv if double_conv else SingleConv
+
+        # create specific options
+        kwargs = {'inout_first': inout_first} if double_conv else {}
 
         # determine last activation
         if last_activation == 'same':
@@ -178,7 +183,8 @@ class ConvDown(nn.Sequential):
                 stride=stride,
                 padding=padding,
                 batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
-                activation=activation if is_not_last else last_activation
+                activation=activation if is_not_last else last_activation,
+                **kwargs
             )
 
             layers.append(conv)
@@ -209,10 +215,14 @@ class ConvUp(nn.Sequential):
                  normalize_last=True,
                  conv_last=True,
                  up_first=True,
-                 double_conv=False):
+                 double_conv=False,
+                 inout_first=True):
 
         # determine conv type
         ConvType = DoubleConv if double_conv else SingleConv
+
+        # create specific options
+        kwargs = {'inout_first': inout_first} if double_conv else {}
 
         # determine last activation
         if last_activation == 'same':
@@ -251,7 +261,8 @@ class ConvUp(nn.Sequential):
                     stride=1,
                     padding=padding,
                     batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
-                    activation=activation if is_not_last else last_activation
+                    activation=activation if is_not_last else last_activation,
+                    **kwargs
                 )
 
                 layers.append(conv)

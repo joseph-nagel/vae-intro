@@ -76,7 +76,8 @@ class ConvVAE(VAE):
             activation=activation,
             drop_rate=drop_rate,
             pool_last=pool_last,
-            double_conv=double_conv
+            double_conv=double_conv,
+            inout_first=True
         )
 
         # create decoder (predicts Bernoulli logits or Gaussian params)
@@ -93,6 +94,7 @@ class ConvVAE(VAE):
             drop_rate=drop_rate,
             up_first=pool_last,
             double_conv=double_conv,
+            inout_first=True,
             likelihood_type=likelihood_type,
             sigma=sigma,
             per_channel=per_channel
