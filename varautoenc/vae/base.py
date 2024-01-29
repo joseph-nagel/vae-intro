@@ -182,7 +182,6 @@ class VAE(LightningModule):
                 warn('Bernoulli logits are ignored for the Gaussian log-likelihood')
 
             gaussian_sigma = torch.exp(gaussian_logsigma)
-
             ll_terms = dist.Normal(loc=gaussian_mu, scale=gaussian_sigma).log_prob(x)
 
         # sum over data dimensions (all but batch)

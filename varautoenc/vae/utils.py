@@ -4,16 +4,36 @@ import torch
 
 
 @torch.no_grad()
-def generate(vae, sample_shape, num_samples=1):
+def generate(vae,
+             sample_shape=None,
+             num_samples=None,
+             z_samples=None):
     '''Generate random samples.'''
 
     vae.sample(False) # actually not necessary
     vae.train(False) # activate train mode
 
     # sample latent variables
-    z_samples = torch.randn(num_samples, *sample_shape, device=vae.device)
+    if z_samples is None:
+        if sample_shape is None:
+            raise TypeError('A sample shape has to be specified')
+        elif num_samples is None:
+            raise TypeError('The number of samples has to be specified')
+        else:
+            z_samples = torch.randn(num_samples, *sample_shape)
+
+    # use passed variables as latents
+    else:
+        if sample_shape is not None:
+            raise TypeError('A sample shape should not be specified')
+        elif num_samples is not None:
+            raise TypeError('The number of samples should not be specified')
+        else:
+            z_samples = torch.as_tensor(z_samples)
 
     # run decoder
+    z_samples = z_samples.to(device=vae.device)
+
     x_gen = vae.decode(z_samples)
 
     if isinstance(x_gen, (tuple, list)):
