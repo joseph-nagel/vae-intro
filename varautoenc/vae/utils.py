@@ -36,7 +36,9 @@ def generate(vae,
 
     x_gen = vae.decode(z_samples)
 
-    if isinstance(x_gen, (tuple, list)):
+    if isinstance(x_gen, torch.Tensor):
+        x_gen = torch.sigmoid(x_gen) # compute probabilities from logits
+    elif isinstance(x_gen, (tuple, list)):
         x_gen = x_gen[0] # get first entry of a (mu, logsigma)-tuple
 
     x_gen = x_gen.cpu()
