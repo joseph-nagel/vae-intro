@@ -64,7 +64,7 @@ class ConvEncoder(nn.Module):
             )
 
         # create Gaussian param layers
-        self.gaussian_params = MultiDense(
+        self.dist_params = MultiDense(
             num_features[-2],
             num_features[-1],
             num_outputs=2,
@@ -86,7 +86,7 @@ class ConvEncoder(nn.Module):
             x = self.dense_layers(x)
 
         # predict Gaussian params
-        mu, logsigma = self.gaussian_params(x)
+        mu, logsigma = self.dist_params(x)
 
         return mu, logsigma
 
@@ -117,7 +117,7 @@ class ConvDecoder(nn.Module):
         self.reshape = reshape
 
         # set likelihood type
-        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian'):
+        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian', 'Laplace'):
             self.likelihood_type = likelihood_type
         else:
             raise ValueError(f'Unknown likelihood type: {likelihood_type}')
@@ -185,9 +185,9 @@ class ConvDecoder(nn.Module):
                 **kwargs
             )
 
-        # create Gaussian params
+        # create Gaussian/Laplace params
         else:
-            self.gaussian_params = ProbConv(
+            self.dist_params = ProbConv(
                 num_channels[-2],
                 num_channels[-1],
                 double_conv=double_conv,
@@ -212,8 +212,8 @@ class ConvDecoder(nn.Module):
             logits = self.bernoulli_logits(x)
             return logits
 
-        # predict Gaussian params
+        # predict Gaussian/Laplace params
         else:
-            mu, logsigma = self.gaussian_params(x)
+            mu, logsigma = self.dist_params(x)
             return mu, logsigma
 

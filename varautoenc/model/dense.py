@@ -42,7 +42,7 @@ class DenseEncoder(nn.Module):
             )
 
         # create Gaussian param layers
-        self.gaussian_params = MultiDense(
+        self.dist_params = MultiDense(
             num_features[-2],
             num_features[-1],
             num_outputs=2,
@@ -62,7 +62,7 @@ class DenseEncoder(nn.Module):
             x = self.dense_layers(x)
 
         # predict Gaussian params
-        mu, logsigma = self.gaussian_params(x)
+        mu, logsigma = self.dist_params(x)
 
         return mu, logsigma
 
@@ -85,7 +85,7 @@ class DenseDecoder(nn.Module):
         self.reshape = reshape
 
         # set likelihood type
-        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian'):
+        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian', 'Laplace'):
             self.likelihood_type = likelihood_type
         else:
             raise ValueError(f'Unknown likelihood type: {likelihood_type}')
@@ -116,9 +116,9 @@ class DenseDecoder(nn.Module):
                 drop_rate=drop_rate
             )
 
-        # create Gaussian params
+        # create Gaussian/Laplace params
         else:
-            self.gaussian_params = ProbDense(
+            self.dist_params = ProbDense(
                 num_features[-2],
                 num_features[-1],
                 sigma=sigma,
@@ -144,9 +144,9 @@ class DenseDecoder(nn.Module):
 
             return logits
 
-        # predict Gaussian params
+        # predict Gaussian/Laplace params
         else:
-            mu, logsigma = self.gaussian_params(x)
+            mu, logsigma = self.dist_params(x)
 
             # reshape
             if self.reshape is not None:
