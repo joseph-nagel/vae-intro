@@ -37,9 +37,14 @@ def generate(vae,
     x_gen = vae.decode(z_samples)
 
     if isinstance(x_gen, torch.Tensor):
-        x_gen = torch.sigmoid(x_gen) # compute probabilities from logits
+        x_gen = torch.sigmoid(x_gen) # compute probabilities from logits (Bernoulli)
     elif isinstance(x_gen, (tuple, list)):
-        x_gen = x_gen[0] # get first entry of a (mu, logsigma)-tuple
+        if len(x_gen) == 2:
+            x_gen = x_gen[0] # get first entry of a (mu, logsigma)-tuple (Gaussian/Laplace)
+        else:
+            raise ValueError(f'Two dist. parameters expected, found: {len(x_gen)}')
+    else:
+        raise TypeError(f'Invalid decoder output type : {type(x_gen)}')
 
     x_gen = x_gen.cpu()
 

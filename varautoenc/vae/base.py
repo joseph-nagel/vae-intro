@@ -12,7 +12,7 @@ from ..data import get_features
 
 class VAE(LightningModule):
     '''
-    Variational autoencoder with a Bernoulli or Gaussian likelihood.
+    Variational autoencoder with a Bernoulli, Gaussian or Laplace likelihood.
 
     Summary
     -------
@@ -34,8 +34,8 @@ class VAE(LightningModule):
         Encoder model that, for given inputs, predicts means and
         logarithmic standard deviations of the latent variables.
     decoder : PyTorch module
-        Decoder model predicting logits or distributional
-        parameters for given values of the latent variables.
+        Decoder model predicting Bernoulli logits or mu and logsigma
+        of a Gaussian/Laplace distribution for given latent codes.
     num_samples : int
         Number of MC samples to simulate the ELBO.
     likelihood_type : {'Bernoulli', 'Gauss', 'Gaussian', 'Laplace'}
@@ -159,10 +159,13 @@ class VAE(LightningModule):
 
     def kl(self, mu, logsigma):
         '''Compute the KL divergence.'''
-        kl = 0.5 * torch.sum(
-            mu**2 + torch.exp(logsigma)**2 - 2*logsigma - 1,
-            dim=list(range(1, mu.ndim)) # sum over data dimensions (all but batch)
-        )
+
+        sigma = torch.exp(logsigma)
+        kl_terms = mu**2 + sigma**2 - 2*logsigma - 1
+
+        # sum over data dimensions (all but batch)
+        kl = 0.5 * torch.sum(kl_terms, dim=list(range(1, kl_terms.ndim)))
+
         return kl
 
     def ll(self,
@@ -197,7 +200,7 @@ class VAE(LightningModule):
             ll_terms = dist.Laplace(loc=mu, scale=scale).log_prob(x)
 
         # sum over data dimensions (all but batch)
-        ll = torch.sum(ll_terms, dim=list(range(1, x.ndim)))
+        ll = torch.sum(ll_terms, dim=list(range(1, ll_terms.ndim)))
 
         return ll
 
