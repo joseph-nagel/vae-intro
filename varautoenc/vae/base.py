@@ -4,10 +4,20 @@ import math
 from warnings import warn
 
 import torch
+import torch.nn as nn
 import torch.distributions as dist
 from lightning.pytorch import LightningModule
 
 from ..data import get_features
+
+
+LIKELIHOOD_TYPES = (
+    'Bernoulli',
+    'ContinuousBernoulli',
+    'Gauss',
+    'Gaussian',
+    'Laplace'
+)
 
 
 class VAE(LightningModule):
@@ -38,8 +48,8 @@ class VAE(LightningModule):
         of a Gaussian/Laplace distribution for given latent codes.
     num_samples : int
         Number of MC samples to simulate the ELBO.
-    likelihood_type : {'Bernoulli', 'Gauss', 'Gaussian', 'Laplace'}
-        Determines the type of the likelihood.
+    likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
+        Likelihood function type.
     lr : float
         Initial optimizer learning rate.
 
@@ -62,7 +72,7 @@ class VAE(LightningModule):
         self.num_samples = abs(int(num_samples))
 
         # set likelihood type
-        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian', 'Laplace'):
+        if likelihood_type in LIKELIHOOD_TYPES:
             self.likelihood_type = likelihood_type
         else:
             raise ValueError(f'Unknown likelihood type: {likelihood_type}')
@@ -127,7 +137,7 @@ class VAE(LightningModule):
         '''Decode the latent variables.'''
 
         # compute Bernoulli logits
-        if self.likelihood_type == 'Bernoulli':
+        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
             logits = self.decoder(z)
             return logits
 
@@ -146,7 +156,7 @@ class VAE(LightningModule):
         z = self.reparametrize(mu, logsigma)
 
         # compute Bernoulli probabilities
-        if self.likelihood_type == 'Bernoulli':
+        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
             logits = self.decode(z)
             probs = torch.sigmoid(logits)
             return probs
@@ -180,10 +190,27 @@ class VAE(LightningModule):
             if mu is not None or logsigma is not None:
                 warn('Gaussian/Laplace parameters are ignored for the Bernoulli log-likelihood')
 
-            ll_terms = dist.Bernoulli(logits=logits).log_prob(x.float())
+            # strictly restrict to {0,1}-valued targets (standard Bernoulli)
+            if not torch.is_floating_point(x):
+                ll_terms = dist.Bernoulli(logits=logits).log_prob(x.float())
+
+            # also allow for [0,1]-valued targets (normalization of the cont. Bernoulli is ignored)
+            else:
+                ll_terms = -nn.functional.binary_cross_entropy_with_logits(
+                    input=logits,
+                    target=x,
+                    reduction='none'
+                )
+
+        # compute continuous Bernoulli likelihood (properly normalized)
+        elif self.likelihood_type == 'ContinuousBernoulli':
+            if mu is not None or logsigma is not None:
+                warn('Gaussian/Laplace parameters are ignored for the (continuous) Bernoulli log-likelihood')
+
+            ll_terms = dist.ContinuousBernoulli(logits=logits).log_prob(x)
 
         # compute Gaussian likelihood
-        if self.likelihood_type in ('Gauss', 'Gaussian'):
+        elif self.likelihood_type in ('Gauss', 'Gaussian'):
             if logits is not None:
                 warn('Bernoulli logits are ignored for the Gaussian log-likelihood')
 
@@ -220,7 +247,7 @@ class VAE(LightningModule):
             z_sample = self.reparametrize(mu, logsigma) # sample latent variables
 
             # compute sample log-likelihood
-            if self.likelihood_type == 'Bernoulli':
+            if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
                 logits = self.decode(z_sample)
                 ll_sample = self.ll(x, logits=logits)
             else:

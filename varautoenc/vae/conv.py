@@ -36,7 +36,7 @@ class ConvVAE(VAE):
         Determines whether double conv. blocks are used.
     num_samples : int
         Number of MC samples to simulate the ELBO.
-    likelihood_type : {'Bernoulli', 'Gauss', 'Gaussian'}
+    likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
         Likelihood function type.
     sigma : float
         Can be used to specify a constant sigma.

@@ -105,9 +105,11 @@ def main(args):
     # initialize datamodule
     binarized_mnist = MNISTDataModule(
         data_dir=args.data_dir,
+        binarize_threshold=0.5 if args.binarize else None,
+        mean=None,
+        std=None,
         batch_size=args.batch_size,
-        num_workers=args.num_workers,
-        binarize_threshold=0.5 if args.binarize else None
+        num_workers=args.num_workers
     )
 
     # initialize model

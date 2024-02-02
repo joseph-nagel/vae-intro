@@ -6,7 +6,9 @@ data:
   class_path: "varautoenc.MNISTDataModule"
   init_args:
     data_dir: "run/data"
-    binarize_threshold: 0.5
+    binarize_threshold: null
+    mean: null
+    std: null
     batch_size: 32
     num_workers: 0
 
@@ -19,7 +21,7 @@ model:
     activation: "leaky_relu"
     drop_rate: null
     num_samples: 1
-    likelihood_type: "Bernoulli"
+    likelihood_type: "ContinuousBernoulli"
     sigma: null
     per_feature: false
     lr: 0.0001

@@ -116,11 +116,7 @@ class ConvDecoder(nn.Module):
 
         self.reshape = reshape
 
-        # set likelihood type
-        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian', 'Laplace'):
-            self.likelihood_type = likelihood_type
-        else:
-            raise ValueError(f'Unknown likelihood type: {likelihood_type}')
+        self.likelihood_type = likelihood_type
 
         # create dense layers
         self.dense_layers = DenseBlock(
@@ -176,7 +172,7 @@ class ConvDecoder(nn.Module):
             }
 
         # create Bernoulli logits
-        if self.likelihood_type == 'Bernoulli':
+        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
             ConvType = DoubleConv if double_conv else SingleConv
 
             self.bernoulli_logits = ConvType(
@@ -208,7 +204,7 @@ class ConvDecoder(nn.Module):
         x = self.conv_layers(x)
 
         # predict Bernoulli logits
-        if self.likelihood_type == 'Bernoulli':
+        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
             logits = self.bernoulli_logits(x)
             return logits
 

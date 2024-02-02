@@ -20,7 +20,7 @@ class BaseDataModule(LightningDataModule):
         self.val_set = None
         self.test_set = None
 
-    def set_dataset(self, mode, data_set):
+    def set_dataset(self, data_set, mode):
         '''Set dataset.'''
         if mode in ('train', 'val', 'test'):
             setattr(self, mode + '_set', data_set)
@@ -72,7 +72,9 @@ class MNISTDataModule(BaseDataModule):
 
     def __init__(self,
                  data_dir,
-                 binarize_threshold=0.5,
+                 binarize_threshold=None,
+                 mean=None,
+                 std=None,
                  batch_size=32,
                  num_workers=0):
 
@@ -93,17 +95,24 @@ class MNISTDataModule(BaseDataModule):
 
         test_transforms = [transforms.ToTensor()]
 
-        if binarize_threshold is not None:
+        if binarize_threshold is not None: # binarize to {0,1}
             binarize_fn = lambda x: torch.where(x > binarize_threshold, 1, 0).float()
 
             train_transforms.append(binarize_fn)
             test_transforms.append(binarize_fn)
+
+        if (mean is not None) and (std is not None): # normalize (e.g. scale to [-1,1])
+            normalize_fn = transforms.Normalize(mean=mean, std=std)
+
+            train_transforms.append(normalize_fn)
+            test_transforms.append(normalize_fn)
 
         self.train_transform = transforms.Compose(train_transforms)
         self.test_transform = transforms.Compose(test_transforms)
 
     def prepare_data(self):
         '''Download data.'''
+
         train_set = datasets.MNIST(
             self.data_dir,
             train=True,
@@ -147,6 +156,8 @@ class CIFAR10DataModule(BaseDataModule):
 
     def __init__(self,
                  data_dir,
+                 mean=(0.5, 0.5, 0.5),
+                 std=(0.5, 0.5, 0.5),
                  batch_size=32,
                  num_workers=0):
 
@@ -160,16 +171,17 @@ class CIFAR10DataModule(BaseDataModule):
         self.data_dir = data_dir
 
         # create transforms
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=(0.5, 0.5, 0.5),
-                std=(0.5, 0.5, 0.5)
-            )
-        ])
+        transforms_list = [transforms.ToTensor()]
+
+        if (mean is not None) and (std is not None): # normalize (e.g. scale to [-1,1])
+            normalize_fn = transforms.Normalize(mean=mean, std=std)
+            transforms_list.append(normalize_fn)
+
+        self.transform = transforms.Compose(transforms_list)
 
     def prepare_data(self):
         '''Download data.'''
+
         train_set = datasets.CIFAR10(
             self.data_dir,
             train=True,

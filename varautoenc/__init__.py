@@ -57,6 +57,7 @@ from .model import (
 )
 
 from .vae import (
+    LIKELIHOOD_TYPES,
     generate,
     reconstruct,
     encode_loader,

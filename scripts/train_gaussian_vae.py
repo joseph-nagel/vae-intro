@@ -97,6 +97,8 @@ def main(args):
     # initialize datamodule
     cifar = CIFAR10DataModule(
         data_dir=args.data_dir,
+        mean=(0.5, 0.5, 0.5),
+        std=(0.5, 0.5, 0.5),
         batch_size=args.batch_size,
         num_workers=args.num_workers
     )

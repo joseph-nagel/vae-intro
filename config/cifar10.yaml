@@ -6,6 +6,8 @@ data:
   class_path: "varautoenc.CIFAR10DataModule"
   init_args:
     data_dir: "run/data"
+    mean: [0.5, 0.5, 0.5]
+    std: [0.5, 0.5, 0.5]
     batch_size: 32
     num_workers: 0
 
@@ -17,8 +19,8 @@ model:
     reshape: [32, 8, 8]
     kernel_size: 3
     pooling: 2
-    upsample_mode: "conv_transpose"
-    batchnorm: true
+    upsample_mode: "bilinear"
+    batchnorm: false
     activation: "leaky_relu"
     last_activation: null
     drop_rate: null
@@ -28,7 +30,7 @@ model:
     likelihood_type: "Gaussian"
     sigma: null
     per_channel: false
-    lr: 0.001
+    lr: 0.0001
 
 trainer:
   accelerator: "cpu"

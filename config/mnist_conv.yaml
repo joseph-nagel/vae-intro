@@ -6,27 +6,29 @@ data:
   class_path: "varautoenc.MNISTDataModule"
   init_args:
     data_dir: "run/data"
-    binarize_threshold: 0.5
+    binarize_threshold: null
+    mean: null
+    std: null
     batch_size: 32
     num_workers: 0
 
 model:
   class_path: "varautoenc.ConvVAE"
   init_args:
-    num_channels: [1, 16, 32]
-    num_features: [1568, 512, 128]
-    reshape: [32, 7, 7]
+    num_channels: [1, 32, 64]
+    num_features: [3136, 256, 96]
+    reshape: [64, 7, 7]
     kernel_size: 3
     pooling: 2
     upsample_mode: "conv_transpose"
-    batchnorm: true
+    batchnorm: false
     activation: "leaky_relu"
     last_activation: null
     drop_rate: null
     pool_last: true
     double_conv: true
     num_samples: 1
-    likelihood_type: "Bernoulli"
+    likelihood_type: "ContinuousBernoulli"
     sigma: null
     per_channel: false
     lr: 0.001

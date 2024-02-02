@@ -84,11 +84,7 @@ class DenseDecoder(nn.Module):
 
         self.reshape = reshape
 
-        # set likelihood type
-        if likelihood_type in ('Bernoulli', 'Gauss', 'Gaussian', 'Laplace'):
-            self.likelihood_type = likelihood_type
-        else:
-            raise ValueError(f'Unknown likelihood type: {likelihood_type}')
+        self.likelihood_type = likelihood_type
 
         # create dense layers
         if len(num_features) < 2:
@@ -107,7 +103,7 @@ class DenseDecoder(nn.Module):
             )
 
         # create Bernoulli logits
-        if self.likelihood_type == 'Bernoulli':
+        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
             self.bernoulli_logits = make_dense(
                 num_features[-2],
                 num_features[-1],
@@ -135,7 +131,7 @@ class DenseDecoder(nn.Module):
             x = self.dense_layers(x)
 
         # predict Bernoulli logits
-        if self.likelihood_type == 'Bernoulli':
+        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
             logits = self.bernoulli_logits(x)
 
             # reshape

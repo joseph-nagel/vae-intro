@@ -16,7 +16,7 @@ from . import dense
 from . import utils
 
 
-from .base import VAE
+from .base import LIKELIHOOD_TYPES, VAE
 
 from .conv import ConvVAE
 
