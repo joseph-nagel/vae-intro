@@ -15,6 +15,7 @@ data : Data tools.
 layers : Model layers.
 model : Encoder and decoder models.
 vae : Variational autoencoder.
+vis : Visualization tools.
 
 '''
 
@@ -22,6 +23,7 @@ from . import data
 from . import layers
 from . import model
 from . import vae
+from . import vis
 
 
 from .data import (
@@ -65,4 +67,6 @@ from .vae import (
     DenseVAE,
     ConvVAE
 )
+
+from .vis import make_imgs, make_gif
 

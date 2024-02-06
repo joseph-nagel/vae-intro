@@ -4,6 +4,7 @@ torchvision
 lightning
 tensorboard
 mlflow
+imageio
 matplotlib
 notebook
 
