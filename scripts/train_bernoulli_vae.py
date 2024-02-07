@@ -1,4 +1,11 @@
-'''Bernoulli VAE training on MNIST.'''
+'''
+Bernoulli VAE training on MNIST.
+
+Example
+-------
+python scripts/train_bernoulli_vae.py --num-channels 1 32 64 --num-features 3136 512 128 --reshape 64 7 7
+
+'''
 
 from argparse import ArgumentParser
 from pathlib import Path
@@ -22,70 +29,70 @@ from varautoenc import (
 def parse_args():
     parser = ArgumentParser()
 
-    parser.add_argument('--random-seed', type=int, required=False, help='random seed')
+    parser.add_argument('--random-seed', type=int, required=False, help='Random seed')
 
-    parser.add_argument('--ckpt-file', type=Path, required=False, help='checkpoint for resuming')
+    parser.add_argument('--ckpt-file', type=Path, required=False, help='Checkpoint for resuming')
 
-    parser.add_argument('--logger', type=str, default='tensorboard', help='logger')
-    parser.add_argument('--save-dir', type=Path, default='run/', help='save dir')
-    parser.add_argument('--name', type=str, default='mnist', help='experiment name')
-    parser.add_argument('--version', type=str, required=False, help='experiment version')
+    parser.add_argument('--logger', type=str, default='tensorboard', help='Logger')
+    parser.add_argument('--save-dir', type=Path, default='run/', help='Save dir')
+    parser.add_argument('--name', type=str, default='mnist', help='Experiment name')
+    parser.add_argument('--version', type=str, required=False, help='Experiment version')
 
-    parser.add_argument('--data-dir', type=Path, default='run/data/', help='data dir')
+    parser.add_argument('--data-dir', type=Path, default='run/data/', help='Data dir')
 
-    parser.add_argument('--batch-size', type=int, default=32, help='batch size')
-    parser.add_argument('--num-workers', type=int, default=0, help='number of workers')
+    parser.add_argument('--batch-size', type=int, default=32, help='Batch size')
+    parser.add_argument('--num-workers', type=int, default=0, help='Number of workers')
 
-    parser.add_argument('--num-channels', type=int, nargs='+', required=False, help='channel numbers of conv. layers')
-    parser.add_argument('--num-features', type=int, nargs='+', required=True, help='feature numbers of linear layers')
-    parser.add_argument('--reshape', type=int, nargs='+', required=True, help='shape between linear and conv. layers')
-    parser.add_argument('--kernel-size', type=int, default=3, help='conv. kernel size')
-    parser.add_argument('--pooling', type=int, default=2, help='pooling parameter')
-    parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='conv. upsampling mode')
-    parser.add_argument('--activation', type=str, default='leaky_relu', help='nonlinearity type')
-    parser.add_argument('--drop-rate', type=float, required=False, help='dropout probability for dense layers')
+    parser.add_argument('--num-channels', type=int, nargs='+', required=False, help='Channel numbers of conv. layers')
+    parser.add_argument('--num-features', type=int, nargs='+', required=True, help='Feature numbers of linear layers')
+    parser.add_argument('--reshape', type=int, nargs='+', required=True, help='Shape between linear and conv. layers')
+    parser.add_argument('--kernel-size', type=int, default=3, help='Conv. kernel size')
+    parser.add_argument('--pooling', type=int, default=2, help='Pooling parameter')
+    parser.add_argument('--upsample-mode', type=str, default='conv_transpose', help='Conv. upsampling mode')
+    parser.add_argument('--activation', type=str, default='leaky_relu', help='Nonlinearity type')
+    parser.add_argument('--drop-rate', type=float, required=False, help='Dropout probability for dense layers')
 
-    parser.add_argument('--batchnorm', dest='batchnorm', action='store_true', help='use batchnorm for conv. layers')
-    parser.add_argument('--no-batchnorm', dest='batchnorm', action='store_false', help='do not use batchnorm for conv. layers')
+    parser.add_argument('--batchnorm', dest='batchnorm', action='store_true', help='Use batchnorm for conv. layers')
+    parser.add_argument('--no-batchnorm', dest='batchnorm', action='store_false', help='Do not use batchnorm for conv. layers')
     parser.set_defaults(batchnorm=True)
 
-    parser.add_argument('--pool-last', dest='pool_last', action='store_true', help='pool after last conv.')
-    parser.add_argument('--no-pool-last', dest='pool_last', action='store_false', help='do not pool after last conv.')
+    parser.add_argument('--pool-last', dest='pool_last', action='store_true', help='Pool after last conv.')
+    parser.add_argument('--no-pool-last', dest='pool_last', action='store_false', help='Do not pool after last conv.')
     parser.set_defaults(pool_last=True)
 
-    parser.add_argument('--double-conv', dest='double_conv', action='store_true', help='use double conv. blocks')
-    parser.add_argument('--single-conv', dest='double_conv', action='store_false', help='use single convolutions')
+    parser.add_argument('--double-conv', dest='double_conv', action='store_true', help='Use double conv. blocks')
+    parser.add_argument('--single-conv', dest='double_conv', action='store_false', help='Use single convolutions')
     parser.set_defaults(double_conv=True)
 
-    parser.add_argument('--per-variable', dest='per_variable', action='store_true', help='use variable-specific sigmas')
-    parser.add_argument('--same-sigma', dest='per_variable', action='store_false', help='use same sigma for all variable')
+    parser.add_argument('--per-variable', dest='per_variable', action='store_true', help='Use variable-specific sigmas')
+    parser.add_argument('--same-sigma', dest='per_variable', action='store_false', help='Use same sigma for all variable')
     parser.set_defaults(per_variable=False)
 
-    parser.add_argument('--num-samples', type=int, default=1, help='number of MC samples')
+    parser.add_argument('--num-samples', type=int, default=1, help='Number of MC samples')
 
-    parser.add_argument('--lr', type=float, default=1e-04, help='optimizer learning rate')
+    parser.add_argument('--lr', type=float, default=1e-04, help='Optimizer learning rate')
 
-    parser.add_argument('--max-epochs', type=int, default=20, help='max. number of training epochs')
+    parser.add_argument('--max-epochs', type=int, default=20, help='Max. number of training epochs')
 
-    parser.add_argument('--save-top', type=int, default=1, help='number of best models to save')
-    parser.add_argument('--save-every', type=int, default=1, help='regular checkpointing interval')
+    parser.add_argument('--save-top', type=int, default=1, help='Number of best models to save')
+    parser.add_argument('--save-every', type=int, default=1, help='Regular checkpointing interval')
 
-    parser.add_argument('--patience', type=int, default=0, help='early stopping patience')
+    parser.add_argument('--patience', type=int, default=0, help='Early stopping patience')
 
     parser.add_argument('--swa-lrs', type=float, default=0.0, help='SWA learning rate')
     parser.add_argument('--swa-epoch-start', type=float, default=0.7, help='SWA start epoch')
     parser.add_argument('--annealing-epochs', type=int, default=10, help='SWA annealing epochs')
     parser.add_argument('--annealing-strategy', type=str, default='cos', help='SWA annealing strategy')
 
-    parser.add_argument('--gradient-clip-val', type=float, default=0.0, help='gradient clipping value')
-    parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='gradient clipping mode')
+    parser.add_argument('--gradient-clip-val', type=float, default=0.0, help='Gradient clipping value')
+    parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='Gradient clipping mode')
 
-    parser.add_argument('--binarize', dest='binarize', action='store_true', help='binarize MNIST data')
-    parser.add_argument('--no-binarize', dest='binarize', action='store_false', help='do not binarize MNIST data')
+    parser.add_argument('--binarize', dest='binarize', action='store_true', help='Binarize MNIST data')
+    parser.add_argument('--no-binarize', dest='binarize', action='store_false', help='Do not binarize MNIST data')
     parser.set_defaults(binarize=True)
 
-    parser.add_argument('--gpu', dest='gpu', action='store_true', help='use GPU if available')
-    parser.add_argument('--cpu', dest='gpu', action='store_false', help='do not use GPU')
+    parser.add_argument('--gpu', dest='gpu', action='store_true', help='Use GPU if available')
+    parser.add_argument('--cpu', dest='gpu', action='store_false', help='Do not use GPU')
     parser.set_defaults(gpu=True)
 
     args = parser.parse_args()

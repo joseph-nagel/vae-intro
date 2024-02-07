@@ -82,7 +82,15 @@ def make_gif(save_file,
              img_dir,
              pattern='**/frame_*.png',
              **kwargs):
-    '''Load images and create GIF animation.'''
+    '''
+    Load images and create GIF animation.
+
+    Summary
+    -------
+    The function loads a directory of images
+    and transforms them into a GIF animation.
+
+    '''
 
     save_file = Path(save_file)
     img_dir = Path(img_dir)
@@ -100,7 +108,7 @@ def make_gif(save_file,
     frames = []
     for img_file in img_files:
 
-        # load image
+        # load frame
         img = imageio.imread(img_file)
         frames.append(img)
 

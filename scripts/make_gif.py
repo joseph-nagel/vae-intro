@@ -1,4 +1,11 @@
-'''Animation creation.'''
+'''
+Animation creation.
+
+Example
+-------
+python scripts/make_gif --save-dir "run/animation/" --ckpt-dir "run/mnist_conv/version_0/checkpoints/"
+
+'''
 
 from argparse import ArgumentParser
 from pathlib import Path

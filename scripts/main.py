@@ -1,4 +1,11 @@
-'''Training script.'''
+'''
+Training script.
+
+Example
+-------
+python scripts/main.py fit --config "config/mnist_conv.yaml"
+
+'''
 
 from lightning.pytorch.cli import LightningCLI
 
