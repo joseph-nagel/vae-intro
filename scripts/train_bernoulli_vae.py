@@ -3,7 +3,7 @@ Bernoulli VAE training on MNIST.
 
 Example
 -------
-python scripts/train_bernoulli_vae.py --num-channels 1 32 64 --num-features 3136 512 128 --reshape 64 7 7
+python scripts/train_bernoulli_vae.py --num-channels 1 32 64 --num-features 3136 512 64 --reshape 64 7 7
 
 '''
 
@@ -54,7 +54,7 @@ def parse_args():
 
     parser.add_argument('--batchnorm', dest='batchnorm', action='store_true', help='Use batchnorm for conv. layers')
     parser.add_argument('--no-batchnorm', dest='batchnorm', action='store_false', help='Do not use batchnorm for conv. layers')
-    parser.set_defaults(batchnorm=True)
+    parser.set_defaults(batchnorm=False)
 
     parser.add_argument('--pool-last', dest='pool_last', action='store_true', help='Pool after last conv.')
     parser.add_argument('--no-pool-last', dest='pool_last', action='store_false', help='Do not pool after last conv.')
@@ -89,7 +89,7 @@ def parse_args():
 
     parser.add_argument('--binarize', dest='binarize', action='store_true', help='Binarize MNIST data')
     parser.add_argument('--no-binarize', dest='binarize', action='store_false', help='Do not binarize MNIST data')
-    parser.set_defaults(binarize=True)
+    parser.set_defaults(binarize=False)
 
     parser.add_argument('--gpu', dest='gpu', action='store_true', help='Use GPU if available')
     parser.add_argument('--cpu', dest='gpu', action='store_false', help='Do not use GPU')

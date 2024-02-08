@@ -15,7 +15,7 @@ def make_imgs(save_dir,
               num_latents=None,
               nrows=5,
               ncols=5,
-              figsize=(5, 5),
+              figsize=(5, 5.5),
               **kwargs):
     '''
     Load checkpoints and save visualizations.

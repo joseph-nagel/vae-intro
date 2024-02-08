@@ -16,11 +16,11 @@ model:
   class_path: "varautoenc.ConvVAE"
   init_args:
     num_channels: [1, 32, 64]
-    num_features: [3136, 256, 96]
+    num_features: [3136, 512, 64]
     reshape: [64, 7, 7]
     kernel_size: 3
     pooling: 2
-    upsample_mode: "conv_transpose"
+    upsample_mode: "bilinear"
     batchnorm: false
     activation: "leaky_relu"
     last_activation: null
@@ -28,10 +28,10 @@ model:
     pool_last: true
     double_conv: true
     num_samples: 1
-    likelihood_type: "ContinuousBernoulli"
+    likelihood_type: "Bernoulli"
     sigma: null
     per_channel: false
-    lr: 0.001
+    lr: 0.0001
 
 trainer:
   accelerator: "cpu"

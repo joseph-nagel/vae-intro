@@ -50,7 +50,7 @@ def parse_args():
 
     parser.add_argument('--batchnorm', dest='batchnorm', action='store_true', help='Use batchnorm for conv. layers')
     parser.add_argument('--no-batchnorm', dest='batchnorm', action='store_false', help='Do not use batchnorm for conv. layers')
-    parser.set_defaults(batchnorm=True)
+    parser.set_defaults(batchnorm=False)
 
     parser.add_argument('--pool-last', dest='pool_last', action='store_true', help='Pool after last conv.')
     parser.add_argument('--no-pool-last', dest='pool_last', action='store_false', help='Do not pool after last conv.')

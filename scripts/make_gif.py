@@ -3,12 +3,14 @@ Animation creation.
 
 Example
 -------
-python scripts/make_gif --save-dir "run/animation/" --ckpt-dir "run/mnist_conv/version_0/checkpoints/"
+python scripts/make_gif.py --save-dir run/animation/ --ckpt-dir run/mnist_conv/version_0/checkpoints/ --seed 123
 
 '''
 
 from argparse import ArgumentParser
 from pathlib import Path
+
+import torch
 
 from varautoenc import make_imgs, make_gif
 
@@ -16,15 +18,17 @@ from varautoenc import make_imgs, make_gif
 def parse_args():
     parser = ArgumentParser()
 
+    parser.add_argument('--random-seed', type=int, required=False, help='Random seed')
+
     parser.add_argument('--save-dir', type=Path, required=True, help='Output directory')
     parser.add_argument('--ckpt-dir', type=Path, required=True, help='Checkpoint directory')
-    parser.add_argument('--pattern', type=str, default='**/*.ckpt', help='Filename pattern')
+    parser.add_argument('--pattern', type=str, default='**/epoch=*.ckpt', help='Filename pattern')
 
     parser.add_argument('--num-latents', type=int, required=False, help='Number of latent variables')
 
     parser.add_argument('--nrows', type=int, default=5, help='Number of figure rows')
     parser.add_argument('--ncols', type=int, default=5, help='Number of figures columns')
-    parser.add_argument('--figsize', type=int, nargs='+', default=[5, 5], help='Figsize specification')
+    parser.add_argument('--figsize', type=int, nargs='+', default=[5, 5.5], help='Figsize specification')
 
     parser.add_argument('--dpi', type=int, default=120, help='Dots per inch')
 
@@ -41,6 +45,10 @@ def parse_args():
 
 
 def main(args):
+
+    # set random seed manually
+    if args.random_seed is not None:
+        _ = torch.manual_seed(args.random_seed)
 
     # create and save images
     make_imgs(

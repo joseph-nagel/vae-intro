@@ -3,7 +3,7 @@ Training script.
 
 Example
 -------
-python scripts/main.py fit --config "config/mnist_conv.yaml"
+python scripts/main.py fit --config config/mnist_conv.yaml
 
 '''
 
