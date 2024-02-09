@@ -20,6 +20,8 @@ class DenseVAE(VAE):
         Nonlinearity type.
     drop_rate : float
         Dropout probability for dense layers.
+    beta : float
+        Beta-VAE weighting parameter.
     num_samples : int
         Number of MC samples to simulate the ELBO.
     likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
@@ -39,6 +41,7 @@ class DenseVAE(VAE):
                  batchnorm=False,
                  activation='leaky_relu',
                  drop_rate=None,
+                 beta=1.0,
                  num_samples=1,
                  likelihood_type='Bernoulli',
                  sigma=None,
@@ -70,6 +73,7 @@ class DenseVAE(VAE):
         super().__init__(
             encoder,
             decoder,
+            beta=beta,
             num_samples=num_samples,
             likelihood_type=likelihood_type,
             lr=lr

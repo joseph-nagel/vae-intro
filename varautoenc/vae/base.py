@@ -46,6 +46,8 @@ class VAE(LightningModule):
     decoder : PyTorch module
         Decoder model predicting Bernoulli logits or mu and logsigma
         of a Gaussian/Laplace distribution for given latent codes.
+    beta : float
+        Beta-VAE weighting parameter.
     num_samples : int
         Number of MC samples to simulate the ELBO.
     likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
@@ -58,6 +60,7 @@ class VAE(LightningModule):
     def __init__(self,
                  encoder,
                  decoder,
+                 beta=1.0,
                  num_samples=1,
                  likelihood_type='Bernoulli',
                  lr=1e-04):
@@ -67,6 +70,12 @@ class VAE(LightningModule):
         # set encoder and decoder
         self.encoder = encoder
         self.decoder = decoder
+
+        # set beta weight
+        if beta is None:
+            beta = 1.0
+
+        self.beta = abs(beta)
 
         # set number of MC samples
         self.num_samples = abs(int(num_samples))
@@ -259,7 +268,7 @@ class VAE(LightningModule):
         ll = ll / num_samples # compute avarage over samples
 
         # compute mean over data points (only batch dimension)
-        elbo = torch.mean(ll - kl)
+        elbo = torch.mean(ll - self.beta * kl)
 
         return elbo
 

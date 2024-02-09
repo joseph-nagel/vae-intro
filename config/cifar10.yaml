@@ -26,6 +26,7 @@ model:
     drop_rate: null
     pool_last: true
     double_conv: true
+    beta: 1.0
     num_samples: 1
     likelihood_type: "Gaussian"
     sigma: null

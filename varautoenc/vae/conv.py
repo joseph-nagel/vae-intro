@@ -34,6 +34,8 @@ class ConvVAE(VAE):
         Controls the last pooling operation (also first upscaling).
     double_conv : bool
         Determines whether double conv. blocks are used.
+    beta : float
+        Beta-VAE weighting parameter.
     num_samples : int
         Number of MC samples to simulate the ELBO.
     likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
@@ -60,6 +62,7 @@ class ConvVAE(VAE):
                  drop_rate=None,
                  pool_last=True,
                  double_conv=True,
+                 beta=1.0,
                  num_samples=1,
                  likelihood_type='Bernoulli',
                  sigma=None,
@@ -104,6 +107,7 @@ class ConvVAE(VAE):
         super().__init__(
             encoder,
             decoder,
+            beta=beta,
             num_samples=num_samples,
             likelihood_type=likelihood_type,
             lr=lr

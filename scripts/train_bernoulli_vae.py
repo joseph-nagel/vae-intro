@@ -3,7 +3,7 @@ Bernoulli VAE training on MNIST.
 
 Example
 -------
-python scripts/train_bernoulli_vae.py --num-channels 1 32 64 --num-features 3136 512 64 --reshape 64 7 7
+python scripts/train_bernoulli_vae.py --num-channels 1 32 64 --num-features 3136 512 48 --reshape 64 7 7
 
 '''
 
@@ -147,6 +147,7 @@ def main(args):
             drop_rate=args.drop_rate,
             pool_last=args.pool_last,
             double_conv=args.double_conv,
+            beta=1.0,
             num_samples=args.num_samples,
             likelihood_type='Bernoulli',
             sigma=None,

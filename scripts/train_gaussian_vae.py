@@ -124,6 +124,7 @@ def main(args):
         drop_rate=args.drop_rate,
         pool_last=args.pool_last,
         double_conv=args.double_conv,
+        beta=1.0,
         num_samples=args.num_samples,
         likelihood_type='Gaussian',
         sigma=None,

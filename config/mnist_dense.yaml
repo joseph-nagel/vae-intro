@@ -20,6 +20,7 @@ model:
     batchnorm: false
     activation: "leaky_relu"
     drop_rate: null
+    beta: 1.0
     num_samples: 1
     likelihood_type: "ContinuousBernoulli"
     sigma: null

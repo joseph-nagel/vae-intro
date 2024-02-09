@@ -3,7 +3,7 @@ Animation creation.
 
 Example
 -------
-python scripts/make_gif.py --save-dir run/animation/ --ckpt-dir run/mnist_conv/version_0/checkpoints/ --seed 123
+python scripts/make_gif.py --save-dir run/animation/ --ckpt-dir run/mnist_conv/version_0/checkpoints/ --random-seed 123
 
 '''
 
