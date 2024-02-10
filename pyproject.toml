@@ -22,7 +22,8 @@ dependencies = [
     "torchvision",
     "lightning",
     "tensorboard",
-    "mlflow"
+    "mlflow",
+    "imageio"
 ]
 
 [project.optional-dependencies]
