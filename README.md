@@ -1,5 +1,9 @@
 # Introduction to variational autoencoders
 
+<p>
+  <img src="assets/generated.png" alt="Images generated from a VAE trained on MNIST" title="VAE-generated MNIST images" width="400">
+</p>
+
 This project provides an experimentation environment for VAE algorithms.
 They can be used for generative modeling and representation learning.
 The models are implemented in PyTorch and trained with Lightning.
