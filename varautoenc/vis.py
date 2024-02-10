@@ -13,9 +13,11 @@ def make_imgs(save_dir,
               ckpt_dir,
               pattern='**/*.ckpt',
               num_latents=None,
+              random_seed=None,
               nrows=5,
               ncols=5,
               figsize=(5, 5.5),
+
               **kwargs):
     '''
     Load checkpoints and save visualizations.
@@ -37,12 +39,17 @@ def make_imgs(save_dir,
     # get sorted checkpoint files
     ckpt_files = sorted(ckpt_dir.glob(pattern), key=lambda f: f.stat().st_mtime)
 
-    # generate (fixed) latent samples
+    # get number of latent variables
     if num_latents is None:
         ckpt_file = ckpt_files[0]
         vae = ConvVAE.load_from_checkpoint(ckpt_file)
         num_latents = vae.decoder.dense_layers[0][0].in_features # TODO: generalize to different architectures
 
+    # set random seed manually
+    if random_seed is not None:
+        _ = torch.manual_seed(random_seed)
+
+    # generate (fixed) latent samples
     num_samples = nrows * ncols
     sample_shape = (num_latents,)
     z_samples = torch.randn(num_samples, *sample_shape)
@@ -76,6 +83,7 @@ def make_imgs(save_dir,
         file_path = save_dir / file_name
 
         fig.savefig(file_path, **kwargs)
+        plt.close(fig)
 
 
 def make_gif(save_file,

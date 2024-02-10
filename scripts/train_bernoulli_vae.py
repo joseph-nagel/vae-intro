@@ -3,7 +3,7 @@ Bernoulli VAE training on MNIST.
 
 Example
 -------
-python scripts/train_bernoulli_vae.py --num-channels 1 32 64 --num-features 3136 512 48 --reshape 64 7 7
+python scripts/train_bernoulli_vae.py --num-channels 1 32 64 --num-features 3136 512 64 --reshape 64 7 7
 
 '''
 

@@ -4,10 +4,12 @@ Variational autoencoder.
 Summary
 -------
 A small playground for experimenting with VAE algorithms is established.
-It provides prototypical model implementations with likelihoods that are
-either based on a Bernoulli, Gaussian or Laplace probability distribution.
-While the former can be applied to {0,1}-valued data (binarized MNIST),
-the latter two represent the standards for continuous data (CIFAR-10).
+It provides prototypical model implementations with likelihoods that can be
+based on (continuous) Bernoulli, Gaussian or Laplace probability distributions.
+
+Strictly speaking, the standard Bernoulli applies to {0,1}-valued data only,
+while its continuous variant represents an option for [0,1]-valued data.
+Gauss or Laplace distributions are applicable to continuous data more generally.
 
 Modules
 -------

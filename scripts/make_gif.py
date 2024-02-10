@@ -3,7 +3,7 @@ Animation creation.
 
 Example
 -------
-python scripts/make_gif.py --save-dir run/animation/ --ckpt-dir run/mnist_conv/version_0/checkpoints/ --random-seed 123
+python scripts/make_gif.py --save-dir run/animation/ --ckpt-dir run/mnist_conv/version_0/checkpoints/ --random-seed 100000
 
 '''
 
@@ -46,16 +46,13 @@ def parse_args():
 
 def main(args):
 
-    # set random seed manually
-    if args.random_seed is not None:
-        _ = torch.manual_seed(args.random_seed)
-
     # create and save images
     make_imgs(
         save_dir=args.save_dir,
         ckpt_dir=args.ckpt_dir,
         pattern=args.pattern,
         num_latents=args.num_latents,
+        random_seed=args.random_seed,
         nrows=args.nrows,
         ncols=args.ncols,
         figsize=args.figsize,

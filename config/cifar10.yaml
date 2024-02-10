@@ -34,7 +34,7 @@ model:
     lr: 0.0001
 
 trainer:
-  accelerator: "cpu"
+  accelerator: "gpu"
   max_epochs: 100
   log_every_n_steps: 100
   logger:
