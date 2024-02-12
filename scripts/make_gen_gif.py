@@ -1,18 +1,16 @@
 '''
-Animation creation.
+Generated images animation.
 
 Example
 -------
-python scripts/make_gif.py --save-dir run/animation/ --ckpt-dir run/mnist_conv/version_0/checkpoints/ --random-seed 100000
+python scripts/make_gen_gif.py --save-dir run/anim_gen/ --ckpt-dir run/mnist_conv/version_0/checkpoints/ --random-seed 100000
 
 '''
 
 from argparse import ArgumentParser
 from pathlib import Path
 
-import torch
-
-from varautoenc import make_imgs, make_gif
+from varautoenc import make_gif, make_gen_imgs
 
 
 def parse_args():
@@ -47,15 +45,16 @@ def parse_args():
 def main(args):
 
     # create and save images
-    make_imgs(
+    make_gen_imgs(
         save_dir=args.save_dir,
         ckpt_dir=args.ckpt_dir,
-        pattern=args.pattern,
         num_latents=args.num_latents,
+        pattern=args.pattern,
         random_seed=args.random_seed,
         nrows=args.nrows,
         ncols=args.ncols,
         figsize=args.figsize,
+        overwrite=args.overwrite,
         dpi=args.dpi
     )
 
@@ -65,7 +64,8 @@ def main(args):
         img_dir=args.save_dir,
         pattern='**/frame_*.png',
         loop=args.loop,
-        fps=args.fps
+        fps=args.fps,
+        overwrite=args.overwrite
     )
 
 

@@ -70,5 +70,9 @@ from .vae import (
     ConvVAE
 )
 
-from .vis import make_imgs, make_gif
+from .vis import (
+    make_gif,
+    make_lat_imgs,
+    make_gen_imgs
+)
 

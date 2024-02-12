@@ -22,14 +22,14 @@ model:
     drop_rate: null
     beta: 1.0
     num_samples: 1
-    likelihood_type: "ContinuousBernoulli"
+    likelihood_type: "Bernoulli"
     sigma: null
     per_feature: false
     lr: 0.0001
 
 trainer:
   accelerator: "cpu"
-  max_epochs: 50
+  max_epochs: 100
   log_every_n_steps: 100
   logger:
     class_path: "lightning.pytorch.loggers.TensorBoardLogger"

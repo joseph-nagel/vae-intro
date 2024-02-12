@@ -43,6 +43,10 @@ def parse_args():
     parser.add_argument('--batch-size', type=int, default=32, help='Batch size')
     parser.add_argument('--num-workers', type=int, default=0, help='Number of workers')
 
+    parser.add_argument('--binarize', dest='binarize', action='store_true', help='Binarize MNIST data')
+    parser.add_argument('--no-binarize', dest='binarize', action='store_false', help='Do not binarize MNIST data')
+    parser.set_defaults(binarize=False)
+
     parser.add_argument('--num-channels', type=int, nargs='+', required=False, help='Channel numbers of conv. layers')
     parser.add_argument('--num-features', type=int, nargs='+', required=True, help='Feature numbers of linear layers')
     parser.add_argument('--reshape', type=int, nargs='+', required=True, help='Shape between linear and conv. layers')
@@ -87,10 +91,6 @@ def parse_args():
     parser.add_argument('--gradient-clip-val', type=float, default=0.0, help='Gradient clipping value')
     parser.add_argument('--gradient-clip-algorithm', type=str, default='norm', help='Gradient clipping mode')
 
-    parser.add_argument('--binarize', dest='binarize', action='store_true', help='Binarize MNIST data')
-    parser.add_argument('--no-binarize', dest='binarize', action='store_false', help='Do not binarize MNIST data')
-    parser.set_defaults(binarize=False)
-
     parser.add_argument('--gpu', dest='gpu', action='store_true', help='Use GPU if available')
     parser.add_argument('--cpu', dest='gpu', action='store_false', help='Do not use GPU')
     parser.set_defaults(gpu=True)
@@ -110,7 +110,7 @@ def main(args):
         )
 
     # initialize datamodule
-    binarized_mnist = MNISTDataModule(
+    mnist = MNISTDataModule(
         data_dir=args.data_dir,
         binarize_threshold=0.5 if args.binarize else None,
         mean=None,
@@ -234,7 +234,7 @@ def main(args):
     # check validation loss
     trainer.validate(
         model=vae,
-        datamodule=binarized_mnist,
+        datamodule=mnist,
         ckpt_path=args.ckpt_file,
         verbose=False
     )
@@ -242,7 +242,7 @@ def main(args):
     # train model
     trainer.fit(
         vae,
-        datamodule=binarized_mnist,
+        datamodule=mnist,
         ckpt_path=args.ckpt_file
     )
 

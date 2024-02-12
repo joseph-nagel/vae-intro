@@ -70,7 +70,7 @@ def reconstruct(vae, x, sample_mode=False):
 
 
 @torch.no_grad()
-def encode_loader(vae, data_loader, return_inputs=False):
+def encode_loader(vae, data_loader, return_targets=False):
     '''Encode all items in a data loader.'''
 
     vae.sample(False) # actually not necessary
@@ -79,13 +79,13 @@ def encode_loader(vae, data_loader, return_inputs=False):
     z_mu = []
     z_sigma = []
 
-    if return_inputs:
+    if return_targets:
         y = []
 
     # loop over batches
     for x_batch, y_batch in data_loader:
 
-        if return_inputs:
+        if return_targets:
             y.append(y_batch)
 
         # run encoder
@@ -102,10 +102,10 @@ def encode_loader(vae, data_loader, return_inputs=False):
     z_mu = torch.cat(z_mu, dim=0)
     z_sigma = torch.cat(z_sigma, dim=0)
 
-    if return_inputs:
+    if return_targets:
         y = torch.cat(y, dim=0)
 
-    if return_inputs:
+    if return_targets:
         return z_mu, z_sigma, y
     else:
         return z_mu, z_sigma
