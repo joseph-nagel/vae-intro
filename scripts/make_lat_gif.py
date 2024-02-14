@@ -29,14 +29,14 @@ def parse_args():
     parser.add_argument('--ckpt-dir', type=Path, required=True, help='Checkpoint directory')
     parser.add_argument('--pattern', type=str, default='**/step=*.ckpt', help='Filename pattern')
 
-    parser.add_argument('--figsize', type=int, nargs='+', default=[5, 5.5], help='Figsize specification')
+    parser.add_argument('--figsize', type=int, nargs='+', default=[5, 5], help='Figsize specification')
     parser.add_argument('--xlim', type=int, nargs='+', default=[-4.5, 5.5], help='X-axis limits')
     parser.add_argument('--ylim', type=int, nargs='+', default=[-5, 5], help='Y-axis limits')
 
-    parser.add_argument('--dpi', type=int, default=120, help='Dots per inch')
+    parser.add_argument('--dpi', type=int, default=80, help='Dots per inch')
 
     parser.add_argument('--loop', type=int, default=0, help='Number of loops (0 is for infinite)')
-    parser.add_argument('--fps', type=float, default=5.0, help='Frames per second')
+    parser.add_argument('--fps', type=float, default=20.0, help='Frames per second')
 
     parser.add_argument('--overwrite', dest='overwrite', action='store_true', help='Overwrite existing files')
     parser.add_argument('--no-overwrite', dest='overwrite', action='store_false', help='Do not overwrite')
@@ -74,6 +74,7 @@ def main(args):
         xlim=args.xlim,
         ylim=args.ylim,
         overwrite=args.overwrite,
+        timesort=True,
         dpi=args.dpi
     )
 
@@ -81,10 +82,11 @@ def main(args):
     make_gif(
         save_file=args.save_dir / 'anim.gif',
         img_dir=args.save_dir,
-        pattern='**/frame_*.png',
-        loop=args.loop,
+        pattern='**/*.png',
+        overwrite=args.overwrite,
+        timesort=True,
         fps=args.fps,
-        overwrite=args.overwrite
+        loop=args.loop
     )
 
 

@@ -23,7 +23,7 @@ dependencies = [
     "lightning",
     "tensorboard",
     "mlflow",
-    "imageio"
+    "pillow"
 ]
 
 [project.optional-dependencies]

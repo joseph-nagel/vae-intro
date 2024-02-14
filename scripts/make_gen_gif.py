@@ -55,6 +55,7 @@ def main(args):
         ncols=args.ncols,
         figsize=args.figsize,
         overwrite=args.overwrite,
+        timesort=True,
         dpi=args.dpi
     )
 
@@ -62,10 +63,11 @@ def main(args):
     make_gif(
         save_file=args.save_dir / 'anim.gif',
         img_dir=args.save_dir,
-        pattern='**/frame_*.png',
-        loop=args.loop,
+        pattern='**/*.png',
+        overwrite=args.overwrite,
+        timesort=True,
         fps=args.fps,
-        overwrite=args.overwrite
+        loop=args.loop
     )
 
 

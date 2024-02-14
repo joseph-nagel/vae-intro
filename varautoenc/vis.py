@@ -4,7 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import torch
-import imageio
+from PIL import Image
 
 from .vae import (
     DenseVAE,
@@ -16,8 +16,9 @@ from .vae import (
 
 def make_gif(save_file,
              img_dir,
-             pattern='**/frame_*.png',
+             pattern='**/*.png',
              overwrite=True,
+             timesort=True,
              **kwargs):
     '''
     Load images and create GIF animation.
@@ -39,19 +40,32 @@ def make_gif(save_file,
         save_dir.mkdir(parents=True, exist_ok=True)
 
     # get sorted image files
-    img_files = sorted(img_dir.glob(pattern), key=lambda f: f.stat().st_mtime)
+    img_files = sorted(
+        img_dir.glob(pattern),
+        key=(lambda f: f.stat().st_mtime) if timesort else None # sort according to creation time
+    )
 
-    # loop over images
+    # load frames
     frames = []
     for img_file in img_files:
-
-        # load frame
-        img = imageio.imread(img_file)
+        # img = imageio.imread(img_file)
+        img = Image.open(img_file)
         frames.append(img)
 
     # save GIF
     if not save_file.exists() or overwrite:
-        imageio.mimsave(save_file, frames, **kwargs)
+        # imageio.mimsave(save_file, frames, **kwargs)
+
+        # calculate duration per frame in [ms]
+        if 'fps' in kwargs:
+            kwargs['duration'] = 1000 / kwargs.pop('fps')
+
+        frames[0].save(
+            save_file,
+            save_all=True,
+            append_images=frames[1:],
+            **kwargs
+        )
     else:
         raise FileExistsError('File already exists')
 
@@ -61,9 +75,10 @@ def make_lat_imgs(save_dir,
                   data_loader,
                   pattern='**/*.ckpt',
                   figsize=(5, 5),
-                  xlim=(-4.5, 5.5),
+                  xlim=(-5, 5),
                   ylim=(-5, 5),
                   overwrite=True,
+                  timesort=True,
                   **kwargs):
     '''
     Load checkpoints and save latent space visualizations.
@@ -83,7 +98,10 @@ def make_lat_imgs(save_dir,
         save_dir.mkdir(parents=True, exist_ok=True)
 
     # get sorted checkpoint files
-    ckpt_files = sorted(ckpt_dir.glob(pattern), key=lambda f: f.stat().st_mtime)
+    ckpt_files = sorted(
+        ckpt_dir.glob(pattern),
+        key=(lambda f: f.stat().st_mtime) if timesort else None # sort according to creation time
+    )
 
     # set device
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -113,9 +131,9 @@ def make_lat_imgs(save_dir,
                 color=plt.cm.tab10(idx),
                 alpha=0.3,
                 edgecolors='none',
-                label='y={}'.format(idx)
+                label=f'{idx}'
             )
-        ax.set(xlabel='$z_1$', ylabel='$z_2$', xlim=xlim, ylim=ylim)
+        ax.set(xlim=xlim, ylim=ylim)
         ax.set_aspect('equal', adjustable='box')
         ax.legend(loc='center right')
         ax.grid(visible=True, which='both', color='lightgray', linestyle='-')
@@ -123,7 +141,7 @@ def make_lat_imgs(save_dir,
         fig.tight_layout()
 
         # save figure
-        file_name = 'frame_{:03d}_{}.png'.format(ckpt_idx + 1, ckpt_file.stem)
+        file_name = '{}.png'.format(ckpt_file.stem)
         save_file = save_dir / file_name
 
         if not save_file.exists() or overwrite:
@@ -143,6 +161,7 @@ def make_gen_imgs(save_dir,
                   ncols=5,
                   figsize=(5, 5.5),
                   overwrite=True,
+                  timesort=True,
                   **kwargs):
     '''
     Load checkpoints and save generative visualizations.
@@ -162,7 +181,10 @@ def make_gen_imgs(save_dir,
         save_dir.mkdir(parents=True, exist_ok=True)
 
     # get sorted checkpoint files
-    ckpt_files = sorted(ckpt_dir.glob(pattern), key=lambda f: f.stat().st_mtime)
+    ckpt_files = sorted(
+        ckpt_dir.glob(pattern),
+        key=(lambda f: f.stat().st_mtime) if timesort else None # sort according to creation time
+    )
 
     # get number of latent variables
     if num_latents is None:
@@ -204,7 +226,7 @@ def make_gen_imgs(save_dir,
         fig.tight_layout()
 
         # save figure
-        file_name = 'frame_{:03d}_{}.png'.format(ckpt_idx + 1, ckpt_file.stem)
+        file_name = '{}.png'.format(ckpt_file.stem)
         save_file = save_dir / file_name
 
         if not save_file.exists() or overwrite:
