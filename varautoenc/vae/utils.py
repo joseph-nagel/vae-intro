@@ -7,11 +7,16 @@ import torch
 def generate(vae,
              sample_shape=None,
              num_samples=None,
-             z_samples=None):
+             z_samples=None,
+             random_seed=None):
     '''Generate random samples.'''
 
     vae.sample(False) # actually not necessary
     vae.train(False) # activate train mode
+
+    # set random seed manually
+    if random_seed is not None:
+        _ = torch.manual_seed(random_seed)
 
     # sample latent variables
     if z_samples is None:
