@@ -155,7 +155,7 @@ class VAE(LightningModule):
             mu, logsigma = self.decoder(z)
             return mu, logsigma
 
-    def __call__(self, x):
+    def forward(self, x):
         '''Encode, sample, decode.'''
 
         # encode inputs
