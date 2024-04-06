@@ -18,22 +18,20 @@ ACTIVATIONS = {
 }
 
 
-def make_activation(mode='leaky_relu'):
+def make_activation(mode='leaky_relu', **kwargs):
     '''Create activation function.'''
 
     if mode is None:
         activ = None
 
+    elif isfunction(mode):
+        activ = mode
+
+    elif isclass(mode):
+        activ = mode(**kwargs)
+
     elif mode in ACTIVATIONS.keys():
-
-        a = ACTIVATIONS[mode]
-
-        if isfunction(a):
-            activ = a
-        elif isclass(a):
-            activ = a()
-        else:
-            activ = a
+        activ = ACTIVATIONS[mode](**kwargs)
 
     else:
         raise ValueError(f'Unknown activation: {mode}')
