@@ -38,6 +38,7 @@ class DenseEncoder(nn.Module):
                 batchnorm=batchnorm,
                 activation=activation,
                 last_activation='same',
+                normalize_last=True,
                 drop_rate=drop_rate
             )
 
@@ -98,7 +99,8 @@ class DenseDecoder(nn.Module):
                 num_features[:-1], # the last layer is replaced by the prob. layer below
                 batchnorm=batchnorm,
                 activation=activation,
-                last_activation=None,
+                last_activation='same',
+                normalize_last=True,
                 drop_rate=drop_rate
             )
 

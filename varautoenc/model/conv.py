@@ -60,6 +60,7 @@ class ConvEncoder(nn.Module):
                 batchnorm=batchnorm,
                 activation=activation,
                 last_activation='same',
+                normalize_last=True,
                 drop_rate=drop_rate
             )
 
@@ -124,6 +125,7 @@ class ConvDecoder(nn.Module):
             batchnorm=batchnorm,
             activation=activation,
             last_activation='same',
+            normalize_last=True,
             drop_rate=drop_rate
         )
 
