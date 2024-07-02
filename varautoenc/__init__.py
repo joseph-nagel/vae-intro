@@ -21,12 +21,13 @@ vis : Visualization tools.
 
 '''
 
-from . import data
-from . import layers
-from . import model
-from . import vae
-from . import vis
-
+from . import (
+    data,
+    layers,
+    model,
+    vae,
+    vis
+)
 
 from .data import (
     get_features,
