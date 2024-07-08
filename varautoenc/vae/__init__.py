@@ -10,11 +10,12 @@ utils : Utilities.
 
 '''
 
-from . import base
-from . import conv
-from . import dense
-from . import utils
-
+from . import (
+    base,
+    conv,
+    dense,
+    utils
+)
 
 from .base import LIKELIHOOD_TYPES, VAE
 

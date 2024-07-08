@@ -8,9 +8,7 @@ utils : Data utilities.
 
 '''
 
-from . import modules
-from . import utils
-
+from . import modules, utils
 
 from .modules import (
     BaseDataModule,
