@@ -37,6 +37,12 @@ trainer:
       save_dir: "run/"
       name: "mnist_dense"
       version: null
+    # class_path: "lightning.pytorch.loggers.MLFlowLogger"
+    # init_args:
+    #   experiment_name: "mnist_dense"
+    #   run_name: null
+    #   save_dir: "run/mlruns"
+    #   log_model: true
   callbacks:
     - class_path: "lightning.pytorch.callbacks.LearningRateMonitor"
       init_args:
