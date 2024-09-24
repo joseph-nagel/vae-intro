@@ -39,6 +39,12 @@ def parse_args():
     parser.add_argument('--name', type=str, default='mnist', help='Experiment name')
     parser.add_argument('--version', type=str, required=False, help='Experiment version')
 
+    parser.add_argument('--log-every-n-steps', type=int, default=50, help='How often to log train steps')
+    parser.add_argument('--check-val-every-n-epoch', type=int, default=1, help='How many epochs between val. checks')
+
+    parser.add_argument('--save-top-k', type=int, default=1, help='Number of best models to save')
+    parser.add_argument('--save-every-n-epochs', type=int, default=1, help='Regular checkpointing interval')
+
     parser.add_argument('--data-dir', type=Path, default='run/data/', help='Data dir')
 
     parser.add_argument('--batch-size', type=int, default=32, help='Batch size')
@@ -78,9 +84,6 @@ def parse_args():
     parser.add_argument('--lr', type=float, default=1e-04, help='Optimizer learning rate')
 
     parser.add_argument('--max-epochs', type=int, default=20, help='Max. number of training epochs')
-
-    parser.add_argument('--save-top', type=int, default=1, help='Number of best models to save')
-    parser.add_argument('--save-every', type=int, default=1, help='Regular checkpointing interval')
 
     parser.add_argument('--patience', type=int, default=0, help='Early stopping patience')
 
@@ -189,13 +192,13 @@ def main(args):
         filename='best',
         monitor='val_loss',
         mode='min',
-        save_top_k=args.save_top,
+        save_top_k=args.save_top_k
     )
 
     save_every_ckpt = ModelCheckpoint(
-        filename='{epoch}_{val_loss:.2f}',
+        filename='{epoch}',
         save_top_k=-1,
-        every_n_epochs=args.save_every,
+        every_n_epochs=args.save_every_n_epochs,
         save_last=True
     )
 
@@ -227,11 +230,11 @@ def main(args):
     # initialize trainer
     trainer = Trainer(
         accelerator=accelerator,
-        devices=1,
         logger=logger,
         callbacks=callbacks,
         max_epochs=args.max_epochs,
-        log_every_n_steps=100,
+        log_every_n_steps=args.log_every_n_steps,
+        check_val_every_n_epoch=args.check_val_every_n_epoch,
         gradient_clip_val=gradient_clip_val,
         gradient_clip_algorithm=gradient_clip_algorithm,
         deterministic=args.random_seed is not None
