@@ -14,12 +14,14 @@ from .vae import (
 )
 
 
-def make_gif(save_file,
-             img_dir,
-             pattern='**/*.png',
-             overwrite=True,
-             timesort=True,
-             **kwargs):
+def make_gif(
+    save_file,
+    img_dir,
+    pattern='**/*.png',
+    overwrite=True,
+    timesort=True,
+    **kwargs
+):
     '''
     Load images and create GIF animation.
 
@@ -70,16 +72,18 @@ def make_gif(save_file,
         raise FileExistsError('File already exists')
 
 
-def make_lat_imgs(save_dir,
-                  ckpt_dir,
-                  data_loader,
-                  pattern='**/*.ckpt',
-                  figsize=(5, 5),
-                  xlim=(-5, 5),
-                  ylim=(-5, 5),
-                  overwrite=True,
-                  timesort=True,
-                  **kwargs):
+def make_lat_imgs(
+    save_dir,
+    ckpt_dir,
+    data_loader,
+    pattern='**/*.ckpt',
+    figsize=(5, 5),
+    xlim=(-5, 5),
+    ylim=(-5, 5),
+    overwrite=True,
+    timesort=True,
+    **kwargs
+):
     '''
     Load checkpoints and save latent space visualizations.
 
@@ -152,17 +156,19 @@ def make_lat_imgs(save_dir,
         plt.close(fig)
 
 
-def make_gen_imgs(save_dir,
-                  ckpt_dir,
-                  num_latents=None,
-                  pattern='**/*.ckpt',
-                  random_seed=None,
-                  nrows=5,
-                  ncols=5,
-                  figsize=(5, 5.5),
-                  overwrite=True,
-                  timesort=True,
-                  **kwargs):
+def make_gen_imgs(
+    save_dir,
+    ckpt_dir,
+    num_latents=None,
+    pattern='**/*.ckpt',
+    random_seed=None,
+    nrows=5,
+    ncols=5,
+    figsize=(5, 5.5),
+    overwrite=True,
+    timesort=True,
+    **kwargs
+):
     '''
     Load checkpoints and save generative visualizations.
 

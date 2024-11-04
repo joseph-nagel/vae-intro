@@ -1,9 +1,14 @@
 '''Convolutional encoder/decoder.'''
 
+from collections.abc import Sequence
+
 import torch
 import torch.nn as nn
 
 from ..layers import (
+    IntOrInts,
+    ActivType,
+    SigmaType,
     DenseBlock,
     MultiDense,
     SingleConv,
@@ -17,17 +22,19 @@ from ..layers import (
 class ConvEncoder(nn.Module):
     '''Convolutional encoder.'''
 
-    def __init__(self,
-                 num_channels,
-                 num_features,
-                 kernel_size=3,
-                 pooling=2,
-                 batchnorm=True,
-                 activation='leaky_relu',
-                 drop_rate=None,
-                 pool_last=True,
-                 double_conv=True,
-                 inout_first=True):
+    def __init__(
+        self,
+        num_channels: Sequence[int],
+        num_features: Sequence[int],
+        kernel_size: IntOrInts = 3,
+        pooling: IntOrInts | None = 2,
+        batchnorm: bool = True,
+        activation: ActivType | None = 'leaky_relu',
+        drop_rate: float | None = None,
+        pool_last: bool = True,
+        double_conv: bool = True,
+        inout_first: bool = True
+    ) -> None:
 
         super().__init__()
 
@@ -74,7 +81,7 @@ class ConvEncoder(nn.Module):
             drop_rate=drop_rate
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
 
         # run conv layers
         x = self.conv_layers(x)
@@ -95,23 +102,25 @@ class ConvEncoder(nn.Module):
 class ConvDecoder(nn.Module):
     '''Convolutional decoder.'''
 
-    def __init__(self,
-                 num_features,
-                 num_channels,
-                 reshape,
-                 kernel_size=3,
-                 scaling=2,
-                 upsample_mode='conv_transpose',
-                 batchnorm=False,
-                 activation='leaky_relu',
-                 last_activation=None,
-                 drop_rate=None,
-                 up_first=True,
-                 double_conv=True,
-                 inout_first=True,
-                 likelihood_type='Bernoulli',
-                 sigma=None,
-                 per_channel=False):
+    def __init__(
+        self,
+        num_features: Sequence[int],
+        num_channels: Sequence[int],
+        reshape: Sequence[int],
+        kernel_size: IntOrInts = 3,
+        scaling: int = 2,
+        upsample_mode: str = 'conv_transpose',
+        batchnorm: bool = False,
+        activation: ActivType | None = 'leaky_relu',
+        last_activation: ActivType | None = None,
+        drop_rate: float | None = None,
+        up_first: bool = True,
+        double_conv: bool = True,
+        inout_first: bool = True,
+        likelihood_type: str = 'Bernoulli',
+        sigma: SigmaType | None = None,
+        per_channel: bool = False
+    ) -> None:
 
         super().__init__()
 
@@ -194,7 +203,7 @@ class ConvDecoder(nn.Module):
                 **kwargs
             )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
 
         # run dense layers
         x = self.dense_layers(x)

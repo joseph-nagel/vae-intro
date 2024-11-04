@@ -1,14 +1,15 @@
 '''Variational autoencoder.'''
 
+from typing import Self
+
 import math
-from warnings import warn
 
 import torch
 import torch.nn as nn
 import torch.distributions as dist
 from lightning.pytorch import LightningModule
 
-from ..data import get_features
+from ..data import BatchType, get_features
 
 
 LIKELIHOOD_TYPES = (
@@ -57,13 +58,15 @@ class VAE(LightningModule):
 
     '''
 
-    def __init__(self,
-                 encoder,
-                 decoder,
-                 beta=1.0,
-                 num_samples=1,
-                 likelihood_type='Bernoulli',
-                 lr=1e-04):
+    def __init__(
+        self,
+        encoder: nn.Module,
+        decoder: nn.Module,
+        beta: float = 1.0,
+        num_samples: int = 1,
+        likelihood_type: str = 'Bernoulli',
+        lr: float = 1e-04
+    ) -> None:
 
         super().__init__()
 
@@ -99,18 +102,18 @@ class VAE(LightningModule):
         )
 
     @property
-    def sampling(self):
+    def sampling(self) -> bool:
         return self._sampling
 
     @sampling.setter
-    def sampling(self, sample_mode):
+    def sampling(self, sample_mode: bool) -> None:
         self._sampling = sample_mode
 
-    def sample(self, sample_mode=True):
+    def sample(self, sample_mode: bool = True) -> None:
         '''Set sampling mode.'''
         self.sampling = sample_mode
 
-    def train(self, train_mode=True):
+    def train(self, train_mode: bool = True) -> Self:
         '''Set training mode.'''
 
         # set module training mode
@@ -122,12 +125,12 @@ class VAE(LightningModule):
 
         return self
 
-    def encode(self, x):
+    def encode(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         '''Encode the input variables.'''
-        mu, logsigma = self.encoder(x)
-        return mu, logsigma
+        # mu, logsigma = self.encoder(x)
+        return self.encoder(x)
 
-    def reparametrize(self, mu, logsigma=None):
+    def reparametrize(self, mu: torch.Tensor, logsigma: torch.Tensor) -> torch.Tensor:
         '''Sample the latent variables.'''
 
         # sample around the mean
@@ -142,41 +145,53 @@ class VAE(LightningModule):
 
         return z
 
-    def decode(self, z):
+    def decode(self, z: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         '''Decode the latent variables.'''
+        return self.decoder(z)
 
-        # compute Bernoulli logits
-        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
-            logits = self.decoder(z)
-            return logits
+        # if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
+        #     logits = self.decoder(z)
+        # else:
+        #     mu, logsigma = self.decoder(z)
 
-        # compute Gaussian/Laplace parameters
-        else:
-            mu, logsigma = self.decoder(z)
-            return mu, logsigma
-
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         '''Encode, sample, decode.'''
 
         # encode inputs
-        mu, logsigma = self.encode(x)
+        z_mu, z_logsigma = self.encode(x)
 
         # sample latent variables
-        z = self.reparametrize(mu, logsigma)
+        z = self.reparametrize(z_mu, z_logsigma)
+
+        # decode latents
+        dist_params = self.decode(z)
 
         # compute Bernoulli probabilities
         if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
-            logits = self.decode(z)
+
+            if not isinstance(dist_params, torch.Tensor):
+                raise TypeError(f'Invalid input type {type(dist_params)} for Bernoulli distribution')
+
+            logits = dist_params
             probs = torch.sigmoid(logits)
+
             return probs
 
         # compute Gaussian/Laplace parameters
         else:
-            mu, logsigma = self.decode(z)
+
+            if not isinstance(dist_params, (tuple, list)):
+                raise TypeError(f'Invalid input type {type(dist_params)} for Gauss/Laplace distribution')
+
+            elif len(dist_params) != 2:
+                raise ValueError(f'Invalid input length {len(dist_params)} for Gauss/Laplace distribution')
+
+            mu, logsigma = dist_params
             sigma = torch.exp(logsigma)
+
             return mu, sigma
 
-    def kl(self, mu, logsigma):
+    def kl(self, mu: torch.Tensor, logsigma: torch.Tensor) -> torch.Tensor:
         '''Compute the KL divergence.'''
 
         sigma = torch.exp(logsigma)
@@ -187,81 +202,83 @@ class VAE(LightningModule):
 
         return kl
 
-    def ll(self,
-           x,
-           logits=None,
-           mu=None,
-           logsigma=None):
+    def ll(
+        self,
+        x: torch.Tensor,
+        dist_params: torch.Tensor | tuple[torch.Tensor, torch.Tensor]
+    ) -> torch.Tensor:
         '''Compute the log-likelihood.'''
 
-        # compute Bernoulli likelihood
-        if self.likelihood_type == 'Bernoulli':
-            if mu is not None or logsigma is not None:
-                warn('Gaussian/Laplace parameters are ignored for the Bernoulli log-likelihood')
+        # compute Bernoulli log-likelihood
+        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
 
-            # strictly restrict to {0,1}-valued targets (standard Bernoulli)
-            if not torch.is_floating_point(x):
-                ll_terms = dist.Bernoulli(logits=logits).log_prob(x.float())
+            if not isinstance(dist_params, torch.Tensor):
+                raise TypeError(f'Invalid input type {type(dist_params)} for Bernoulli likelihood')
 
-            # also allow for [0,1]-valued targets (normalization of the cont. Bernoulli is ignored)
-            else:
-                ll_terms = -nn.functional.binary_cross_entropy_with_logits(
-                    input=logits,
-                    target=x,
-                    reduction='none'
-                )
+            logits = dist_params
 
-        # compute continuous Bernoulli likelihood (properly normalized)
-        elif self.likelihood_type == 'ContinuousBernoulli':
-            if mu is not None or logsigma is not None:
-                warn('Gaussian/Laplace parameters are ignored for the (continuous) Bernoulli log-likelihood')
+            # compute standard Bernoulli likelihood
+            if self.likelihood_type == 'Bernoulli':
 
-            ll_terms = dist.ContinuousBernoulli(logits=logits).log_prob(x)
+                # strictly restrict to {0, 1}-valued targets (standard Bernoulli)
+                if not torch.is_floating_point(x):
+                    ll_terms = dist.Bernoulli(logits=logits).log_prob(x.float())
 
-        # compute Gaussian likelihood
-        elif self.likelihood_type in ('Gauss', 'Gaussian'):
-            if logits is not None:
-                warn('Bernoulli logits are ignored for the Gaussian log-likelihood')
+                # also allow for [0, 1]-valued targets (normalization of the cont. Bernoulli is ignored)
+                else:
+                    ll_terms = -nn.functional.binary_cross_entropy_with_logits(
+                        input=logits,
+                        target=x,
+                        reduction='none'
+                    )
 
-            sigma = torch.exp(logsigma)
-            ll_terms = dist.Normal(loc=mu, scale=sigma).log_prob(x)
+            # compute continuous Bernoulli likelihood (properly normalized)
+            elif self.likelihood_type == 'ContinuousBernoulli':
+                ll_terms = dist.ContinuousBernoulli(logits=logits).log_prob(x)
 
-        # compute Laplace likelihood
+        # compute Gaussian/Laplace log-likelihood
         else:
-            if logits is not None:
-                warn('Bernoulli logits are ignored for the Laplace log-likelihood')
 
-            sigma = torch.exp(logsigma)
-            scale = sigma / math.sqrt(2)
-            ll_terms = dist.Laplace(loc=mu, scale=scale).log_prob(x)
+            if not isinstance(dist_params, (tuple, list)):
+                raise TypeError(f'Invalid input type {type(dist_params)} for Gauss/Laplace likelihood')
+            elif len(dist_params) != 2:
+                raise ValueError(f'Invalid input length {len(dist_params)} for Gauss/Laplace likelihood')
+
+            mu, logsigma = dist_params
+
+            # compute Gaussian likelihood
+            if self.likelihood_type in ('Gauss', 'Gaussian'):
+                sigma = torch.exp(logsigma)
+                ll_terms = dist.Normal(loc=mu, scale=sigma).log_prob(x)
+
+            # compute Laplace likelihood
+            else:
+                sigma = torch.exp(logsigma)
+                scale = sigma / math.sqrt(2)
+                ll_terms = dist.Laplace(loc=mu, scale=scale).log_prob(x)
 
         # sum over data dimensions (all but batch)
         ll = torch.sum(ll_terms, dim=list(range(1, ll_terms.ndim)))
 
         return ll
 
-    def elbo(self, x, num_samples=1):
+    def elbo(self, x: torch.Tensor, num_samples: int = 1) -> torch.Tensor:
         '''Estimate the ELBO objective.'''
 
         # encode inputs
-        mu, logsigma = self.encode(x)
+        z_mu, z_logsigma = self.encode(x)
 
         # calculate KL divergence
-        kl = self.kl(mu, logsigma)
+        kl = self.kl(z_mu, z_logsigma)
 
         # simulate log-likelihood
         ll = torch.zeros_like(kl)
 
         for _ in range(num_samples):
-            z_sample = self.reparametrize(mu, logsigma) # sample latent variables
+            z_sample = self.reparametrize(z_mu, z_logsigma) # sample latent variables
 
             # compute sample log-likelihood
-            if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
-                logits = self.decode(z_sample)
-                ll_sample = self.ll(x, logits=logits)
-            else:
-                mu, logsigma = self.decode(z_sample)
-                ll_sample = self.ll(x, mu=mu, logsigma=logsigma)
+            ll_sample = self.ll(x, dist_params=self.decode(z_sample))
 
             ll = ll + ll_sample # sum log-likelihood samples
 
@@ -272,31 +289,31 @@ class VAE(LightningModule):
 
         return elbo
 
-    def loss(self, x):
+    def loss(self, x: torch.Tensor) -> torch.Tensor:
         '''Estimate the negative-ELBO loss.'''
         loss = -self.elbo(x, num_samples=self.num_samples)
         return loss
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: BatchType, batch_idx: int) -> torch.Tensor:
         x_batch = get_features(batch)
         loss = self.loss(x_batch)
         self.log('train_loss', loss.item()) # Lightning logs batch-wise scalars during training per default
         return loss
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch: BatchType, batch_idx: int) -> torch.Tensor:
         x_batch = get_features(batch)
         loss = self.loss(x_batch)
         self.log('val_loss', loss.item()) # Lightning automatically averages scalars over batches for validation
         return loss
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch: BatchType, batch_idx: int) -> torch.Tensor:
         x_batch = get_features(batch)
         loss = self.loss(x_batch)
         self.log('test_loss', loss.item()) # Lightning automatically averages scalars over batches for testing
         return loss
 
     # TODO: enable LR scheduling
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> torch.optim.Optimizer:
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
 

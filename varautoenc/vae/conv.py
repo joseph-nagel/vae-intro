@@ -1,7 +1,10 @@
 '''Convolutional VAE.'''
 
+from collections.abc import Sequence
+
 from .base import VAE
 from ..model import ConvEncoder, ConvDecoder
+from ..layers import ActivType, SigmaType
 
 
 class ConvVAE(VAE):
@@ -49,25 +52,27 @@ class ConvVAE(VAE):
 
     '''
 
-    def __init__(self,
-                 num_channels,
-                 num_features,
-                 reshape,
-                 kernel_size=3,
-                 pooling=2,
-                 upsample_mode='conv_transpose',
-                 batchnorm=True,
-                 activation='leaky_relu',
-                 last_activation=None,
-                 drop_rate=None,
-                 pool_last=True,
-                 double_conv=True,
-                 beta=1.0,
-                 num_samples=1,
-                 likelihood_type='Bernoulli',
-                 sigma=None,
-                 per_channel=False,
-                 lr=0.001):
+    def __init__(
+        self,
+        num_channels: Sequence[int],
+        num_features: Sequence[int],
+        reshape: Sequence[int],
+        kernel_size=3,
+        pooling=2,
+        upsample_mode: str = 'conv_transpose',
+        batchnorm: bool = True,
+        activation: ActivType | None = 'leaky_relu',
+        last_activation: ActivType | None = None,
+        drop_rate: float | None = None,
+        pool_last: bool = True,
+        double_conv: bool = True,
+        beta: float = 1.0,
+        num_samples: int = 1,
+        likelihood_type: str = 'Bernoulli',
+        sigma: SigmaType | None = None,
+        per_channel: bool = False,
+        lr: float = 0.001
+    ) -> None:
 
         # create encoder (predicts Gaussian params)
         encoder = ConvEncoder(

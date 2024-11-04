@@ -1,20 +1,25 @@
 '''Dense layers.'''
 
+from collections.abc import Sequence
+
+import torch
 import torch.nn as nn
 
-from .utils import make_dense
+from .utils import ActivType, make_dense
 
 
 class DenseBlock(nn.Sequential):
     '''Multiple (serial) dense layers.'''
 
-    def __init__(self,
-                 num_features,
-                 batchnorm=False,
-                 activation='leaky_relu',
-                 last_activation='same',
-                 normalize_last=True,
-                 drop_rate=None):
+    def __init__(
+        self,
+        num_features: Sequence[int],
+        batchnorm: bool = False,
+        activation: ActivType | None = 'leaky_relu',
+        last_activation: ActivType | None = 'same',
+        normalize_last: bool = True,
+        drop_rate: float | None = None
+    ) -> None:
 
         # determine last activation
         if last_activation == 'same':
@@ -48,17 +53,20 @@ class DenseBlock(nn.Sequential):
 class MultiDense(nn.Module):
     '''Multiple (parallel) dense layers.'''
 
-    def __init__(self,
-                 in_features,
-                 out_features,
-                 num_outputs,
-                 batchnorm=False,
-                 activation=None,
-                 drop_rate=None):
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        num_outputs: int,
+        batchnorm: bool = False,
+        activation: ActivType | None = None,
+        drop_rate: float | None = None
+    ) -> None:
 
         super().__init__()
 
-        layers = []
+        layers = [] # type: list[nn.Module]
+
         for _ in range(num_outputs):
 
             dense = make_dense(
@@ -73,6 +81,6 @@ class MultiDense(nn.Module):
 
         self.layers = nn.ModuleList(layers)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> list[torch.Tensor]:
         return [l(x) for l in self.layers]
 

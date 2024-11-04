@@ -27,9 +27,11 @@ from .conv import (
 
 from .dense import DenseBlock, MultiDense
 
-from .prob import ProbDense, ProbConv
+from .prob import SigmaType, ProbDense, ProbConv
 
 from .utils import (
+    IntOrInts,
+    ActivType,
     make_activation,
     make_block,
     make_dropout,

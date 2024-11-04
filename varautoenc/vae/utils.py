@@ -1,14 +1,21 @@
 '''Utilities.'''
 
+from collections.abc import Sequence
+
 import torch
+from torch.utils.data import DataLoader
+
+from .base import VAE
 
 
 @torch.no_grad()
-def generate(vae,
-             sample_shape=None,
-             num_samples=None,
-             z_samples=None,
-             random_seed=None):
+def generate(
+    vae: VAE,
+    sample_shape: Sequence[int] | None = None,
+    num_samples: int | None = None,
+    z_samples: torch.Tensor | None = None,
+    random_seed: int | None = None
+) -> torch.Tensor:
     '''Generate random samples.'''
 
     vae.sample(False) # actually not necessary
@@ -57,7 +64,11 @@ def generate(vae,
 
 
 @torch.no_grad()
-def reconstruct(vae, x, sample_mode=False):
+def reconstruct(
+    vae: VAE,
+    x: torch.Tensor,
+    sample_mode: bool = False
+) -> torch.Tensor:
     '''Reconstruct inputs.'''
 
     vae.sample(sample_mode) # set sampling mode
@@ -75,23 +86,27 @@ def reconstruct(vae, x, sample_mode=False):
 
 
 @torch.no_grad()
-def encode_loader(vae, data_loader, return_targets=False):
+def encode_loader(
+    vae: VAE,
+    data_loader: DataLoader,
+    return_targets: bool = False
+) -> tuple[torch.Tensor, ...]:
     '''Encode all items in a data loader.'''
 
     vae.sample(False) # actually not necessary
     vae.train(False) # activate train mode
 
-    z_mu = []
-    z_sigma = []
+    z_mu_list = []
+    z_sigma_list = []
 
     if return_targets:
-        y = []
+        y_list = []
 
     # loop over batches
     for x_batch, y_batch in data_loader:
 
         if return_targets:
-            y.append(y_batch)
+            y_list.append(y_batch)
 
         # run encoder
         z_batch_mu, z_batch_logsigma = vae.encode(x_batch.to(vae.device))
@@ -101,14 +116,14 @@ def encode_loader(vae, data_loader, return_targets=False):
 
         z_batch_sigma = torch.exp(z_batch_logsigma)
 
-        z_mu.append(z_batch_mu)
-        z_sigma.append(z_batch_sigma)
+        z_mu_list.append(z_batch_mu)
+        z_sigma_list.append(z_batch_sigma)
 
-    z_mu = torch.cat(z_mu, dim=0)
-    z_sigma = torch.cat(z_sigma, dim=0)
+    z_mu = torch.cat(z_mu_list, dim=0)
+    z_sigma = torch.cat(z_sigma_list, dim=0)
 
     if return_targets:
-        y = torch.cat(y, dim=0)
+        y = torch.cat(y_list, dim=0)
 
     if return_targets:
         return z_mu, z_sigma, y

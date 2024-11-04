@@ -1,7 +1,10 @@
 '''Dense VAE.'''
 
+from collections.abc import Sequence
+
 from .base import VAE
 from ..model import DenseEncoder, DenseDecoder
+from ..layers import ActivType, SigmaType
 
 
 class DenseVAE(VAE):
@@ -16,9 +19,9 @@ class DenseVAE(VAE):
         Final output shape.
     batchnorm : bool
         Determines whether batchnorm is used.
-    activation : str
+    activation : str or None
         Nonlinearity type.
-    drop_rate : float
+    drop_rate : float or None
         Dropout probability for dense layers.
     beta : float
         Beta-VAE weighting parameter.
@@ -26,7 +29,7 @@ class DenseVAE(VAE):
         Number of MC samples to simulate the ELBO.
     likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
         Likelihood function type.
-    sigma : float
+    sigma : float or None
         Can be used to specify a constant sigma.
     per_feature : bool
         Enables feature-specific sigma parameters.
@@ -35,18 +38,20 @@ class DenseVAE(VAE):
 
     '''
 
-    def __init__(self,
-                 num_features,
-                 reshape=None,
-                 batchnorm=False,
-                 activation='leaky_relu',
-                 drop_rate=None,
-                 beta=1.0,
-                 num_samples=1,
-                 likelihood_type='Bernoulli',
-                 sigma=None,
-                 per_feature=False,
-                 lr=0.001):
+    def __init__(
+        self,
+        num_features: Sequence[int],
+        reshape: Sequence[int] | None = None,
+        batchnorm: bool = False,
+        activation: ActivType | None = 'leaky_relu',
+        drop_rate: float | None = None,
+        beta: float = 1.0,
+        num_samples: int = 1,
+        likelihood_type: str = 'Bernoulli',
+        sigma: SigmaType | None = None,
+        per_feature: bool = False,
+        lr: float = 0.001
+    ) -> None:
 
         # create encoder (predicts Gaussian params)
         encoder = DenseEncoder(

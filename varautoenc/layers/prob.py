@@ -1,5 +1,8 @@
 '''Probabilistic layers.'''
 
+from typing import Any
+from collections.abc import Sequence
+
 import torch
 import torch.nn as nn
 
@@ -7,15 +10,21 @@ from .utils import make_dense
 from .conv import SingleConv, DoubleConv
 
 
+# define type alias
+SigmaType = torch.Tensor | Sequence[float]
+
+
 class ProbDense(nn.Module):
     '''Probabilistic dense layer with constant sigma (fixed or learnable).'''
 
-    def __init__(self,
-                 in_features,
-                 out_features,
-                 sigma=None,
-                 per_feature=False,
-                 **kwargs):
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        sigma: SigmaType | None = None,
+        per_feature: bool = False,
+        **kwargs: Any
+    ) -> None:
 
         super().__init__()
 
@@ -31,6 +40,7 @@ class ProbDense(nn.Module):
             num_sigmas = out_features if per_feature else 1
             logsigma = torch.randn(num_sigmas)
             self.logsigma = nn.Parameter(logsigma, requires_grad=True)
+
         else:
             sigma = torch.as_tensor(sigma, dtype=torch.float32).detach().clone()
             logsigma = sigma.log().view(-1)
@@ -45,13 +55,15 @@ class ProbDense(nn.Module):
 class ProbConv(nn.Module):
     '''Probabilistic conv. layer with constant sigma (fixed or learnable).'''
 
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 double_conv=False,
-                 sigma=None,
-                 per_channel=False,
-                 **kwargs):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        double_conv: bool = False,
+        sigma: SigmaType | None = None,
+        per_channel: bool = False,
+        **kwargs: Any
+    ) -> None:
 
         super().__init__()
 
@@ -70,6 +82,7 @@ class ProbConv(nn.Module):
             num_sigmas = out_channels if per_channel else 1
             logsigma = torch.randn(num_sigmas, 1, 1)
             self.logsigma = nn.Parameter(logsigma, requires_grad=True)
+
         else:
             sigma = torch.as_tensor(sigma, dtype=torch.float32).detach().clone()
             logsigma = sigma.log().view(-1, 1, 1)

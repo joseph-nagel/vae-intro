@@ -1,9 +1,13 @@
 '''Dense encoder/decoder.'''
 
+from collections.abc import Sequence
+
 import torch
 import torch.nn as nn
 
 from ..layers import (
+    ActivType,
+    SigmaType,
     make_dense,
     DenseBlock,
     MultiDense,
@@ -14,12 +18,14 @@ from ..layers import (
 class DenseEncoder(nn.Module):
     '''Fully connected encoder.'''
 
-    def __init__(self,
-                 num_features,
-                 batchnorm=False,
-                 activation='leaky_relu',
-                 drop_rate=None,
-                 flatten=True):
+    def __init__(
+        self,
+        num_features: Sequence[int],
+        batchnorm: bool = False,
+        activation: ActivType | None = 'leaky_relu',
+        drop_rate: float | None = None,
+        flatten: bool = True
+    ) -> None:
 
         super().__init__()
 
@@ -52,7 +58,7 @@ class DenseEncoder(nn.Module):
             drop_rate=drop_rate
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
 
         # flatten
         if self.flatten:
@@ -71,15 +77,17 @@ class DenseEncoder(nn.Module):
 class DenseDecoder(nn.Module):
     '''Fully connected decoder.'''
 
-    def __init__(self,
-                 num_features,
-                 batchnorm=False,
-                 activation='leaky_relu',
-                 drop_rate=None,
-                 reshape=None,
-                 likelihood_type='Bernoulli',
-                 sigma=None,
-                 per_feature=False):
+    def __init__(
+        self,
+        num_features: Sequence[int],
+        batchnorm: bool = False,
+        activation: ActivType | None = 'leaky_relu',
+        drop_rate: float | None = None,
+        reshape: Sequence[int] | None = None,
+        likelihood_type: str = 'Bernoulli',
+        sigma: SigmaType | None = None,
+        per_feature: bool = False
+    ) -> None:
 
         super().__init__()
 
@@ -126,7 +134,7 @@ class DenseDecoder(nn.Module):
                 drop_rate=drop_rate
             )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
 
         # run dense layers
         if self.dense_layers is not None:
