@@ -113,7 +113,7 @@ def make_dense(
     linear = nn.Linear(
         in_features,
         out_features,
-        bias=bias # the bias should be disabled if a batchnorm directly follows after the convolution
+        bias=bias # the bias should be disabled if a batchnorm directly follows after the linear layer
     )
 
     # create activation function
@@ -148,11 +148,11 @@ def make_conv(
         Number of input channels.
     out_channels : int
         Number of output channels.
-    kernel_size : int
+    kernel_size : int or (int, int)
         Convolutional kernel size.
-    stride : int
+    stride : int or (int, int)
         Stride parameter.
-    padding : int or str
+    padding : int, (int, int) or str
         Padding parameter.
     bias : bool
         Determines whether a bias is used.

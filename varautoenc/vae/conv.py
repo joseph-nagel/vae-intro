@@ -4,7 +4,7 @@ from collections.abc import Sequence
 
 from .base import VAE
 from ..model import ConvEncoder, ConvDecoder
-from ..layers import ActivType, SigmaType
+from ..layers import IntOrInts, ActivType, SigmaType
 
 
 class ConvVAE(VAE):
@@ -19,19 +19,19 @@ class ConvVAE(VAE):
         Feature numbers for dense layers.
     reshape : list
         Shape between dense and conv. layers.
-    kernel_size : int
+    kernel_size : int or (int, int)
         Conv. kernel size.
-    pooling : int
+    pooling : int, (int, int) or None
         Pooling parameter.
     upsample_mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
         Conv. upsampling mode.
     batchnorm : bool
         Determines whether batchnorm is used.
-    activation : str
+    activation : str or None
         Nonlinearity type.
-    last_activation : str
+    last_activation : str or None
         Nonlinearity of the final layer.
-    drop_rate : float
+    drop_rate : float or None
         Dropout probability for dense layers.
     pool_last : bool
         Controls the last pooling operation (also first upscaling).
@@ -43,7 +43,7 @@ class ConvVAE(VAE):
         Number of MC samples to simulate the ELBO.
     likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
         Likelihood function type.
-    sigma : float
+    sigma : float or None
         Can be used to specify a constant sigma.
     per_channel : bool
         Enables channel-specific sigma parameters.
@@ -57,8 +57,8 @@ class ConvVAE(VAE):
         num_channels: Sequence[int],
         num_features: Sequence[int],
         reshape: Sequence[int],
-        kernel_size=3,
-        pooling=2,
+        kernel_size: IntOrInts = 3,
+        pooling: IntOrInts | None = 2,
         upsample_mode: str = 'conv_transpose',
         batchnorm: bool = True,
         activation: ActivType | None = 'leaky_relu',

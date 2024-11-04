@@ -15,7 +15,7 @@ class DenseVAE(VAE):
     ----------
     num_features : list
         Feature numbers for dense layers.
-    reshape : list
+    reshape : list or None
         Final output shape.
     batchnorm : bool
         Determines whether batchnorm is used.
