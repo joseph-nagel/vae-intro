@@ -5,7 +5,6 @@ from torch.utils.data import random_split
 from torchvision import datasets, transforms
 
 from .base import BaseDataModule
-from .utils import FloatOrFloats
 
 
 class MNISTDataModule(BaseDataModule):
@@ -15,8 +14,8 @@ class MNISTDataModule(BaseDataModule):
         self,
         data_dir: str,
         binarize_threshold: float | None = None,
-        mean: FloatOrFloats | None = None,
-        std: FloatOrFloats | None = None,
+        mean: float | None = None,
+        std: float | None = None,
         batch_size: int = 32,
         num_workers: int = 0
     ) -> None:
