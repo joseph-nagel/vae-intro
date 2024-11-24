@@ -52,6 +52,14 @@ class MNISTDataModule(BaseDataModule):
         self.train_transform = transforms.Compose(train_transforms)
         self.test_transform = transforms.Compose(test_transforms)
 
+        # create inverse normalization
+        if (mean is not None) and (std is not None):
+
+            self.renormalize = transforms.Compose([
+                transforms.Lambda(lambda x: x * std + mean), # reverse normalization
+                transforms.Lambda(lambda x: x.clamp(0, 1)) # clip to valid range
+            ])
+
     def prepare_data(self) -> None:
         '''Download data.'''
 
