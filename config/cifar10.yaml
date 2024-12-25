@@ -20,9 +20,9 @@ model:
     kernel_size: 3
     pooling: 2
     upsample_mode: "bilinear"
-    batchnorm: false
     activation: "leaky_relu"
     last_activation: null
+    batchnorm: false
     drop_rate: null
     pool_last: true
     double_conv: true

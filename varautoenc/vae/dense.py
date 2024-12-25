@@ -17,10 +17,10 @@ class DenseVAE(VAE):
         Feature numbers for dense layers.
     reshape : list or None
         Final output shape.
-    batchnorm : bool
-        Determines whether batchnorm is used.
     activation : str or None
         Nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
     drop_rate : float or None
         Dropout probability for dense layers.
     beta : float
@@ -42,8 +42,8 @@ class DenseVAE(VAE):
         self,
         num_features: Sequence[int],
         reshape: Sequence[int] | None = None,
-        batchnorm: bool = False,
         activation: ActivType | None = 'leaky_relu',
+        batchnorm: bool = False,
         drop_rate: float | None = None,
         beta: float = 1.0,
         num_samples: int = 1,
@@ -56,8 +56,8 @@ class DenseVAE(VAE):
         # create encoder (predicts Gaussian params)
         encoder = DenseEncoder(
             num_features,
-            batchnorm=batchnorm,
             activation=activation,
+            batchnorm=batchnorm,
             drop_rate=drop_rate,
             flatten=True # flatten the input
         )
@@ -65,8 +65,8 @@ class DenseVAE(VAE):
         # create decoder (predicts Bernoulli logits or Gaussian params)
         decoder = DenseDecoder(
             num_features[::-1],
-            batchnorm=batchnorm,
             activation=activation,
+            batchnorm=batchnorm,
             drop_rate=drop_rate,
             reshape=reshape, # reshape the flat output
             likelihood_type=likelihood_type,

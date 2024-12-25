@@ -25,12 +25,12 @@ class ConvVAE(VAE):
         Pooling parameter.
     upsample_mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
         Conv. upsampling mode.
-    batchnorm : bool
-        Determines whether batchnorm is used.
     activation : str or None
         Nonlinearity type.
     last_activation : str or None
         Nonlinearity of the final layer.
+    batchnorm : bool
+        Determines whether batchnorm is used.
     drop_rate : float or None
         Dropout probability for dense layers.
     pool_last : bool
@@ -60,9 +60,9 @@ class ConvVAE(VAE):
         kernel_size: IntOrInts = 3,
         pooling: IntOrInts | None = 2,
         upsample_mode: str = 'conv_transpose',
-        batchnorm: bool = True,
         activation: ActivType | None = 'leaky_relu',
         last_activation: ActivType | None = None,
+        batchnorm: bool = True,
         drop_rate: float | None = None,
         pool_last: bool = True,
         double_conv: bool = True,
@@ -80,8 +80,8 @@ class ConvVAE(VAE):
             num_features,
             kernel_size=kernel_size,
             pooling=pooling,
-            batchnorm=batchnorm,
             activation=activation,
+            batchnorm=batchnorm,
             drop_rate=drop_rate,
             pool_last=pool_last,
             double_conv=double_conv,
@@ -96,9 +96,9 @@ class ConvVAE(VAE):
             kernel_size=kernel_size,
             scaling=pooling,
             upsample_mode=upsample_mode,
-            batchnorm=batchnorm,
             activation=activation,
             last_activation=last_activation,
+            batchnorm=batchnorm,
             drop_rate=drop_rate,
             up_first=pool_last,
             double_conv=double_conv,

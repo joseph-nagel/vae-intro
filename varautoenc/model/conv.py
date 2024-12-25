@@ -28,8 +28,8 @@ class ConvEncoder(nn.Module):
         num_features: Sequence[int],
         kernel_size: IntOrInts = 3,
         pooling: IntOrInts | None = 2,
-        batchnorm: bool = True,
         activation: ActivType | None = 'leaky_relu',
+        batchnorm: bool = True,
         drop_rate: float | None = None,
         pool_last: bool = True,
         double_conv: bool = True,
@@ -45,9 +45,9 @@ class ConvEncoder(nn.Module):
             padding='same',
             stride=1,
             pooling=pooling,
-            batchnorm=batchnorm,
             activation=activation,
             last_activation='same',
+            batchnorm=batchnorm,
             normalize_last=True,
             pool_last=pool_last,
             double_conv=double_conv,
@@ -64,9 +64,9 @@ class ConvEncoder(nn.Module):
         else:
             self.dense_layers = DenseBlock(
                 num_features[:-1], # the last layer is replaced by the prob. layer below
-                batchnorm=batchnorm,
                 activation=activation,
                 last_activation='same',
+                batchnorm=batchnorm,
                 normalize_last=True,
                 drop_rate=drop_rate
             )
@@ -76,8 +76,8 @@ class ConvEncoder(nn.Module):
             num_features[-2],
             num_features[-1],
             num_outputs=2,
-            batchnorm=False,
             activation=None,
+            batchnorm=False,
             drop_rate=drop_rate
         )
 
@@ -110,9 +110,9 @@ class ConvDecoder(nn.Module):
         kernel_size: IntOrInts = 3,
         scaling: int = 2,
         upsample_mode: str = 'conv_transpose',
-        batchnorm: bool = False,
         activation: ActivType | None = 'leaky_relu',
         last_activation: ActivType | None = None,
+        batchnorm: bool = False,
         drop_rate: float | None = None,
         up_first: bool = True,
         double_conv: bool = True,
@@ -131,9 +131,9 @@ class ConvDecoder(nn.Module):
         # create dense layers
         self.dense_layers = DenseBlock(
             num_features,
-            batchnorm=batchnorm,
             activation=activation,
             last_activation='same',
+            batchnorm=batchnorm,
             normalize_last=True,
             drop_rate=drop_rate
         )
@@ -149,9 +149,9 @@ class ConvDecoder(nn.Module):
                 padding='same',
                 scaling=scaling,
                 upsample_mode=upsample_mode,
-                batchnorm=batchnorm,
                 activation=activation,
                 last_activation='same',
+                batchnorm=batchnorm,
                 normalize_last=True,
                 conv_last=False, # the last layer is replaced by the prob. layer below
                 up_first=up_first,
@@ -169,17 +169,17 @@ class ConvDecoder(nn.Module):
         if double_conv:
             kwargs = {
                 **kwargs,
-                'batchnorm': batchnorm,
                 'activation': activation,
                 'last_activation': last_activation,
+                'batchnorm': batchnorm,
                 'normalize_last': False,
                 'inout_first': inout_first
             }
         else:
             kwargs = {
                 **kwargs,
-                'batchnorm': False,
                 'activation': last_activation,
+                'batchnorm': False
             }
 
         # create Bernoulli logits

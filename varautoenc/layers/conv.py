@@ -23,8 +23,8 @@ class SingleConv(nn.Sequential):
         stride: IntOrInts = 1,
         padding: IntOrInts | str = 'same',
         bias: bool = True,
-        batchnorm: bool = False,
-        activation: ActivType | None = 'leaky_relu'
+        activation: ActivType | None = 'leaky_relu',
+        batchnorm: bool = False
     ) -> None:
 
         # create conv layer
@@ -62,9 +62,9 @@ class DoubleConv(nn.Sequential):
         stride: IntOrInts = 1,
         padding: IntOrInts | str = 'same',
         bias: bool = True,
-        batchnorm: bool = False,
         activation: ActivType | None = 'leaky_relu',
         last_activation: ActivType | None = 'same',
+        batchnorm: bool = False,
         normalize_last: bool = True,
         inout_first: bool = True
     ) -> None:
@@ -81,8 +81,8 @@ class DoubleConv(nn.Sequential):
             stride=stride,
             padding=padding,
             bias=bias,
-            batchnorm=batchnorm,
-            activation=activation
+            activation=activation,
+            batchnorm=batchnorm
         )
 
         # create second conv
@@ -93,8 +93,8 @@ class DoubleConv(nn.Sequential):
             stride=1,
             padding=padding,
             bias=bias,
-            batchnorm=(batchnorm and normalize_last),
-            activation=last_activation
+            activation=last_activation,
+            batchnorm=(batchnorm and normalize_last)
         )
 
         # initialize module
@@ -111,9 +111,9 @@ class ConvBlock(nn.Sequential):
         stride: IntOrInts = 1,
         padding: IntOrInts | str = 'same',
         bias: bool = True,
-        batchnorm: bool = False,
         activation: ActivType | None = 'leaky_relu',
         last_activation: ActivType | None = 'same',
+        batchnorm: bool = False,
         normalize_last: bool = True
     ) -> None:
 
@@ -129,6 +129,7 @@ class ConvBlock(nn.Sequential):
 
         # assemble layers
         layers = []
+
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
             is_not_last = (idx < num_layers - 1)
 
@@ -140,8 +141,8 @@ class ConvBlock(nn.Sequential):
                 stride=stride,
                 padding=padding,
                 bias=bias,
-                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
-                activation=activation if is_not_last else last_activation
+                activation=activation if is_not_last else last_activation,
+                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last)
             )
 
             layers.append(conv_block)
@@ -160,9 +161,9 @@ class ConvDown(nn.Sequential):
         padding: IntOrInts | str = 'same',
         stride: IntOrInts = 1,
         pooling: IntOrInts | None = 2,
-        batchnorm: bool = False,
         activation: ActivType | None = 'leaky_relu',
         last_activation: ActivType | None = 'same',
+        batchnorm: bool = False,
         normalize_last: bool = True,
         pool_last: bool = True,
         double_conv: bool = False,
@@ -198,8 +199,8 @@ class ConvDown(nn.Sequential):
                 kernel_size=kernel_size,
                 stride=stride,
                 padding=padding,
-                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
                 activation=activation if is_not_last else last_activation,
+                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
                 **kwargs
             )
 
@@ -226,9 +227,9 @@ class ConvUp(nn.Sequential):
         padding: IntOrInts | str = 'same',
         scaling: int = 2,
         upsample_mode: str = 'conv_transpose',
-        batchnorm: bool = False,
         activation: ActivType | None = 'leaky_relu',
         last_activation: ActivType | None = 'same',
+        batchnorm: bool = False,
         normalize_last: bool = True,
         conv_last: bool = True,
         up_first: bool = True,
@@ -279,8 +280,8 @@ class ConvUp(nn.Sequential):
                     kernel_size=kernel_size,
                     stride=1,
                     padding=padding,
-                    batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
                     activation=activation if is_not_last else last_activation,
+                    batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
                     **kwargs
                 )
 

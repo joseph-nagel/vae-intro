@@ -14,9 +14,9 @@ class DenseBlock(nn.Sequential):
     def __init__(
         self,
         num_features: Sequence[int],
-        batchnorm: bool = False,
         activation: ActivType | None = 'leaky_relu',
         last_activation: ActivType | None = 'same',
+        batchnorm: bool = False,
         normalize_last: bool = True,
         drop_rate: float | None = None
     ) -> None:
@@ -33,14 +33,15 @@ class DenseBlock(nn.Sequential):
 
         # assemble layers
         layers = []
+
         for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
             is_not_last = (idx < num_layers - 1)
 
             dense = make_dense(
                 in_features,
                 out_features,
-                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
                 activation=activation if is_not_last else last_activation,
+                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
                 drop_rate=drop_rate
             )
 
@@ -58,8 +59,8 @@ class MultiDense(nn.Module):
         in_features: int,
         out_features: int,
         num_outputs: int,
-        batchnorm: bool = False,
         activation: ActivType | None = None,
+        batchnorm: bool = False,
         drop_rate: float | None = None
     ) -> None:
 
@@ -72,8 +73,8 @@ class MultiDense(nn.Module):
             dense = make_dense(
                 in_features,
                 out_features,
-                batchnorm=batchnorm,
                 activation=activation,
+                batchnorm=batchnorm,
                 drop_rate=drop_rate
             )
 

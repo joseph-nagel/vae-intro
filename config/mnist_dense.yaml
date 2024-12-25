@@ -17,8 +17,8 @@ model:
   init_args:
     num_features: [784, 512, 128, 32, 2]
     reshape: [1, 28, 28]
-    batchnorm: false
     activation: "leaky_relu"
+    batchnorm: false
     drop_rate: null
     beta: 1.0
     num_samples: 1
