@@ -13,11 +13,11 @@ class ConvVAE(VAE):
 
     Parameters
     ----------
-    num_channels : list
+    num_channels : list or tuple
         Channel numbers for conv. layers.
-    num_features : list
+    num_features : list or tuple
         Feature numbers for dense layers.
-    reshape : list
+    reshape : list or tuple
         Shape between dense and conv. layers.
     kernel_size : int or (int, int)
         Conv. kernel size.
@@ -44,7 +44,7 @@ class ConvVAE(VAE):
     likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
         Likelihood function type.
     sigma : float or None
-        Can be used to specify a constant sigma.
+        Can be used to specify constant sigmas.
     per_channel : bool
         Enables channel-specific sigma parameters.
     lr : float

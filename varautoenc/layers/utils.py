@@ -149,7 +149,7 @@ def make_conv(
     out_channels : int
         Number of output channels.
     kernel_size : int or (int, int)
-        Convolutional kernel size.
+        Conv. kernel size.
     stride : int or (int, int)
         Stride parameter.
     padding : int, (int, int) or str
@@ -193,7 +193,23 @@ def make_up(
     out_channels: int = 1,
     kernel_size: IntOrInts = 3
 ) -> nn.Module:
-    '''Create upsampling layer.'''
+    '''
+    Create upsampling layer.
+
+    Parameters
+    ----------
+    scaling : int
+        Scaling parameter.
+    mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
+        Conv. upsampling mode.
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    kernel_size : int or (int, int)
+        Conv. kernel size.
+
+    '''
 
     # bilinear upsampling
     if mode == 'bilinear':

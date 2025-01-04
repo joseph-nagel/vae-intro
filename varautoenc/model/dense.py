@@ -16,7 +16,24 @@ from ..layers import (
 
 
 class DenseEncoder(nn.Module):
-    '''Fully connected encoder.'''
+    '''
+    Fully connected encoder.
+
+    Parameters
+    ----------
+    num_features : list of tuple
+        Number of features.
+    activation : str or None
+        Nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    drop_rate : float or None
+        Dropout probability.
+    flatten : bool
+        Determines whether input tensors are flattened
+        before being further processed by the encoder.
+
+    '''
 
     def __init__(
         self,
@@ -52,7 +69,7 @@ class DenseEncoder(nn.Module):
         self.dist_params = MultiDense(
             num_features[-2],
             num_features[-1],
-            num_outputs=2,
+            num_blocks=2,
             activation=None,
             batchnorm=False,
             drop_rate=drop_rate
@@ -75,7 +92,29 @@ class DenseEncoder(nn.Module):
 
 
 class DenseDecoder(nn.Module):
-    '''Fully connected decoder.'''
+    '''
+    Fully connected decoder.
+
+    Parameters
+    ----------
+    num_features : list of tuple
+        Number of features.
+    activation : str or None
+        Nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    drop_rate : float or None
+        Dropout probability.
+    reshape : list or None
+        Final output shape.
+    likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
+        Likelihood function type.
+    sigma : float or None
+        Can be used to specify constant sigmas.
+    per_feature : bool
+        Enables feature-specific sigma parameters.
+
+    '''
 
     def __init__(
         self,

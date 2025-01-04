@@ -20,7 +20,34 @@ from ..layers import (
 
 
 class ConvEncoder(nn.Module):
-    '''Convolutional encoder.'''
+    '''
+    Convolutional encoder.
+
+    Parameters
+    ----------
+    num_channels : list or tuple
+        Channel numbers for conv. layers.
+    num_features : list or tuple
+        Feature numbers for dense layers.
+    kernel_size : int or (int, int)
+        Conv. kernel size.
+    pooling : int, (int, int) or None
+        Pooling parameter.
+    activation : str or None
+        Nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    drop_rate : float or None
+        Dropout probability for dense layers.
+    pool_last : bool
+        Controls the last pooling operation (also first upscaling).
+    double_conv : bool
+        Determines whether double conv. blocks are used.
+    inout_first : bool
+        Determines whether the first or second
+        convolution changes the number of channels.
+
+    '''
 
     def __init__(
         self,
@@ -42,8 +69,8 @@ class ConvEncoder(nn.Module):
         self.conv_layers = ConvDown(
             num_channels,
             kernel_size=kernel_size,
-            padding='same',
             stride=1,
+            padding='same',
             pooling=pooling,
             activation=activation,
             last_activation='same',
@@ -75,7 +102,7 @@ class ConvEncoder(nn.Module):
         self.dist_params = MultiDense(
             num_features[-2],
             num_features[-1],
-            num_outputs=2,
+            num_blocks=2,
             activation=None,
             batchnorm=False,
             drop_rate=drop_rate
@@ -100,7 +127,46 @@ class ConvEncoder(nn.Module):
 
 
 class ConvDecoder(nn.Module):
-    '''Convolutional decoder.'''
+    '''
+    Convolutional decoder.
+
+    Parameters
+    ----------
+    num_channels : list or tuple
+        Channel numbers for conv. layers.
+    num_features : list or tuple
+        Feature numbers for dense layers.
+    reshape : list or tuple
+        Shape between dense and conv. layers.
+    kernel_size : int or (int, int)
+        Conv. kernel size.
+    scaling : int
+        Scaling parameter.
+    upsample_mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
+        Conv. upsampling mode.
+    activation : str or None
+        Nonlinearity type.
+    last_activation : str or None
+        Nonlinearity of the final layer.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    drop_rate : float or None
+        Dropout probability for dense layers.
+    up_first : bool
+        Determines whether upsampling is done first.
+    double_conv : bool
+        Determines whether double conv. blocks are used.
+    inout_first : bool
+        Determines whether the first or second
+        convolution changes the number of channels.
+    likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
+        Likelihood function type.
+    sigma : float or None
+        Can be used to specify constant sigmas.
+    per_channel : bool
+        Enables channel-specific sigma parameters.
+
+    '''
 
     def __init__(
         self,

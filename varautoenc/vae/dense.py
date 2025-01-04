@@ -30,7 +30,7 @@ class DenseVAE(VAE):
     likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
         Likelihood function type.
     sigma : float or None
-        Can be used to specify a constant sigma.
+        Can be used to specify constant sigmas.
     per_feature : bool
         Enables feature-specific sigma parameters.
     lr : float

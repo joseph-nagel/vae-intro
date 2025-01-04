@@ -13,7 +13,29 @@ from .utils import (
 
 
 class SingleConv(nn.Sequential):
-    '''Single conv. block.'''
+    '''
+    Single conv. block.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    kernel_size : int or (int, int)
+        Conv. kernel size.
+    stride : int or (int, int)
+        Stride parameter.
+    padding : int, (int, int) or str
+        Padding parameter.
+    bias : bool
+        Determines whether a bias is used.
+    activation : str or None
+        Nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+
+    '''
 
     def __init__(
         self,
@@ -52,7 +74,36 @@ class SingleConv(nn.Sequential):
 
 
 class DoubleConv(nn.Sequential):
-    '''Double conv. blocks.'''
+    '''
+    Double conv. block.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    kernel_size : int or (int, int)
+        Conv. kernel size.
+    stride : int or (int, int)
+        Stride parameter.
+    padding : int, (int, int) or str
+        Padding parameter.
+    bias : bool
+        Determines whether a bias is used.
+    activation : str or None
+        Nonlinearity type.
+    last_activation : str or None
+        Last nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    normalize_last : bool
+        Determines whether batchnorm is used last.
+    inout_first : bool
+        Determines whether the first or second
+        convolution changes the number of channels.
+
+    '''
 
     def __init__(
         self,
@@ -102,7 +153,31 @@ class DoubleConv(nn.Sequential):
 
 
 class ConvBlock(nn.Sequential):
-    '''Multiple (serial) conv. blocks.'''
+    '''
+    Multiple (serial) conv. blocks.
+
+    Parameters
+    ----------
+    num_channels : list or tuple
+        Number of channels.
+    kernel_size : int or (int, int)
+        Conv. kernel size.
+    stride : int or (int, int)
+        Stride parameter.
+    padding : int, (int, int) or str
+        Padding parameter.
+    bias : bool
+        Determines whether a bias is used.
+    activation : str or None
+        Nonlinearity type.
+    last_activation : str or None
+        Last nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    normalize_last : bool
+        Determines whether batchnorm is used last.
+
+    '''
 
     def __init__(
         self,
@@ -131,6 +206,7 @@ class ConvBlock(nn.Sequential):
         layers = []
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
+
             is_not_last = (idx < num_layers - 1)
 
             # create conv layer
@@ -152,14 +228,45 @@ class ConvBlock(nn.Sequential):
 
 
 class ConvDown(nn.Sequential):
-    '''Convolutions with downsampling.'''
+    '''
+    Convolutions with downsampling.
+
+    Parameters
+    ----------
+    num_channels : list or tuple
+        Number of channels.
+    kernel_size : int or (int, int)
+        Conv. kernel size.
+    stride : int or (int, int)
+        Stride parameter.
+    padding : int, (int, int) or str
+        Padding parameter.
+    pooling : int, (int, int) or None
+        Pooling parameter.
+    activation : str or None
+        Nonlinearity type.
+    last_activation : str or None
+        Last nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    normalize_last : bool
+        Determines whether batchnorm is used last.
+    pool_last : bool
+        Determines whether pooling is done last.
+    double_conv : bool
+        Determines whether double conv. blocks are used.
+    inout_first : bool
+        Determines whether the first or second
+        convolution changes the number of channels.
+
+    '''
 
     def __init__(
         self,
         num_channels: Sequence[int],
         kernel_size: IntOrInts = 3,
-        padding: IntOrInts | str = 'same',
         stride: IntOrInts = 1,
+        padding: IntOrInts | str = 'same',
         pooling: IntOrInts | None = 2,
         activation: ActivType | None = 'leaky_relu',
         last_activation: ActivType | None = 'same',
@@ -190,6 +297,7 @@ class ConvDown(nn.Sequential):
         layers = [] # type: list[nn.Module]
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
+
             is_not_last = (idx < num_layers - 1)
 
             # create conv layer
@@ -218,7 +326,40 @@ class ConvDown(nn.Sequential):
 
 
 class ConvUp(nn.Sequential):
-    '''Convolutions with upsampling.'''
+    '''
+    Convolutions with upsampling.
+
+    Parameters
+    ----------
+    num_channels : list or tuple
+        Number of channels.
+    kernel_size : int or (int, int)
+        Conv. kernel size.
+    padding : int, (int, int) or str
+        Padding parameter.
+    scaling : int
+        Scaling parameter.
+    upsample_mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
+        Conv. upsampling mode.
+    activation : str or None
+        Nonlinearity type.
+    last_activation : str or None
+        Last nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    normalize_last : bool
+        Determines whether batchnorm is used last.
+    conv_last : bool
+        Determines whether a conv. is used last.
+    up_first : bool
+        Determines whether upsampling is done first.
+    double_conv : bool
+        Determines whether double conv. blocks are used.
+    inout_first : bool
+        Determines whether the first or second
+        convolution changes the number of channels.
+
+    '''
 
     def __init__(
         self,
@@ -257,6 +398,7 @@ class ConvUp(nn.Sequential):
         layers = [] # type: list[nn.Module]
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
+
             is_not_first = (idx > 0)
             is_not_last = (idx < num_layers - 1)
 

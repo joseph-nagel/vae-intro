@@ -15,7 +15,21 @@ SigmaType = torch.Tensor | Sequence[float]
 
 
 class ProbDense(nn.Module):
-    '''Probabilistic dense layer with constant sigma (fixed or learnable).'''
+    '''
+    Probabilistic dense layer with constant sigma (fixed or learnable).
+
+    Parameters
+    ----------
+    in_features : int
+        Number of inputs
+    out_features : int
+        Number of outputs.
+    sigma : float or None
+        Can be used to specify constant sigmas.
+    per_feature : bool
+        Enables feature-specific sigma parameters.
+
+    '''
 
     def __init__(
         self,
@@ -53,7 +67,23 @@ class ProbDense(nn.Module):
 
 
 class ProbConv(nn.Module):
-    '''Probabilistic conv. layer with constant sigma (fixed or learnable).'''
+    '''
+    Probabilistic conv. layer with constant sigma (fixed or learnable).
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    double_conv : bool
+        Determines whether double conv. blocks are used.
+    sigma : float or None
+        Can be used to specify constant sigmas.
+    per_channel : bool
+        Enables channel-specific sigma parameters.
+
+    '''
 
     def __init__(
         self,

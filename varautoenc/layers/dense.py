@@ -9,7 +9,25 @@ from .utils import ActivType, make_dense
 
 
 class DenseBlock(nn.Sequential):
-    '''Multiple (serial) dense layers.'''
+    '''
+    Multiple (serial) dense layers.
+
+    Parameters
+    ----------
+    num_features : list of tuple
+        Number of features.
+    activation : str or None
+        Nonlinearity type.
+    last_activation : str or None
+        Last nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    normalize_last : bool
+        Determines whether batchnorm is used last.
+    drop_rate : float or None
+        Dropout probability.
+
+    '''
 
     def __init__(
         self,
@@ -35,6 +53,7 @@ class DenseBlock(nn.Sequential):
         layers = []
 
         for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
+
             is_not_last = (idx < num_layers - 1)
 
             dense = make_dense(
@@ -52,13 +71,31 @@ class DenseBlock(nn.Sequential):
 
 
 class MultiDense(nn.Module):
-    '''Multiple (parallel) dense layers.'''
+    '''
+    Multiple (parallel) dense layers.
+
+    Parameters
+    ----------
+    in_features : int
+        Number of inputs
+    out_features : int
+        Number of outputs.
+    num_blocks : int
+        Number of blocks.
+    activation : str or None
+        Nonlinearity type.
+    batchnorm : bool
+        Determines whether batchnorm is used.
+    drop_rate : float or None
+        Dropout probability.
+
+    '''
 
     def __init__(
         self,
         in_features: int,
         out_features: int,
-        num_outputs: int,
+        num_blocks: int,
         activation: ActivType | None = None,
         batchnorm: bool = False,
         drop_rate: float | None = None
@@ -68,7 +105,7 @@ class MultiDense(nn.Module):
 
         layers = [] # type: list[nn.Module]
 
-        for _ in range(num_outputs):
+        for _ in range(num_blocks):
 
             dense = make_dense(
                 in_features,
