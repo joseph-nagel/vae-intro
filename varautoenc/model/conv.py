@@ -132,10 +132,10 @@ class ConvDecoder(nn.Module):
 
     Parameters
     ----------
-    num_channels : list or tuple
-        Channel numbers for conv. layers.
     num_features : list or tuple
         Feature numbers for dense layers.
+    num_channels : list or tuple
+        Channel numbers for conv. layers.
     reshape : list or tuple
         Shape between dense and conv. layers.
     kernel_size : int or (int, int)
