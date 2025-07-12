@@ -18,8 +18,8 @@ def generate(
 ) -> torch.Tensor:
     '''Generate random samples.'''
 
-    vae.sample(False) # actually not necessary
-    vae.train(False) # activate train mode
+    vae.sample(False)  # actually not necessary
+    vae.train(False)  # activate train mode
 
     # set random seed manually
     if random_seed is not None:
@@ -49,10 +49,10 @@ def generate(
     x_gen = vae.decode(z_samples)
 
     if isinstance(x_gen, torch.Tensor):
-        x_gen = torch.sigmoid(x_gen) # compute probabilities from logits (Bernoulli)
+        x_gen = torch.sigmoid(x_gen)  # compute probabilities from logits (Bernoulli)
     elif isinstance(x_gen, (tuple, list)):
         if len(x_gen) == 2:
-            x_gen = x_gen[0] # get first entry of a (mu, logsigma)-tuple (Gaussian/Laplace)
+            x_gen = x_gen[0]  # get first entry of a (mu, logsigma)-tuple (Gaussian/Laplace)
         else:
             raise ValueError(f'Two dist. parameters expected, found: {len(x_gen)}')
     else:
@@ -71,14 +71,14 @@ def reconstruct(
 ) -> torch.Tensor:
     '''Reconstruct inputs.'''
 
-    vae.sample(sample_mode) # set sampling mode
-    vae.train(False) # activate train mode
+    vae.sample(sample_mode)  # set sampling mode
+    vae.train(False)  # activate train mode
 
     # run encoder and decoder
     x_recon = vae(x.to(vae.device))
 
     if isinstance(x_recon, (tuple, list)):
-        x_recon = x_recon[0] # get first entry of a (mu, logsigma)-tuple
+        x_recon = x_recon[0]  # get first entry of a (mu, logsigma)-tuple
 
     x_recon = x_recon.cpu()
 
@@ -93,8 +93,8 @@ def encode_loader(
 ) -> tuple[torch.Tensor, ...]:
     '''Encode all items in a data loader.'''
 
-    vae.sample(False) # actually not necessary
-    vae.train(False) # activate train mode
+    vae.sample(False)  # actually not necessary
+    vae.train(False)  # activate train mode
 
     z_mu_list = []
     z_sigma_list = []

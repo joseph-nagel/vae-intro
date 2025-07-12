@@ -32,7 +32,7 @@ class CIFAR10DataModule(BaseDataModule):
         # create transforms
         transforms_list = [transforms.ToTensor()]
 
-        if (mean is not None) and (std is not None): # normalize (e.g. scale to [-1, 1])
+        if (mean is not None) and (std is not None):  # normalize (e.g. scale to [-1, 1])
             normalize_fn = transforms.Normalize(mean=mean, std=std)
             transforms_list.append(normalize_fn)
 
@@ -45,8 +45,8 @@ class CIFAR10DataModule(BaseDataModule):
             std = torch.as_tensor(std).view(-1, 1, 1)
 
             self.renormalize = transforms.Compose([
-                transforms.Lambda(lambda x: x * std + mean), # reverse normalization
-                transforms.Lambda(lambda x: x.clamp(0, 1)) # clip to valid range
+                transforms.Lambda(lambda x: x * std + mean),  # reverse normalization
+                transforms.Lambda(lambda x: x.clamp(0, 1))  # clip to valid range
             ])
 
     def prepare_data(self) -> None:

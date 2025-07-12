@@ -275,14 +275,14 @@ class VAE(LightningModule):
         ll = torch.zeros_like(kl)
 
         for _ in range(num_samples):
-            z_sample = self.reparametrize(z_mu, z_logsigma) # sample latent variables
+            z_sample = self.reparametrize(z_mu, z_logsigma)  # sample latent variables
 
             # compute sample log-likelihood
             ll_sample = self.ll(x, dist_params=self.decode(z_sample))
 
-            ll = ll + ll_sample # sum log-likelihood samples
+            ll = ll + ll_sample  # sum log-likelihood samples
 
-        ll = ll / num_samples # compute avarage over samples
+        ll = ll / num_samples  # compute avarage over samples
 
         # compute mean over data points (only batch dimension)
         elbo = torch.mean(ll - self.beta * kl)
@@ -297,19 +297,19 @@ class VAE(LightningModule):
     def training_step(self, batch: BatchType, batch_idx: int) -> torch.Tensor:
         x_batch = get_features(batch)
         loss = self.loss(x_batch)
-        self.log('train_loss', loss.item()) # Lightning logs batch-wise scalars during training per default
+        self.log('train_loss', loss.item())  # Lightning logs batch-wise scalars during training per default
         return loss
 
     def validation_step(self, batch: BatchType, batch_idx: int) -> torch.Tensor:
         x_batch = get_features(batch)
         loss = self.loss(x_batch)
-        self.log('val_loss', loss.item()) # Lightning automatically averages scalars over batches for validation
+        self.log('val_loss', loss.item())  # Lightning automatically averages scalars over batches for validation
         return loss
 
     def test_step(self, batch: BatchType, batch_idx: int) -> torch.Tensor:
         x_batch = get_features(batch)
         loss = self.loss(x_batch)
-        self.log('test_loss', loss.item()) # Lightning automatically averages scalars over batches for testing
+        self.log('test_loss', loss.item())  # Lightning automatically averages scalars over batches for testing
         return loss
 
     # TODO: enable LR scheduling

@@ -143,7 +143,7 @@ class DenseDecoder(nn.Module):
 
         else:
             self.dense_layers = DenseBlock(
-                num_features[:-1], # the last layer is replaced by the prob. layer below
+                num_features[:-1],  # the last layer is replaced by the prob. layer below
                 activation=activation,
                 last_activation='same',
                 batchnorm=batchnorm,
@@ -198,9 +198,9 @@ class DenseDecoder(nn.Module):
                 mu = mu.view(-1, *self.reshape)
 
                 if logsigma.numel() == 1:
-                    logsigma = logsigma.view(*[1 for _ in range(len(self.reshape))]) # expand single sigma
+                    logsigma = logsigma.view(*[1 for _ in range(len(self.reshape))])  # expand single sigma
                 else:
-                    logsigma = logsigma.view(*self.reshape) # reshape feature-specific logsigmas
+                    logsigma = logsigma.view(*self.reshape)  # reshape feature-specific logsigmas
 
             return mu, logsigma
 

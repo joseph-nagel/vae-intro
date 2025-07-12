@@ -31,19 +31,19 @@ class MNISTDataModule(BaseDataModule):
 
         # create transforms
         train_transforms = [
-            transforms.RandomRotation(5), # TODO: refine data augmentation
+            transforms.RandomRotation(5),  # TODO: refine data augmentation
             transforms.ToTensor()
         ]
 
         test_transforms = [transforms.ToTensor()]
 
-        if binarize_threshold is not None: # binarize to {0, 1}
+        if binarize_threshold is not None:  # binarize to {0, 1}
             binarize_fn = lambda x: torch.where(x > binarize_threshold, 1, 0).float()
 
             train_transforms.append(binarize_fn)
             test_transforms.append(binarize_fn)
 
-        if (mean is not None) and (std is not None): # normalize (e.g. scale to [-1, 1])
+        if (mean is not None) and (std is not None):  # normalize (e.g. scale to [-1, 1])
             normalize_fn = transforms.Normalize(mean=mean, std=std)
 
             train_transforms.append(normalize_fn)
@@ -56,8 +56,8 @@ class MNISTDataModule(BaseDataModule):
         if (mean is not None) and (std is not None):
 
             self.renormalize = transforms.Compose([
-                transforms.Lambda(lambda x: x * std + mean), # reverse normalization
-                transforms.Lambda(lambda x: x.clamp(0, 1)) # clip to valid range
+                transforms.Lambda(lambda x: x * std + mean),  # reverse normalization
+                transforms.Lambda(lambda x: x.clamp(0, 1))  # clip to valid range
             ])
 
     def prepare_data(self) -> None:

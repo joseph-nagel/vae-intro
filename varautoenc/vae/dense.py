@@ -59,7 +59,7 @@ class DenseVAE(VAE):
             activation=activation,
             batchnorm=batchnorm,
             drop_rate=drop_rate,
-            flatten=True # flatten the input
+            flatten=True  # flatten the input
         )
 
         # create decoder (predicts Bernoulli logits or Gaussian params)
@@ -68,7 +68,7 @@ class DenseVAE(VAE):
             activation=activation,
             batchnorm=batchnorm,
             drop_rate=drop_rate,
-            reshape=reshape, # reshape the flat output
+            reshape=reshape,  # reshape the flat output
             likelihood_type=likelihood_type,
             sigma=sigma,
             per_feature=per_feature

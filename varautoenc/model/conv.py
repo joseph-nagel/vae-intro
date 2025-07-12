@@ -90,7 +90,7 @@ class ConvEncoder(nn.Module):
 
         else:
             self.dense_layers = DenseBlock(
-                num_features[:-1], # the last layer is replaced by the prob. layer below
+                num_features[:-1],  # the last layer is replaced by the prob. layer below
                 activation=activation,
                 last_activation='same',
                 batchnorm=batchnorm,
@@ -210,7 +210,7 @@ class ConvDecoder(nn.Module):
 
         else:
             self.conv_layers = ConvUp(
-                num_channels, # the last channel is passed for upscaling purposes
+                num_channels,  # the last channel is passed for upscaling purposes
                 kernel_size=kernel_size,
                 padding='same',
                 scaling=scaling,
@@ -219,7 +219,7 @@ class ConvDecoder(nn.Module):
                 last_activation='same',
                 batchnorm=batchnorm,
                 normalize_last=True,
-                conv_last=False, # the last layer is replaced by the prob. layer below
+                conv_last=False,  # the last layer is replaced by the prob. layer below
                 up_first=up_first,
                 double_conv=double_conv,
                 inout_first=inout_first
