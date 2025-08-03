@@ -34,7 +34,13 @@ class DenseVAE(VAE):
     per_feature : bool
         Enables feature-specific sigma parameters.
     lr : float
-        Initial optimizer learning rate.
+        Initial learning rate.
+    lr_schedule : {"constant", "cosine"} or None
+        Learning rate schedule type.
+    lr_interval : {"epoch", "step"}
+        Learning rate update interval.
+    lr_warmup : int
+        Warmup steps/epochs.
 
     '''
 
@@ -50,7 +56,10 @@ class DenseVAE(VAE):
         likelihood_type: str = 'Bernoulli',
         sigma: SigmaType | None = None,
         per_feature: bool = False,
-        lr: float = 0.001
+        lr: float = 0.001,
+        lr_schedule: str | None = 'constant',
+        lr_interval: str = 'epoch',
+        lr_warmup: int = 0
     ) -> None:
 
         # create encoder (predicts Gaussian params)
@@ -81,7 +90,10 @@ class DenseVAE(VAE):
             beta=beta,
             num_samples=num_samples,
             likelihood_type=likelihood_type,
-            lr=lr
+            lr=lr,
+            lr_schedule=lr_schedule,
+            lr_interval=lr_interval,
+            lr_warmup=lr_warmup
         )
 
         # store hyperparams

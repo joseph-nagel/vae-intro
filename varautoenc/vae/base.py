@@ -10,6 +10,7 @@ import torch.distributions as dist
 from lightning.pytorch import LightningModule
 
 from ..data import BatchType, get_features
+from .lr_schedule import make_lr_schedule
 
 
 LIKELIHOOD_TYPES = (
@@ -54,7 +55,13 @@ class VAE(LightningModule):
     likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
         Likelihood function type.
     lr : float
-        Initial optimizer learning rate.
+        Initial learning rate.
+    lr_schedule : {"constant", "cosine"} or None
+        Learning rate schedule type.
+    lr_interval : {"epoch", "step"}
+        Learning rate update interval.
+    lr_warmup : int
+        Warmup steps/epochs.
 
     '''
 
@@ -65,7 +72,10 @@ class VAE(LightningModule):
         beta: float = 1.0,
         num_samples: int = 1,
         likelihood_type: str = 'Bernoulli',
-        lr: float = 1e-04
+        lr: float = 1e-04,
+        lr_schedule: str | None = 'constant',
+        lr_interval: str = 'epoch',
+        lr_warmup: int = 0
     ) -> None:
 
         super().__init__()
@@ -89,8 +99,11 @@ class VAE(LightningModule):
         else:
             raise ValueError(f'Unknown likelihood type: {likelihood_type}')
 
-        # set initial learning rate
+        # set LR params
         self.lr = abs(lr)
+        self.lr_schedule = lr_schedule
+        self.lr_interval = lr_interval
+        self.lr_warmup = abs(int(lr_warmup))
 
         # set initial sampling mode
         self.sample(True)
@@ -312,8 +325,41 @@ class VAE(LightningModule):
         self.log('test_loss', loss.item())  # Lightning automatically averages scalars over batches for testing
         return loss
 
-    # TODO: enable LR scheduling
-    def configure_optimizers(self) -> torch.optim.Optimizer:
+    def configure_optimizers(self) -> torch.optim.Optimizer | tuple[list, list]:
+
+        # create optimizer
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        return optimizer
+
+        # return optimizer only (if no LR schedule has been set)
+        if self.lr_schedule is None:
+            return optimizer
+
+        # create LR schedule (if a schedule has been set)
+        else:
+
+            # get total number of training time units
+            if self.lr_interval == 'epoch':
+                num_total = self.trainer.max_epochs
+            elif self.lr_interval == 'step':
+                num_total = self.trainer.estimated_stepping_batches
+            else:
+                raise ValueError(f'Unknown LR interval: {self.lr_interval}')
+
+            # create LR scheduler
+            lr_scheduler = make_lr_schedule(
+                optimizer=optimizer,
+                mode=self.lr_schedule,
+                num_total=num_total,
+                num_warmup=self.lr_warmup,
+                last_epoch=-1
+            )
+
+            # create LR config
+            lr_config = {
+                'scheduler': lr_scheduler,  # set LR scheduler
+                'interval': self.lr_interval,  # set time unit (step or epoch)
+                'frequency': 1  # set update frequency
+            }
+
+            return [optimizer], [lr_config]
 

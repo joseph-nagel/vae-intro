@@ -64,6 +64,7 @@ from .model import (
 
 from .vae import (
     LIKELIHOOD_TYPES,
+    make_lr_schedule,
     generate,
     reconstruct,
     encode_loader,

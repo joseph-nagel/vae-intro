@@ -73,7 +73,10 @@ def parse_args():
 
     parser.add_argument('--num-samples', type=int, default=1, help='Number of MC samples')
 
-    parser.add_argument('--lr', type=float, default=1e-04, help='Optimizer learning rate')
+    parser.add_argument('--lr', type=float, default=1e-04, help='Initial learning rate')
+    parser.add_argument('--lr-schedule', type=str, default='constant', choices=['constant', 'cosine'], help='LR schedule type')
+    parser.add_argument('--lr-interval', type=str, default='epoch', choices=['epoch', 'step'], help='LR update interval')
+    parser.add_argument('--lr-warmup', type=int, default=0, help='Warmup steps/epochs')
 
     parser.add_argument('--max-epochs', type=int, default=20, help='Max. number of training epochs')
 
@@ -133,7 +136,10 @@ def main(args):
         likelihood_type='Gaussian',
         sigma=None,
         per_channel=args.per_channel,
-        lr=args.lr
+        lr=args.lr,
+        lr_schedule=args.lr_schedule,
+        lr_interval=args.lr_interval,
+        lr_warmup=args.lr_warmup
     )
 
     # set accelerator
