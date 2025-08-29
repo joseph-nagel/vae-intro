@@ -49,9 +49,9 @@ class ConvVAE(VAE):
         Enables channel-specific sigma parameters.
     lr : float
         Initial learning rate.
-    lr_schedule : {"constant", "cosine"} or None
+    lr_schedule : {'constant', 'cosine'} or None
         Learning rate schedule type.
-    lr_interval : {"epoch", "step"}
+    lr_interval : {'epoch', 'step'}
         Learning rate update interval.
     lr_warmup : int
         Warmup steps/epochs.
