@@ -289,4 +289,3 @@ class ConvDecoder(nn.Module):
         else:
             mu, logsigma = self.dist_params(x)
             return mu, logsigma
-

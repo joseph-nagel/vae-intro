@@ -88,4 +88,3 @@ class CIFAR10DataModule(BaseDataModule):
                 train=False,
                 transform=self.transform
             )
-

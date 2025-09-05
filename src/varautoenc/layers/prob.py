@@ -122,4 +122,3 @@ class ProbConv(nn.Module):
         mu = self.mu(x)
         logsigma = self.logsigma
         return mu, logsigma
-

@@ -241,4 +241,3 @@ def make_gen_imgs(
             raise FileExistsError('File already exists')
 
         plt.close(fig)
-

@@ -13,9 +13,7 @@ Examples of generative modeling and representation learning are provided for MNI
 ## Notebooks
 
 - [Introduction](notebooks/intro.ipynb)
-
 - [Bernoulli VAEs for MNIST](notebooks/mnist.ipynb)
-
 - [Gaussian VAE for CIFAR-10](notebooks/cifar10.ipynb)
 
 
@@ -39,4 +37,3 @@ python scripts/main.py fit --config config/mnist_conv.yaml
 ```
 python scripts/main.py fit --config config/cifar10.yaml
 ```
-

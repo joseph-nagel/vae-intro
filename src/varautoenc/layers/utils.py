@@ -248,4 +248,3 @@ def make_up(
 
     else:
         raise ValueError(f'Unknown upsample mode: {mode}')
-

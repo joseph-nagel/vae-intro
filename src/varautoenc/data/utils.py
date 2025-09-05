@@ -43,4 +43,3 @@ def get_features(batch: BatchType) -> torch.Tensor:
         raise TypeError(f'Invalid batch type: {type(batch)}')
 
     return x_batch
-

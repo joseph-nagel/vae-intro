@@ -99,4 +99,3 @@ class MNISTDataModule(BaseDataModule):
                 train=False,
                 transform=self.test_transform
             )
-

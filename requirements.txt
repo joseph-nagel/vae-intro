@@ -7,4 +7,3 @@ mlflow
 pillow
 matplotlib
 notebook
-

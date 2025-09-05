@@ -129,4 +129,3 @@ def encode_loader(
         return z_mu, z_sigma, y
     else:
         return z_mu, z_sigma
-

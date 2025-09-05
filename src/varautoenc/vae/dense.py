@@ -98,4 +98,3 @@ class DenseVAE(VAE):
 
         # store hyperparams
         self.save_hyperparameters(logger=True)
-

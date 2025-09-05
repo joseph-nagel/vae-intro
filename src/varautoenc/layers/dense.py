@@ -121,4 +121,3 @@ class MultiDense(nn.Module):
 
     def forward(self, x: torch.Tensor) -> list[torch.Tensor]:
         return [l(x) for l in self.layers]
-

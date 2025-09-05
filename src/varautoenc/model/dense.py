@@ -203,4 +203,3 @@ class DenseDecoder(nn.Module):
                     logsigma = logsigma.view(*self.reshape)  # reshape feature-specific logsigmas
 
             return mu, logsigma
-

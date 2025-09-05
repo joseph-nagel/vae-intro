@@ -132,4 +132,3 @@ class ConvVAE(VAE):
 
         # store hyperparams
         self.save_hyperparameters(logger=True)
-

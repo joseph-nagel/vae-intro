@@ -24,4 +24,3 @@ from .utils import (
     get_batch,
     get_features
 )
-
