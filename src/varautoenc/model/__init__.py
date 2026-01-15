@@ -9,7 +9,5 @@ dense : Dense encoder/decoder.
 '''
 
 from . import conv, dense
-
 from .conv import ConvEncoder, ConvDecoder
-
 from .dense import DenseEncoder, DenseDecoder

@@ -28,7 +28,6 @@ from . import (
     vae,
     vis
 )
-
 from .data import (
     get_batch,
     get_features,
@@ -36,7 +35,6 @@ from .data import (
     MNISTDataModule,
     CIFAR10DataModule
 )
-
 from .layers import (
     make_activation,
     make_block,
@@ -54,14 +52,12 @@ from .layers import (
     ConvDown,
     ConvUp
 )
-
 from .model import (
     DenseEncoder,
     DenseDecoder,
     ConvEncoder,
     ConvDecoder
 )
-
 from .vae import (
     LIKELIHOOD_TYPES,
     make_lr_schedule,
@@ -72,7 +68,6 @@ from .vae import (
     DenseVAE,
     ConvVAE
 )
-
 from .vis import (
     make_gif,
     make_lat_imgs,

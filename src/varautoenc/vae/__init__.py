@@ -18,15 +18,10 @@ from . import (
     lr_schedule,
     utils
 )
-
 from .base import LIKELIHOOD_TYPES, VAE
-
 from .conv import ConvVAE
-
 from .dense import DenseVAE
-
 from .lr_schedule import make_lr_schedule
-
 from .utils import (
     generate,
     reconstruct,

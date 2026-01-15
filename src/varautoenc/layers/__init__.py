@@ -16,7 +16,6 @@ from . import (
     prob,
     utils
 )
-
 from .conv import (
     SingleConv,
     DoubleConv,
@@ -24,11 +23,8 @@ from .conv import (
     ConvDown,
     ConvUp
 )
-
 from .dense import DenseBlock, MultiDense
-
 from .prob import SigmaType, ProbDense, ProbConv
-
 from .utils import (
     IntOrInts,
     ActivType,

@@ -11,13 +11,9 @@ utils : Data utilities.
 '''
 
 from . import base, cifar, mnist, utils
-
 from .base import BaseDataModule
-
 from .cifar import CIFAR10DataModule
-
 from .mnist import MNISTDataModule
-
 from .utils import (
     FloatOrFloats,
     BatchType,
