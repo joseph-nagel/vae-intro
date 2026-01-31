@@ -11,8 +11,7 @@ class BaseDataModule(LightningDataModule):
         self,
         batch_size: int = 32,
         num_workers: int = 0
-    ) -> None:
-
+    ):
         super().__init__()
 
         self.batch_size = batch_size
@@ -24,7 +23,6 @@ class BaseDataModule(LightningDataModule):
 
     def set_dataset(self, data_set: Dataset, mode: str) -> None:
         '''Set dataset.'''
-
         if mode in ('train', 'val', 'test'):
             setattr(self, mode + '_set', data_set)
         else:
@@ -32,7 +30,6 @@ class BaseDataModule(LightningDataModule):
 
     def train_dataloader(self) -> DataLoader:
         '''Create train dataloader.'''
-
         if hasattr(self, 'train_set') and self.train_set is not None:
             return DataLoader(
                 self.train_set,
@@ -47,7 +44,6 @@ class BaseDataModule(LightningDataModule):
 
     def val_dataloader(self) -> DataLoader:
         '''Create val. dataloader.'''
-
         if hasattr(self, 'val_set') and self.val_set is not None:
             return DataLoader(
                 self.val_set,
@@ -62,7 +58,6 @@ class BaseDataModule(LightningDataModule):
 
     def test_dataloader(self) -> DataLoader:
         '''Create test dataloader.'''
-
         if hasattr(self, 'test_set') and self.test_set is not None:
             return DataLoader(
                 self.test_set,

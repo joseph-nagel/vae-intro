@@ -18,7 +18,7 @@ class CIFAR10DataModule(BaseDataModule):
         std: FloatOrFloats | None = (0.5, 0.5, 0.5),
         batch_size: int = 32,
         num_workers: int = 0
-    ) -> None:
+    ):
 
         # call base class init
         super().__init__(
@@ -51,13 +51,11 @@ class CIFAR10DataModule(BaseDataModule):
 
     def prepare_data(self) -> None:
         '''Download data.'''
-
         train_set = datasets.CIFAR10(
             self.data_dir,
             train=True,
             download=True
         )
-
         test_set = datasets.CIFAR10(
             self.data_dir,
             train=False,

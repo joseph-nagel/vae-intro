@@ -18,7 +18,7 @@ class MNISTDataModule(BaseDataModule):
         std: float | None = None,
         batch_size: int = 32,
         num_workers: int = 0
-    ) -> None:
+    ):
 
         # call base class init
         super().__init__(
@@ -62,13 +62,11 @@ class MNISTDataModule(BaseDataModule):
 
     def prepare_data(self) -> None:
         '''Download data.'''
-
         train_set = datasets.MNIST(
             self.data_dir,
             train=True,
             download=True
         )
-
         test_set = datasets.MNIST(
             self.data_dir,
             train=False,

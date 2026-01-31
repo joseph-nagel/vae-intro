@@ -47,7 +47,7 @@ class SingleConv(nn.Sequential):
         bias: bool = True,
         activation: ActivType | None = 'leaky_relu',
         batchnorm: bool = False
-    ) -> None:
+    ):
 
         # create conv layer
         conv = nn.Conv2d(
@@ -118,7 +118,7 @@ class DoubleConv(nn.Sequential):
         batchnorm: bool = False,
         normalize_last: bool = True,
         inout_first: bool = True
-    ) -> None:
+    ):
 
         # determine last activation
         if last_activation == 'same':
@@ -190,7 +190,7 @@ class ConvBlock(nn.Sequential):
         last_activation: ActivType | None = 'same',
         batchnorm: bool = False,
         normalize_last: bool = True
-    ) -> None:
+    ):
 
         # determine last activation
         if last_activation == 'same':
@@ -275,7 +275,7 @@ class ConvDown(nn.Sequential):
         pool_last: bool = True,
         double_conv: bool = False,
         inout_first: bool = True
-    ) -> None:
+    ):
 
         # determine conv type
         ConvType = DoubleConv if double_conv else SingleConv
@@ -376,7 +376,7 @@ class ConvUp(nn.Sequential):
         up_first: bool = True,
         double_conv: bool = False,
         inout_first: bool = True
-    ) -> None:
+    ):
 
         # determine conv type
         ConvType = DoubleConv if double_conv else SingleConv

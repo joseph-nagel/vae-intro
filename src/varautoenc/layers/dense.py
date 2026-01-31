@@ -37,7 +37,7 @@ class DenseBlock(nn.Sequential):
         batchnorm: bool = False,
         normalize_last: bool = True,
         drop_rate: float | None = None
-    ) -> None:
+    ):
 
         # determine last activation
         if last_activation == 'same':
@@ -99,8 +99,7 @@ class MultiDense(nn.Module):
         activation: ActivType | None = None,
         batchnorm: bool = False,
         drop_rate: float | None = None
-    ) -> None:
-
+    ):
         super().__init__()
 
         layers = [] # type: list[nn.Module]

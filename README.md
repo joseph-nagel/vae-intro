@@ -19,21 +19,21 @@ Examples of generative modeling and representation learning are provided for MNI
 
 ## Installation
 
-```
+```bash
 pip install -e .
 ```
 
 
 ## Training
 
-```
+```bash
 python scripts/main.py fit --config config/mnist_dense.yaml
 ```
 
-```
+```bash
 python scripts/main.py fit --config config/mnist_conv.yaml
 ```
 
-```
+```bash
 python scripts/main.py fit --config config/cifar10.yaml
 ```

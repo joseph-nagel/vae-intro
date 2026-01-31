@@ -20,11 +20,7 @@ dependencies = [
     "lightning",
     "tensorboard",
     "mlflow",
-    "pillow"
-]
-
-[project.optional-dependencies]
-interactive = [
+    "pillow",
     "matplotlib",
     "notebook"
 ]

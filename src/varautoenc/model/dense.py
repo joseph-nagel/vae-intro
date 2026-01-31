@@ -42,8 +42,7 @@ class DenseEncoder(nn.Module):
         batchnorm: bool = False,
         drop_rate: float | None = None,
         flatten: bool = True
-    ) -> None:
-
+    ):
         super().__init__()
 
         self.flatten = flatten
@@ -126,8 +125,7 @@ class DenseDecoder(nn.Module):
         likelihood_type: str = 'Bernoulli',
         sigma: SigmaType | None = None,
         per_feature: bool = False
-    ) -> None:
-
+    ):
         super().__init__()
 
         self.reshape = reshape

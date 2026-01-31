@@ -10,7 +10,6 @@ from .utils import make_dense
 from .conv import SingleConv, DoubleConv
 
 
-# define type alias
 SigmaType = torch.Tensor | Sequence[float]
 
 
@@ -38,8 +37,7 @@ class ProbDense(nn.Module):
         sigma: SigmaType | None = None,
         per_feature: bool = False,
         **kwargs: Any
-    ) -> None:
-
+    ):
         super().__init__()
 
         # create dense layer predicting mu
@@ -93,8 +91,7 @@ class ProbConv(nn.Module):
         sigma: SigmaType | None = None,
         per_channel: bool = False,
         **kwargs: Any
-    ) -> None:
-
+    ):
         super().__init__()
 
         # determine conv type

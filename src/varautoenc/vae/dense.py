@@ -60,7 +60,7 @@ class DenseVAE(VAE):
         lr_schedule: str | None = 'constant',
         lr_interval: str = 'epoch',
         lr_warmup: int = 0
-    ) -> None:
+    ):
 
         # create encoder (predicts Gaussian params)
         encoder = DenseEncoder(

@@ -61,8 +61,7 @@ class ConvEncoder(nn.Module):
         pool_last: bool = True,
         double_conv: bool = True,
         inout_first: bool = True
-    ) -> None:
-
+    ):
         super().__init__()
 
         # create conv layers
@@ -186,8 +185,7 @@ class ConvDecoder(nn.Module):
         likelihood_type: str = 'Bernoulli',
         sigma: SigmaType | None = None,
         per_channel: bool = False
-    ) -> None:
-
+    ):
         super().__init__()
 
         self.reshape = reshape

@@ -7,7 +7,6 @@ from inspect import isclass
 import torch.nn as nn
 
 
-# define type aliases
 IntOrInts = int | tuple[int, int]
 ActivType = str | type[nn.Module]
 

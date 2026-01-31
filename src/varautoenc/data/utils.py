@@ -5,7 +5,6 @@ from collections.abc import Sequence
 import torch
 
 
-# define type aliases
 FloatOrFloats = float | tuple[float, float, float]
 BatchType = torch.Tensor | Sequence[torch.Tensor] | dict[str, torch.Tensor]
 

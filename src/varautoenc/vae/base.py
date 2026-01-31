@@ -76,8 +76,7 @@ class VAE(LightningModule):
         lr_schedule: str | None = 'constant',
         lr_interval: str = 'epoch',
         lr_warmup: int = 0
-    ) -> None:
-
+    ):
         super().__init__()
 
         # set encoder and decoder
