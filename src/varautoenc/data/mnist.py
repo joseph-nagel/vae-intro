@@ -54,7 +54,6 @@ class MNISTDataModule(BaseDataModule):
 
         # create inverse normalization
         if (mean is not None) and (std is not None):
-
             self.renormalize = transforms.Compose([
                 transforms.Lambda(lambda x: x * std + mean),  # reverse normalization
                 transforms.Lambda(lambda x: x.clamp(0, 1))  # clip to valid range

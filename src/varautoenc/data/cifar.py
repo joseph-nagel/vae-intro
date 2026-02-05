@@ -40,7 +40,6 @@ class CIFAR10DataModule(BaseDataModule):
 
         # create inverse normalization
         if (mean is not None) and (std is not None):
-
             mean = torch.as_tensor(mean).view(-1, 1, 1)
             std = torch.as_tensor(std).view(-1, 1, 1)
 

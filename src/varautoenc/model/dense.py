@@ -129,7 +129,6 @@ class DenseDecoder(nn.Module):
         super().__init__()
 
         self.reshape = reshape
-
         self.likelihood_type = likelihood_type
 
         # create dense layers

@@ -53,7 +53,6 @@ class DenseBlock(nn.Sequential):
         layers = []
 
         for idx, (in_features, out_features) in enumerate(zip(num_features[:-1], num_features[1:])):
-
             is_not_last = (idx < num_layers - 1)
 
             dense = make_dense(
@@ -102,10 +101,9 @@ class MultiDense(nn.Module):
     ):
         super().__init__()
 
-        layers = [] # type: list[nn.Module]
+        layers = []  # type: list[nn.Module]
 
         for _ in range(num_blocks):
-
             dense = make_dense(
                 in_features,
                 out_features,

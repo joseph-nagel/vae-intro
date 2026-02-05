@@ -108,10 +108,7 @@ class VAE(LightningModule):
         self.sample(True)
 
         # store hyperparams
-        self.save_hyperparameters(
-            ignore=['encoder', 'decoder'],
-            logger=True
-        )
+        self.save_hyperparameters(ignore=['encoder', 'decoder'], logger=True)
 
     @property
     def sampling(self) -> bool:
@@ -127,14 +124,9 @@ class VAE(LightningModule):
 
     def train(self, train_mode: bool = True) -> Self:
         '''Set training mode.'''
-
-        # set module training mode
-        super().train(train_mode)
-
-        # turn on sampling for training
+        super().train(train_mode)  # set module training mode
         if train_mode:
-            self.sample(True)
-
+            self.sample(True)  # turn on sampling for training
         return self
 
     def encode(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -144,23 +136,19 @@ class VAE(LightningModule):
 
     def reparametrize(self, mu: torch.Tensor, logsigma: torch.Tensor) -> torch.Tensor:
         '''Sample the latent variables.'''
-
         # sample around the mean
         if self.sampling:
             sigma = torch.exp(logsigma)
             eps = torch.randn_like(sigma)
             z = mu + sigma * eps
-
         # return the mean value
         else:
             z = mu
-
         return z
 
     def decode(self, z: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         '''Decode the latent variables.'''
         return self.decoder(z)
-
         # if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
         #     logits = self.decoder(z)
         # else:
@@ -180,7 +168,6 @@ class VAE(LightningModule):
 
         # compute Bernoulli probabilities
         if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
-
             if not isinstance(dist_params, torch.Tensor):
                 raise TypeError(f'Invalid input type {type(dist_params)} for Bernoulli distribution')
 
@@ -191,7 +178,6 @@ class VAE(LightningModule):
 
         # compute Gaussian/Laplace parameters
         else:
-
             if not isinstance(dist_params, (tuple, list)):
                 raise TypeError(f'Invalid input type {type(dist_params)} for Gauss/Laplace distribution')
 
@@ -205,13 +191,10 @@ class VAE(LightningModule):
 
     def kl(self, mu: torch.Tensor, logsigma: torch.Tensor) -> torch.Tensor:
         '''Compute the KL divergence.'''
-
         sigma = torch.exp(logsigma)
         kl_terms = mu**2 + sigma**2 - 2*logsigma - 1
-
         # sum over data dimensions (all but batch)
         kl = 0.5 * torch.sum(kl_terms, dim=list(range(1, kl_terms.ndim)))
-
         return kl
 
     def ll(
@@ -223,7 +206,6 @@ class VAE(LightningModule):
 
         # compute Bernoulli log-likelihood
         if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
-
             if not isinstance(dist_params, torch.Tensor):
                 raise TypeError(f'Invalid input type {type(dist_params)} for Bernoulli likelihood')
 
@@ -250,7 +232,6 @@ class VAE(LightningModule):
 
         # compute Gaussian/Laplace log-likelihood
         else:
-
             if not isinstance(dist_params, (tuple, list)):
                 raise TypeError(f'Invalid input type {type(dist_params)} for Gauss/Laplace likelihood')
             elif len(dist_params) != 2:
@@ -335,7 +316,6 @@ class VAE(LightningModule):
 
         # create LR schedule (if a schedule has been set)
         else:
-
             # get total number of training time units
             if self.lr_interval == 'epoch':
                 num_total = self.trainer.max_epochs

@@ -25,55 +25,40 @@ ACTIVATIONS = {
 
 def make_activation(mode: ActivType | None = 'leaky_relu', **kwargs: Any) -> nn.Module | None:
     '''Create activation function.'''
-
     if mode is None:
         activ = None
-
     elif isclass(mode):
         activ = mode(**kwargs)
-
     elif isinstance(mode, str) and mode in ACTIVATIONS.keys():
         activ = ACTIVATIONS[mode](**kwargs)
-
     else:
         raise ValueError(f'Unknown activation: {mode}')
-
     return activ
 
 
 def make_block(layers: nn.Module | Sequence[nn.Module | None]) -> nn.Module:
     '''Assemble a block of layers.'''
-
     if isinstance(layers, nn.Module):
         block = layers
-
     elif isinstance(layers, (list, tuple)):
-
-        not_none_layers = [l for l in layers if l is not None]
-
+        not_none_layers = [l for l in layers if l is not None]  # filter out None layers
         if len(not_none_layers) == 0:
             raise ValueError('No layers to assemble')
-
         elif len(not_none_layers) == 1:
             block = not_none_layers[0]
-
         else:
             block = nn.Sequential(*not_none_layers)
-
     else:
         raise TypeError(f'Invalid layers type: {type(layers)}')
-
     return block
 
 
 def make_dropout(drop_rate: float | None = None) -> nn.Module | None:
     '''Create a dropout layer.'''
-
     if drop_rate is None:
         dropout = None
     else:
         dropout = nn.Dropout(p=drop_rate)
-
     return dropout
 
 

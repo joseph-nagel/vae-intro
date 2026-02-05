@@ -44,7 +44,7 @@ def make_gif(
     # get sorted image files
     img_files = sorted(
         img_dir.glob(pattern),
-        key=(lambda f: f.stat().st_mtime) if timesort else None # sort according to creation time
+        key=(lambda f: f.stat().st_mtime) if timesort else None  # sort according to creation time
     )
 
     # load frames
@@ -104,7 +104,7 @@ def make_lat_imgs(
     # get sorted checkpoint files
     ckpt_files = sorted(
         ckpt_dir.glob(pattern),
-        key=(lambda f: f.stat().st_mtime) if timesort else None # sort according to creation time
+        key=(lambda f: f.stat().st_mtime) if timesort else None  # sort according to creation time
     )
 
     # set device
@@ -140,7 +140,7 @@ def make_lat_imgs(
         ax.set(xlim=xlim, ylim=ylim)
         ax.set_aspect('equal', adjustable='box')
         ax.legend(loc='center right')
-        ax.grid(visible=True, which='both', color='lightgray', linestyle='-')
+        ax.grid(color='lightgray', linestyle='-')
         ax.set_axisbelow(True)
         fig.tight_layout()
 
@@ -189,14 +189,14 @@ def make_gen_imgs(
     # get sorted checkpoint files
     ckpt_files = sorted(
         ckpt_dir.glob(pattern),
-        key=(lambda f: f.stat().st_mtime) if timesort else None # sort according to creation time
+        key=(lambda f: f.stat().st_mtime) if timesort else None  # sort according to creation time
     )
 
     # get number of latent variables
     if num_latents is None:
         ckpt_file = ckpt_files[0]
         vae = ConvVAE.load_from_checkpoint(ckpt_file)
-        num_latents = vae.decoder.dense_layers[0][0].in_features # TODO: generalize to different architectures
+        num_latents = vae.decoder.dense_layers[0][0].in_features  # TODO: generalize to different architectures
 
     # set random seed manually
     if random_seed is not None:
@@ -225,7 +225,7 @@ def make_gen_imgs(
         # create figure
         fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=figsize)
         for ax_idx, ax in enumerate(axes.ravel()):
-            image = x_gen[ax_idx, 0].numpy().clip(0, 1) # TODO: Generalize to RGB channels
+            image = x_gen[ax_idx, 0].numpy().clip(0, 1)  # TODO: Generalize to RGB channels
             ax.imshow(image, cmap='gray', vmin=0, vmax=1)
             ax.set(xticks=[], yticks=[], xlabel='', ylabel='')
         fig.suptitle(ckpt_file.stem)

@@ -45,7 +45,6 @@ def generate(
 
     # run decoder
     z_samples = z_samples.to(device=vae.device)
-
     x_gen = vae.decode(z_samples)
 
     if isinstance(x_gen, torch.Tensor):

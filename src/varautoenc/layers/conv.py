@@ -56,7 +56,7 @@ class SingleConv(nn.Sequential):
             kernel_size=kernel_size,
             stride=stride,
             padding=padding,
-            bias=bias # the bias should be disabled if a batchnorm directly follows after the convolution
+            bias=bias  # the bias should be disabled if a batchnorm directly follows after the convolution
         )
 
         # create activation function
@@ -66,7 +66,7 @@ class SingleConv(nn.Sequential):
         norm = nn.BatchNorm2d(out_channels) if batchnorm else None
 
         # assemble block
-        layers = [conv, activ, norm] # note that the normalization follows the activation (which could be reversed of course)
+        layers = [conv, activ, norm]  # note that the normalization follows the activation (which could be reversed of course)
         not_none_layers = [l for l in layers if l is not None]
 
         # initialize module
@@ -206,7 +206,6 @@ class ConvBlock(nn.Sequential):
         layers = []
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
-
             is_not_last = (idx < num_layers - 1)
 
             # create conv layer
@@ -294,10 +293,9 @@ class ConvDown(nn.Sequential):
             raise ValueError('Number of channels needs at least two entries')
 
         # assemble layers
-        layers = [] # type: list[nn.Module]
+        layers = []  # type: list[nn.Module]
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
-
             is_not_last = (idx < num_layers - 1)
 
             # create conv layer
@@ -395,10 +393,9 @@ class ConvUp(nn.Sequential):
             raise ValueError('Number of channels needs at least two entries')
 
         # assemble layers
-        layers = [] # type: list[nn.Module]
+        layers = []  # type: list[nn.Module]
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
-
             is_not_first = (idx > 0)
             is_not_last = (idx < num_layers - 1)
 
