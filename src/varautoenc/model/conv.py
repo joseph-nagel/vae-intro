@@ -1,4 +1,4 @@
-'''Convolutional encoder/decoder.'''
+"""Convolutional encoder/decoder."""
 
 from collections.abc import Sequence
 
@@ -15,12 +15,12 @@ from ..layers import (
     DoubleConv,
     ConvDown,
     ConvUp,
-    ProbConv
+    ProbConv,
 )
 
 
 class ConvEncoder(nn.Module):
-    '''
+    """
     Convolutional encoder.
 
     Parameters
@@ -47,7 +47,7 @@ class ConvEncoder(nn.Module):
         Determines whether the first or second
         convolution changes the number of channels.
 
-    '''
+    """
 
     def __init__(
         self,
@@ -55,12 +55,12 @@ class ConvEncoder(nn.Module):
         num_features: Sequence[int],
         kernel_size: IntOrInts = 3,
         pooling: IntOrInts | None = 2,
-        activation: ActivType | None = 'leaky_relu',
+        activation: ActivType | None = "leaky_relu",
         batchnorm: bool = True,
         drop_rate: float | None = None,
         pool_last: bool = True,
         double_conv: bool = True,
-        inout_first: bool = True
+        inout_first: bool = True,
     ):
         super().__init__()
 
@@ -69,20 +69,20 @@ class ConvEncoder(nn.Module):
             num_channels,
             kernel_size=kernel_size,
             stride=1,
-            padding='same',
+            padding="same",
             pooling=pooling,
             activation=activation,
-            last_activation='same',
+            last_activation="same",
             batchnorm=batchnorm,
             normalize_last=True,
             pool_last=pool_last,
             double_conv=double_conv,
-            inout_first=inout_first
+            inout_first=inout_first,
         )
 
         # create dense layers
         if len(num_features) < 2:
-            raise ValueError('Number of features needs at least two entries')
+            raise ValueError("Number of features needs at least two entries")
 
         elif len(num_features) == 2:
             self.dense_layers = None
@@ -91,10 +91,10 @@ class ConvEncoder(nn.Module):
             self.dense_layers = DenseBlock(
                 num_features[:-1],  # the last layer is replaced by the prob. layer below
                 activation=activation,
-                last_activation='same',
+                last_activation="same",
                 batchnorm=batchnorm,
                 normalize_last=True,
-                drop_rate=drop_rate
+                drop_rate=drop_rate,
             )
 
         # create Gaussian param layers
@@ -104,7 +104,7 @@ class ConvEncoder(nn.Module):
             num_blocks=2,
             activation=None,
             batchnorm=False,
-            drop_rate=drop_rate
+            drop_rate=drop_rate,
         )
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -126,7 +126,7 @@ class ConvEncoder(nn.Module):
 
 
 class ConvDecoder(nn.Module):
-    '''
+    """
     Convolutional decoder.
 
     Parameters
@@ -141,7 +141,7 @@ class ConvDecoder(nn.Module):
         Conv. kernel size.
     scaling : int
         Scaling parameter.
-    upsample_mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
+    upsample_mode : {"bilinear", "bilinear_conv", "conv_transpose"}
         Conv. upsampling mode.
     activation : str or None
         Nonlinearity type.
@@ -158,14 +158,14 @@ class ConvDecoder(nn.Module):
     inout_first : bool
         Determines whether the first or second
         convolution changes the number of channels.
-    likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
+    likelihood_type : {"Bernoulli", "ContinuousBernoulli", "Gauss", "Gaussian", "Laplace"}
         Likelihood function type.
     sigma : float or None
         Can be used to specify constant sigmas.
     per_channel : bool
         Enables channel-specific sigma parameters.
 
-    '''
+    """
 
     def __init__(
         self,
@@ -174,17 +174,17 @@ class ConvDecoder(nn.Module):
         reshape: Sequence[int],
         kernel_size: IntOrInts = 3,
         scaling: int = 2,
-        upsample_mode: str = 'conv_transpose',
-        activation: ActivType | None = 'leaky_relu',
+        upsample_mode: str = "conv_transpose",
+        activation: ActivType | None = "leaky_relu",
         last_activation: ActivType | None = None,
         batchnorm: bool = False,
         drop_rate: float | None = None,
         up_first: bool = True,
         double_conv: bool = True,
         inout_first: bool = True,
-        likelihood_type: str = 'Bernoulli',
+        likelihood_type: str = "Bernoulli",
         sigma: SigmaType | None = None,
-        per_channel: bool = False
+        per_channel: bool = False,
     ):
         super().__init__()
 
@@ -195,64 +195,64 @@ class ConvDecoder(nn.Module):
         self.dense_layers = DenseBlock(
             num_features,
             activation=activation,
-            last_activation='same',
+            last_activation="same",
             batchnorm=batchnorm,
             normalize_last=True,
-            drop_rate=drop_rate
+            drop_rate=drop_rate,
         )
 
         # create conv layers
         if len(num_channels) < 2:
-            raise ValueError('Number of channels needs at least two entries')
+            raise ValueError("Number of channels needs at least two entries")
 
         else:
             self.conv_layers = ConvUp(
                 num_channels,  # the last channel is passed for upscaling purposes
                 kernel_size=kernel_size,
-                padding='same',
+                padding="same",
                 scaling=scaling,
                 upsample_mode=upsample_mode,
                 activation=activation,
-                last_activation='same',
+                last_activation="same",
                 batchnorm=batchnorm,
                 normalize_last=True,
                 conv_last=False,  # the last layer is replaced by the prob. layer below
                 up_first=up_first,
                 double_conv=double_conv,
-                inout_first=inout_first
+                inout_first=inout_first,
             )
 
         # create last layer options
         kwargs = {
-            'kernel_size': kernel_size,
-            'stride': 1,
-            'padding': 'same'
+            "kernel_size": kernel_size,
+            "stride": 1,
+            "padding": "same",
         }
 
         if double_conv:
             kwargs = {
                 **kwargs,
-                'activation': activation,
-                'last_activation': last_activation,
-                'batchnorm': batchnorm,
-                'normalize_last': False,
-                'inout_first': inout_first
+                "activation": activation,
+                "last_activation": last_activation,
+                "batchnorm": batchnorm,
+                "normalize_last": False,
+                "inout_first": inout_first,
             }
         else:
             kwargs = {
                 **kwargs,
-                'activation': last_activation,
-                'batchnorm': False
+                "activation": last_activation,
+                "batchnorm": False,
             }
 
         # create Bernoulli logits
-        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
+        if self.likelihood_type in ("Bernoulli", "ContinuousBernoulli"):
             ConvType = DoubleConv if double_conv else SingleConv
 
             self.bernoulli_logits = ConvType(
                 num_channels[-2],
                 num_channels[-1],
-                **kwargs
+                **kwargs,
             )
 
         # create Gaussian/Laplace params
@@ -263,7 +263,7 @@ class ConvDecoder(nn.Module):
                 double_conv=double_conv,
                 sigma=sigma,
                 per_channel=per_channel,
-                **kwargs
+                **kwargs,
             )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
@@ -278,7 +278,7 @@ class ConvDecoder(nn.Module):
         x = self.conv_layers(x)
 
         # predict Bernoulli logits
-        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
+        if self.likelihood_type in ("Bernoulli", "ContinuousBernoulli"):
             logits = self.bernoulli_logits(x)
             return logits
 

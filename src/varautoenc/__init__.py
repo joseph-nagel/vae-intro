@@ -1,4 +1,4 @@
-'''
+"""
 Variational autoencoder.
 
 Summary
@@ -19,21 +19,15 @@ model : Encoder and decoder models.
 vae : Variational autoencoder.
 vis : Visualization tools.
 
-'''
+"""
 
-from . import (
-    data,
-    layers,
-    model,
-    vae,
-    vis
-)
+from . import data, layers, model, vae, vis
 from .data import (
     get_batch,
     get_features,
     BaseDataModule,
     MNISTDataModule,
-    CIFAR10DataModule
+    CIFAR10DataModule,
 )
 from .layers import (
     make_activation,
@@ -50,13 +44,13 @@ from .layers import (
     DoubleConv,
     ConvBlock,
     ConvDown,
-    ConvUp
+    ConvUp,
 )
 from .model import (
     DenseEncoder,
     DenseDecoder,
     ConvEncoder,
-    ConvDecoder
+    ConvDecoder,
 )
 from .vae import (
     LIKELIHOOD_TYPES,
@@ -66,10 +60,6 @@ from .vae import (
     encode_loader,
     VAE,
     DenseVAE,
-    ConvVAE
+    ConvVAE,
 )
-from .vis import (
-    make_gif,
-    make_lat_imgs,
-    make_gen_imgs
-)
+from .vis import make_gif, make_lat_imgs, make_gen_imgs

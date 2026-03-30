@@ -1,22 +1,15 @@
-'''Dense encoder/decoder.'''
+"""Dense encoder/decoder."""
 
 from collections.abc import Sequence
 
 import torch
 import torch.nn as nn
 
-from ..layers import (
-    ActivType,
-    SigmaType,
-    make_dense,
-    DenseBlock,
-    MultiDense,
-    ProbDense
-)
+from ..layers import ActivType, SigmaType, make_dense, DenseBlock, MultiDense, ProbDense
 
 
 class DenseEncoder(nn.Module):
-    '''
+    """
     Fully connected encoder.
 
     Parameters
@@ -33,15 +26,15 @@ class DenseEncoder(nn.Module):
         Determines whether input tensors are flattened
         before being further processed by the encoder.
 
-    '''
+    """
 
     def __init__(
         self,
         num_features: Sequence[int],
-        activation: ActivType | None = 'leaky_relu',
+        activation: ActivType | None = "leaky_relu",
         batchnorm: bool = False,
         drop_rate: float | None = None,
-        flatten: bool = True
+        flatten: bool = True,
     ):
         super().__init__()
 
@@ -49,7 +42,7 @@ class DenseEncoder(nn.Module):
 
         # create dense layers
         if len(num_features) < 2:
-            raise ValueError('Number of features needs at least two entries')
+            raise ValueError("Number of features needs at least two entries")
 
         elif len(num_features) == 2:
             self.dense_layers = None
@@ -58,10 +51,10 @@ class DenseEncoder(nn.Module):
             self.dense_layers = DenseBlock(
                 num_features[:-1],
                 activation=activation,
-                last_activation='same',
+                last_activation="same",
                 batchnorm=batchnorm,
                 normalize_last=True,
-                drop_rate=drop_rate
+                drop_rate=drop_rate,
             )
 
         # create Gaussian param layers
@@ -71,7 +64,7 @@ class DenseEncoder(nn.Module):
             num_blocks=2,
             activation=None,
             batchnorm=False,
-            drop_rate=drop_rate
+            drop_rate=drop_rate,
         )
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -91,7 +84,7 @@ class DenseEncoder(nn.Module):
 
 
 class DenseDecoder(nn.Module):
-    '''
+    """
     Fully connected decoder.
 
     Parameters
@@ -106,25 +99,25 @@ class DenseDecoder(nn.Module):
         Dropout probability.
     reshape : list or None
         Final output shape.
-    likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
+    likelihood_type : {"Bernoulli", "ContinuousBernoulli", "Gauss", "Gaussian", "Laplace"}
         Likelihood function type.
     sigma : float or None
         Can be used to specify constant sigmas.
     per_feature : bool
         Enables feature-specific sigma parameters.
 
-    '''
+    """
 
     def __init__(
         self,
         num_features: Sequence[int],
-        activation: ActivType | None = 'leaky_relu',
+        activation: ActivType | None = "leaky_relu",
         batchnorm: bool = False,
         drop_rate: float | None = None,
         reshape: Sequence[int] | None = None,
-        likelihood_type: str = 'Bernoulli',
+        likelihood_type: str = "Bernoulli",
         sigma: SigmaType | None = None,
-        per_feature: bool = False
+        per_feature: bool = False,
     ):
         super().__init__()
 
@@ -133,7 +126,7 @@ class DenseDecoder(nn.Module):
 
         # create dense layers
         if len(num_features) < 2:
-            raise ValueError('Number of features needs at least two entries')
+            raise ValueError("Number of features needs at least two entries")
 
         elif len(num_features) == 2:
             self.dense_layers = None
@@ -142,20 +135,20 @@ class DenseDecoder(nn.Module):
             self.dense_layers = DenseBlock(
                 num_features[:-1],  # the last layer is replaced by the prob. layer below
                 activation=activation,
-                last_activation='same',
+                last_activation="same",
                 batchnorm=batchnorm,
                 normalize_last=True,
-                drop_rate=drop_rate
+                drop_rate=drop_rate,
             )
 
         # create Bernoulli logits
-        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
+        if self.likelihood_type in ("Bernoulli", "ContinuousBernoulli"):
             self.bernoulli_logits = make_dense(
                 num_features[-2],
                 num_features[-1],
                 activation=None,
                 batchnorm=False,
-                drop_rate=drop_rate
+                drop_rate=drop_rate,
             )
 
         # create Gaussian/Laplace params
@@ -167,7 +160,7 @@ class DenseDecoder(nn.Module):
                 per_feature=per_feature,
                 activation=None,
                 batchnorm=False,
-                drop_rate=drop_rate
+                drop_rate=drop_rate,
             )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
@@ -177,7 +170,7 @@ class DenseDecoder(nn.Module):
             x = self.dense_layers(x)
 
         # predict Bernoulli logits
-        if self.likelihood_type in ('Bernoulli', 'ContinuousBernoulli'):
+        if self.likelihood_type in ("Bernoulli", "ContinuousBernoulli"):
             logits = self.bernoulli_logits(x)
 
             # reshape

@@ -1,4 +1,4 @@
-'''
+"""
 Encoder and decoder models.
 
 Modules
@@ -6,7 +6,7 @@ Modules
 conv : Convolutional encoder/decoder.
 dense : Dense encoder/decoder.
 
-'''
+"""
 
 from . import conv, dense
 from .conv import ConvEncoder, ConvDecoder

@@ -1,4 +1,4 @@
-'''Dense VAE.'''
+"""Dense VAE."""
 
 from collections.abc import Sequence
 
@@ -8,7 +8,7 @@ from ..layers import ActivType, SigmaType
 
 
 class DenseVAE(VAE):
-    '''
+    """
     Dense VAE.
 
     Parameters
@@ -27,7 +27,7 @@ class DenseVAE(VAE):
         Beta-VAE weighting parameter.
     num_samples : int
         Number of MC samples to simulate the ELBO.
-    likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
+    likelihood_type : {"Bernoulli", "ContinuousBernoulli", "Gauss", "Gaussian", "Laplace"}
         Likelihood function type.
     sigma : float or None
         Can be used to specify constant sigmas.
@@ -35,31 +35,31 @@ class DenseVAE(VAE):
         Enables feature-specific sigma parameters.
     lr : float
         Initial learning rate.
-    lr_schedule : {'constant', 'cosine'} or None
+    lr_schedule : {"constant", "cosine"} or None
         Learning rate schedule type.
-    lr_interval : {'epoch', 'step'}
+    lr_interval : {"epoch", "step"}
         Learning rate update interval.
     lr_warmup : int
         Warmup steps/epochs.
 
-    '''
+    """
 
     def __init__(
         self,
         num_features: Sequence[int],
         reshape: Sequence[int] | None = None,
-        activation: ActivType | None = 'leaky_relu',
+        activation: ActivType | None = "leaky_relu",
         batchnorm: bool = False,
         drop_rate: float | None = None,
         beta: float = 1.0,
         num_samples: int = 1,
-        likelihood_type: str = 'Bernoulli',
+        likelihood_type: str = "Bernoulli",
         sigma: SigmaType | None = None,
         per_feature: bool = False,
         lr: float = 0.001,
-        lr_schedule: str | None = 'constant',
-        lr_interval: str = 'epoch',
-        lr_warmup: int = 0
+        lr_schedule: str | None = "constant",
+        lr_interval: str = "epoch",
+        lr_warmup: int = 0,
     ):
 
         # create encoder (predicts Gaussian params)
@@ -68,7 +68,7 @@ class DenseVAE(VAE):
             activation=activation,
             batchnorm=batchnorm,
             drop_rate=drop_rate,
-            flatten=True  # flatten the input
+            flatten=True,  # flatten the input
         )
 
         # create decoder (predicts Bernoulli logits or Gaussian params)
@@ -80,7 +80,7 @@ class DenseVAE(VAE):
             reshape=reshape,  # reshape the flat output
             likelihood_type=likelihood_type,
             sigma=sigma,
-            per_feature=per_feature
+            per_feature=per_feature,
         )
 
         # initialize VAE class
@@ -93,7 +93,7 @@ class DenseVAE(VAE):
             lr=lr,
             lr_schedule=lr_schedule,
             lr_interval=lr_interval,
-            lr_warmup=lr_warmup
+            lr_warmup=lr_warmup,
         )
 
         # store hyperparams

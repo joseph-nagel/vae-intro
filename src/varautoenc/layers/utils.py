@@ -1,4 +1,4 @@
-'''Model layer utils.'''
+"""Model layer utils."""
 
 from typing import Any
 from collections.abc import Sequence
@@ -12,19 +12,19 @@ ActivType = str | type[nn.Module]
 
 
 ACTIVATIONS = {
-    'identity': nn.Identity,
-    'sigmoid': nn.Sigmoid,
-    'tanh': nn.Tanh,
-    'relu': nn.ReLU,
-    'leaky_relu': nn.LeakyReLU,
-    'elu': nn.ELU,
-    'softplus': nn.Softplus,
-    'swish': nn.SiLU
+    "identity": nn.Identity,
+    "sigmoid": nn.Sigmoid,
+    "tanh": nn.Tanh,
+    "relu": nn.ReLU,
+    "leaky_relu": nn.LeakyReLU,
+    "elu": nn.ELU,
+    "softplus": nn.Softplus,
+    "swish": nn.SiLU,
 }
 
 
-def make_activation(mode: ActivType | None = 'leaky_relu', **kwargs: Any) -> nn.Module | None:
-    '''Create activation function.'''
+def make_activation(mode: ActivType | None = "leaky_relu", **kwargs: Any) -> nn.Module | None:
+    """Create activation function."""
     if mode is None:
         activ = None
     elif isclass(mode):
@@ -32,29 +32,29 @@ def make_activation(mode: ActivType | None = 'leaky_relu', **kwargs: Any) -> nn.
     elif isinstance(mode, str) and mode in ACTIVATIONS.keys():
         activ = ACTIVATIONS[mode](**kwargs)
     else:
-        raise ValueError(f'Unknown activation: {mode}')
+        raise ValueError(f"Unknown activation: {mode}")
     return activ
 
 
 def make_block(layers: nn.Module | Sequence[nn.Module | None]) -> nn.Module:
-    '''Assemble a block of layers.'''
+    """Assemble a block of layers."""
     if isinstance(layers, nn.Module):
         block = layers
     elif isinstance(layers, (list, tuple)):
-        not_none_layers = [l for l in layers if l is not None]  # filter out None layers
+        not_none_layers = [lr for lr in layers if lr is not None]  # filter out None layers
         if len(not_none_layers) == 0:
-            raise ValueError('No layers to assemble')
+            raise ValueError("No layers to assemble")
         elif len(not_none_layers) == 1:
             block = not_none_layers[0]
         else:
             block = nn.Sequential(*not_none_layers)
     else:
-        raise TypeError(f'Invalid layers type: {type(layers)}')
+        raise TypeError(f"Invalid layers type: {type(layers)}")
     return block
 
 
 def make_dropout(drop_rate: float | None = None) -> nn.Module | None:
-    '''Create a dropout layer.'''
+    """Create a dropout layer."""
     if drop_rate is None:
         dropout = None
     else:
@@ -68,9 +68,9 @@ def make_dense(
     bias: bool = True,
     activation: ActivType | None = None,
     batchnorm: bool = False,
-    drop_rate: float | None = None
+    drop_rate: float | None = None,
 ) -> nn.Module:
-    '''
+    """
     Create fully connected layer.
 
     Parameters
@@ -88,7 +88,7 @@ def make_dense(
     drop_rate : float or None
         Dropout probability.
 
-    '''
+    """
 
     # create dropout layer
     dropout = make_dropout(drop_rate=drop_rate)
@@ -97,7 +97,7 @@ def make_dense(
     linear = nn.Linear(
         in_features,
         out_features,
-        bias=bias  # the bias should be disabled if a batchnorm directly follows after the linear layer
+        bias=bias,  # the bias should be disabled if a batchnorm directly follows after the linear layer
     )
 
     # create activation function
@@ -107,7 +107,7 @@ def make_dense(
     norm = nn.BatchNorm1d(out_features) if batchnorm else None
 
     # assemble block
-    layers = [dropout, linear, activ, norm]  # note that the normalization follows the activation (which could be reversed of course)
+    layers = [dropout, linear, activ, norm]  # note that normalization follows activation (which could be reversed)
     dense_block = make_block(layers)
 
     return dense_block
@@ -118,12 +118,12 @@ def make_conv(
     out_channels: int,
     kernel_size: IntOrInts = 3,
     stride: IntOrInts = 1,
-    padding: IntOrInts | str = 'same',
+    padding: IntOrInts | str = "same",
     bias: bool = True,
     activation: ActivType | None = None,
-    batchnorm: bool = False
+    batchnorm: bool = False,
 ) -> nn.Module:
-    '''
+    """
     Create convolutional layer.
 
     Parameters
@@ -145,7 +145,7 @@ def make_conv(
     batchnorm : bool
         Determines whether batchnorm is used.
 
-    '''
+    """
 
     # create conv layer
     conv = nn.Conv2d(
@@ -154,7 +154,7 @@ def make_conv(
         kernel_size=kernel_size,
         stride=stride,
         padding=padding,
-        bias=bias  # the bias should be disabled if a batchnorm directly follows after the convolution
+        bias=bias,  # the bias should be disabled if a batchnorm directly follows after the convolution
     )
 
     # create activation function
@@ -164,7 +164,7 @@ def make_conv(
     norm = nn.BatchNorm2d(out_channels) if batchnorm else None
 
     # assemble block
-    layers = [conv, activ, norm]  # note that the normalization follows the activation (which could be reversed of course)
+    layers = [conv, activ, norm]  # note that normalization follows activation (which could be reversed)
     conv_block = make_block(layers)
 
     return conv_block
@@ -172,19 +172,19 @@ def make_conv(
 
 def make_up(
     scaling: int,
-    mode: str = 'conv_transpose',
+    mode: str = "conv_transpose",
     in_channels: int = 1,
     out_channels: int = 1,
-    kernel_size: IntOrInts = 3
+    kernel_size: IntOrInts = 3,
 ) -> nn.Module:
-    '''
+    """
     Create upsampling layer.
 
     Parameters
     ----------
     scaling : int
         Scaling parameter.
-    mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
+    mode : {"bilinear", "bilinear_conv", "conv_transpose"}
         Conv. upsampling mode.
     in_channels : int
         Number of input channels.
@@ -193,42 +193,42 @@ def make_up(
     kernel_size : int or (int, int)
         Conv. kernel size.
 
-    '''
+    """
 
     # bilinear upsampling
-    if mode == 'bilinear':
+    if mode == "bilinear":
         return nn.Upsample(
             scale_factor=scaling,
-            mode='bilinear',
-            align_corners=True
+            mode="bilinear",
+            align_corners=True,
         )
 
     # bilinear upsampling followed by a convolution
-    elif mode == 'bilinear_conv':
+    elif mode == "bilinear_conv":
         return nn.Sequential(
             nn.Upsample(
                 scale_factor=scaling,
-                mode='bilinear',
-                align_corners=True
+                mode="bilinear",
+                align_corners=True,
             ),
             nn.Conv2d(
                 in_channels,
                 out_channels,
                 kernel_size=kernel_size,
                 stride=1,
-                padding='same'
-            )
+                padding="same",
+            ),
         )
 
     # transposed convolution
-    elif mode == 'conv_transpose':
+    elif mode == "conv_transpose":
         return nn.ConvTranspose2d(
             in_channels,
             out_channels,
             kernel_size=scaling,
             stride=scaling,
-            padding=0
+            padding=0,
         )
 
     else:
-        raise ValueError(f'Unknown upsample mode: {mode}')
+        raise ValueError(f"Unknown upsample mode: {mode}")

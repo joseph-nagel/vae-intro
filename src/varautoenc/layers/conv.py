@@ -1,19 +1,14 @@
-'''Convolutional layers.'''
+"""Convolutional layers."""
 
 from collections.abc import Sequence
 
 import torch.nn as nn
 
-from .utils import (
-    IntOrInts,
-    ActivType,
-    make_activation,
-    make_up
-)
+from .utils import IntOrInts, ActivType, make_activation, make_up
 
 
 class SingleConv(nn.Sequential):
-    '''
+    """
     Single conv. block.
 
     Parameters
@@ -35,7 +30,7 @@ class SingleConv(nn.Sequential):
     batchnorm : bool
         Determines whether batchnorm is used.
 
-    '''
+    """
 
     def __init__(
         self,
@@ -43,10 +38,10 @@ class SingleConv(nn.Sequential):
         out_channels: int,
         kernel_size: IntOrInts = 3,
         stride: IntOrInts = 1,
-        padding: IntOrInts | str = 'same',
+        padding: IntOrInts | str = "same",
         bias: bool = True,
-        activation: ActivType | None = 'leaky_relu',
-        batchnorm: bool = False
+        activation: ActivType | None = "leaky_relu",
+        batchnorm: bool = False,
     ):
 
         # create conv layer
@@ -56,7 +51,7 @@ class SingleConv(nn.Sequential):
             kernel_size=kernel_size,
             stride=stride,
             padding=padding,
-            bias=bias  # the bias should be disabled if a batchnorm directly follows after the convolution
+            bias=bias,  # the bias should be disabled if a batchnorm directly follows after the convolution
         )
 
         # create activation function
@@ -66,15 +61,15 @@ class SingleConv(nn.Sequential):
         norm = nn.BatchNorm2d(out_channels) if batchnorm else None
 
         # assemble block
-        layers = [conv, activ, norm]  # note that the normalization follows the activation (which could be reversed of course)
-        not_none_layers = [l for l in layers if l is not None]
+        layers = [conv, activ, norm]  # note that normalization follows activation (which could be reversed)
+        not_none_layers = [lr for lr in layers if lr is not None]
 
         # initialize module
         super().__init__(*not_none_layers)
 
 
 class DoubleConv(nn.Sequential):
-    '''
+    """
     Double conv. block.
 
     Parameters
@@ -103,7 +98,7 @@ class DoubleConv(nn.Sequential):
         Determines whether the first or second
         convolution changes the number of channels.
 
-    '''
+    """
 
     def __init__(
         self,
@@ -111,17 +106,17 @@ class DoubleConv(nn.Sequential):
         out_channels: int,
         kernel_size: IntOrInts = 3,
         stride: IntOrInts = 1,
-        padding: IntOrInts | str = 'same',
+        padding: IntOrInts | str = "same",
         bias: bool = True,
-        activation: ActivType | None = 'leaky_relu',
-        last_activation: ActivType | None = 'same',
+        activation: ActivType | None = "leaky_relu",
+        last_activation: ActivType | None = "same",
         batchnorm: bool = False,
         normalize_last: bool = True,
-        inout_first: bool = True
+        inout_first: bool = True,
     ):
 
         # determine last activation
-        if last_activation == 'same':
+        if last_activation == "same":
             last_activation = activation
 
         # create first conv
@@ -133,7 +128,7 @@ class DoubleConv(nn.Sequential):
             padding=padding,
             bias=bias,
             activation=activation,
-            batchnorm=batchnorm
+            batchnorm=batchnorm,
         )
 
         # create second conv
@@ -145,7 +140,7 @@ class DoubleConv(nn.Sequential):
             padding=padding,
             bias=bias,
             activation=last_activation,
-            batchnorm=(batchnorm and normalize_last)
+            batchnorm=(batchnorm and normalize_last),
         )
 
         # initialize module
@@ -153,7 +148,7 @@ class DoubleConv(nn.Sequential):
 
 
 class ConvBlock(nn.Sequential):
-    '''
+    """
     Multiple (serial) conv. blocks.
 
     Parameters
@@ -177,36 +172,36 @@ class ConvBlock(nn.Sequential):
     normalize_last : bool
         Determines whether batchnorm is used last.
 
-    '''
+    """
 
     def __init__(
         self,
         num_channels: Sequence[int],
         kernel_size: IntOrInts = 3,
         stride: IntOrInts = 1,
-        padding: IntOrInts | str = 'same',
+        padding: IntOrInts | str = "same",
         bias: bool = True,
-        activation: ActivType | None = 'leaky_relu',
-        last_activation: ActivType | None = 'same',
+        activation: ActivType | None = "leaky_relu",
+        last_activation: ActivType | None = "same",
         batchnorm: bool = False,
-        normalize_last: bool = True
+        normalize_last: bool = True,
     ):
 
         # determine last activation
-        if last_activation == 'same':
+        if last_activation == "same":
             last_activation = activation
 
         # check number of layers
         if len(num_channels) >= 2:
             num_layers = len(num_channels) - 1
         else:
-            raise ValueError('Number of channels needs at least two entries')
+            raise ValueError("Number of channels needs at least two entries")
 
         # assemble layers
         layers = []
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
-            is_not_last = (idx < num_layers - 1)
+            is_not_last = idx < num_layers - 1
 
             # create conv layer
             conv_block = SingleConv(
@@ -217,7 +212,7 @@ class ConvBlock(nn.Sequential):
                 padding=padding,
                 bias=bias,
                 activation=activation if is_not_last else last_activation,
-                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last)
+                batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
             )
 
             layers.append(conv_block)
@@ -227,7 +222,7 @@ class ConvBlock(nn.Sequential):
 
 
 class ConvDown(nn.Sequential):
-    '''
+    """
     Convolutions with downsampling.
 
     Parameters
@@ -258,45 +253,45 @@ class ConvDown(nn.Sequential):
         Determines whether the first or second
         convolution changes the number of channels.
 
-    '''
+    """
 
     def __init__(
         self,
         num_channels: Sequence[int],
         kernel_size: IntOrInts = 3,
         stride: IntOrInts = 1,
-        padding: IntOrInts | str = 'same',
+        padding: IntOrInts | str = "same",
         pooling: IntOrInts | None = 2,
-        activation: ActivType | None = 'leaky_relu',
-        last_activation: ActivType | None = 'same',
+        activation: ActivType | None = "leaky_relu",
+        last_activation: ActivType | None = "same",
         batchnorm: bool = False,
         normalize_last: bool = True,
         pool_last: bool = True,
         double_conv: bool = False,
-        inout_first: bool = True
+        inout_first: bool = True,
     ):
 
         # determine conv type
         ConvType = DoubleConv if double_conv else SingleConv
 
         # create specific options
-        kwargs = {'inout_first': inout_first} if double_conv else {}
+        kwargs = {"inout_first": inout_first} if double_conv else {}
 
         # determine last activation
-        if last_activation == 'same':
+        if last_activation == "same":
             last_activation = activation
 
         # check number of layers
         if len(num_channels) >= 2:
             num_layers = len(num_channels) - 1
         else:
-            raise ValueError('Number of channels needs at least two entries')
+            raise ValueError("Number of channels needs at least two entries")
 
         # assemble layers
         layers = []  # type: list[nn.Module]
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
-            is_not_last = (idx < num_layers - 1)
+            is_not_last = idx < num_layers - 1
 
             # create conv layer
             conv = ConvType(
@@ -307,7 +302,7 @@ class ConvDown(nn.Sequential):
                 padding=padding,
                 activation=activation if is_not_last else last_activation,
                 batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
-                **kwargs
+                **kwargs,
             )
 
             layers.append(conv)
@@ -324,7 +319,7 @@ class ConvDown(nn.Sequential):
 
 
 class ConvUp(nn.Sequential):
-    '''
+    """
     Convolutions with upsampling.
 
     Parameters
@@ -337,7 +332,7 @@ class ConvUp(nn.Sequential):
         Padding parameter.
     scaling : int
         Scaling parameter.
-    upsample_mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
+    upsample_mode : {"bilinear", "bilinear_conv", "conv_transpose"}
         Conv. upsampling mode.
     activation : str or None
         Nonlinearity type.
@@ -357,47 +352,47 @@ class ConvUp(nn.Sequential):
         Determines whether the first or second
         convolution changes the number of channels.
 
-    '''
+    """
 
     def __init__(
         self,
         num_channels: Sequence[int],
         kernel_size: IntOrInts = 3,
-        padding: IntOrInts | str = 'same',
+        padding: IntOrInts | str = "same",
         scaling: int = 2,
-        upsample_mode: str = 'conv_transpose',
-        activation: ActivType | None = 'leaky_relu',
-        last_activation: ActivType | None = 'same',
+        upsample_mode: str = "conv_transpose",
+        activation: ActivType | None = "leaky_relu",
+        last_activation: ActivType | None = "same",
         batchnorm: bool = False,
         normalize_last: bool = True,
         conv_last: bool = True,
         up_first: bool = True,
         double_conv: bool = False,
-        inout_first: bool = True
+        inout_first: bool = True,
     ):
 
         # determine conv type
         ConvType = DoubleConv if double_conv else SingleConv
 
         # create specific options
-        kwargs = {'inout_first': inout_first} if double_conv else {}
+        kwargs = {"inout_first": inout_first} if double_conv else {}
 
         # determine last activation
-        if last_activation == 'same':
+        if last_activation == "same":
             last_activation = activation
 
         # check number of layers
         if len(num_channels) >= 2:
             num_layers = len(num_channels) - 1
         else:
-            raise ValueError('Number of channels needs at least two entries')
+            raise ValueError("Number of channels needs at least two entries")
 
         # assemble layers
         layers = []  # type: list[nn.Module]
 
         for idx, (in_channels, out_channels) in enumerate(zip(num_channels[:-1], num_channels[1:])):
-            is_not_first = (idx > 0)
-            is_not_last = (idx < num_layers - 1)
+            is_not_first = idx > 0
+            is_not_last = idx < num_layers - 1
 
             # create upsampling layer
             if is_not_first or up_first:
@@ -406,7 +401,7 @@ class ConvUp(nn.Sequential):
                     mode=upsample_mode,
                     in_channels=in_channels,
                     out_channels=in_channels,
-                    kernel_size=kernel_size
+                    kernel_size=kernel_size,
                 )
 
                 layers.append(up)
@@ -421,7 +416,7 @@ class ConvUp(nn.Sequential):
                     padding=padding,
                     activation=activation if is_not_last else last_activation,
                     batchnorm=batchnorm if is_not_last else (batchnorm and normalize_last),
-                    **kwargs
+                    **kwargs,
                 )
 
                 layers.append(conv)

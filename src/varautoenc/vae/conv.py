@@ -1,4 +1,4 @@
-'''Convolutional VAE.'''
+"""Convolutional VAE."""
 
 from collections.abc import Sequence
 
@@ -8,7 +8,7 @@ from ..layers import IntOrInts, ActivType, SigmaType
 
 
 class ConvVAE(VAE):
-    '''
+    """
     Convolutional VAE.
 
     Parameters
@@ -23,7 +23,7 @@ class ConvVAE(VAE):
         Conv. kernel size.
     pooling : int, (int, int) or None
         Pooling parameter.
-    upsample_mode : {'bilinear', 'bilinear_conv', 'conv_transpose'}
+    upsample_mode : {"bilinear", "bilinear_conv", "conv_transpose"}
         Conv. upsampling mode.
     activation : str or None
         Nonlinearity type.
@@ -41,7 +41,7 @@ class ConvVAE(VAE):
         Beta-VAE weighting parameter.
     num_samples : int
         Number of MC samples to simulate the ELBO.
-    likelihood_type : {'Bernoulli', 'ContinuousBernoulli', 'Gauss', 'Gaussian', 'Laplace'}
+    likelihood_type : {"Bernoulli", "ContinuousBernoulli", "Gauss", "Gaussian", "Laplace"}
         Likelihood function type.
     sigma : float or None
         Can be used to specify constant sigmas.
@@ -49,14 +49,14 @@ class ConvVAE(VAE):
         Enables channel-specific sigma parameters.
     lr : float
         Initial learning rate.
-    lr_schedule : {'constant', 'cosine'} or None
+    lr_schedule : {"constant", "cosine"} or None
         Learning rate schedule type.
-    lr_interval : {'epoch', 'step'}
+    lr_interval : {"epoch", "step"}
         Learning rate update interval.
     lr_warmup : int
         Warmup steps/epochs.
 
-    '''
+    """
 
     def __init__(
         self,
@@ -65,8 +65,8 @@ class ConvVAE(VAE):
         reshape: Sequence[int],
         kernel_size: IntOrInts = 3,
         pooling: IntOrInts | None = 2,
-        upsample_mode: str = 'conv_transpose',
-        activation: ActivType | None = 'leaky_relu',
+        upsample_mode: str = "conv_transpose",
+        activation: ActivType | None = "leaky_relu",
         last_activation: ActivType | None = None,
         batchnorm: bool = True,
         drop_rate: float | None = None,
@@ -74,13 +74,13 @@ class ConvVAE(VAE):
         double_conv: bool = True,
         beta: float = 1.0,
         num_samples: int = 1,
-        likelihood_type: str = 'Bernoulli',
+        likelihood_type: str = "Bernoulli",
         sigma: SigmaType | None = None,
         per_channel: bool = False,
         lr: float = 0.001,
-        lr_schedule: str | None = 'constant',
-        lr_interval: str = 'epoch',
-        lr_warmup: int = 0
+        lr_schedule: str | None = "constant",
+        lr_interval: str = "epoch",
+        lr_warmup: int = 0,
     ):
 
         # create encoder (predicts Gaussian params)
@@ -94,7 +94,7 @@ class ConvVAE(VAE):
             drop_rate=drop_rate,
             pool_last=pool_last,
             double_conv=double_conv,
-            inout_first=True
+            inout_first=True,
         )
 
         # create decoder (predicts Bernoulli logits or Gaussian params)
@@ -114,7 +114,7 @@ class ConvVAE(VAE):
             inout_first=True,
             likelihood_type=likelihood_type,
             sigma=sigma,
-            per_channel=per_channel
+            per_channel=per_channel,
         )
 
         # initialize VAE class
@@ -127,7 +127,7 @@ class ConvVAE(VAE):
             lr=lr,
             lr_schedule=lr_schedule,
             lr_interval=lr_interval,
-            lr_warmup=lr_warmup
+            lr_warmup=lr_warmup,
         )
 
         # store hyperparams

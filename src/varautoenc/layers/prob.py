@@ -1,4 +1,4 @@
-'''Probabilistic layers.'''
+"""Probabilistic layers."""
 
 from typing import Any
 from collections.abc import Sequence
@@ -14,7 +14,7 @@ SigmaType = torch.Tensor | Sequence[float]
 
 
 class ProbDense(nn.Module):
-    '''
+    """
     Probabilistic dense layer with constant sigma (fixed or learnable).
 
     Parameters
@@ -28,7 +28,7 @@ class ProbDense(nn.Module):
     per_feature : bool
         Enables feature-specific sigma parameters.
 
-    '''
+    """
 
     def __init__(
         self,
@@ -36,16 +36,12 @@ class ProbDense(nn.Module):
         out_features: int,
         sigma: SigmaType | None = None,
         per_feature: bool = False,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         super().__init__()
 
         # create dense layer predicting mu
-        self.mu = make_dense(
-            in_features,
-            out_features,
-            **kwargs
-        )
+        self.mu = make_dense(in_features, out_features, **kwargs)
 
         # create log-sigma parameters
         if sigma is None:
@@ -65,7 +61,7 @@ class ProbDense(nn.Module):
 
 
 class ProbConv(nn.Module):
-    '''
+    """
     Probabilistic conv. layer with constant sigma (fixed or learnable).
 
     Parameters
@@ -81,7 +77,7 @@ class ProbConv(nn.Module):
     per_channel : bool
         Enables channel-specific sigma parameters.
 
-    '''
+    """
 
     def __init__(
         self,
@@ -90,7 +86,7 @@ class ProbConv(nn.Module):
         double_conv: bool = False,
         sigma: SigmaType | None = None,
         per_channel: bool = False,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         super().__init__()
 
@@ -98,11 +94,7 @@ class ProbConv(nn.Module):
         ConvType = DoubleConv if double_conv else SingleConv
 
         # create conv layer predicting mu
-        self.mu = ConvType(
-            in_channels,
-            out_channels,
-            **kwargs
-        )
+        self.mu = ConvType(in_channels, out_channels, **kwargs)
 
         # create log-sigma parameters
         if sigma is None:

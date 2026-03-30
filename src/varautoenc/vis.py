@@ -1,4 +1,4 @@
-'''Visualization tools.'''
+"""Visualization tools."""
 
 from pathlib import Path
 
@@ -6,23 +6,18 @@ import matplotlib.pyplot as plt
 import torch
 from PIL import Image
 
-from .vae import (
-    DenseVAE,
-    ConvVAE,
-    generate,
-    encode_loader
-)
+from .vae import DenseVAE, ConvVAE, generate, encode_loader
 
 
 def make_gif(
     save_file,
     img_dir,
-    pattern='**/*.png',
+    pattern="**/*.png",
     overwrite=True,
     timesort=True,
-    **kwargs
+    **kwargs,
 ):
-    '''
+    """
     Load images and create GIF animation.
 
     Summary
@@ -30,7 +25,7 @@ def make_gif(
     The function loads a directory of images
     and transforms them into a GIF animation.
 
-    '''
+    """
 
     save_file = Path(save_file)
     img_dir = Path(img_dir)
@@ -44,7 +39,7 @@ def make_gif(
     # get sorted image files
     img_files = sorted(
         img_dir.glob(pattern),
-        key=(lambda f: f.stat().st_mtime) if timesort else None  # sort according to creation time
+        key=(lambda f: f.stat().st_mtime) if timesort else None,  # sort according to creation time
     )
 
     # load frames
@@ -59,32 +54,27 @@ def make_gif(
         # imageio.mimsave(save_file, frames, **kwargs)
 
         # calculate duration per frame in [ms]
-        if 'fps' in kwargs:
-            kwargs['duration'] = 1000 / kwargs.pop('fps')
+        if "fps" in kwargs:
+            kwargs["duration"] = 1000 / kwargs.pop("fps")
 
-        frames[0].save(
-            save_file,
-            save_all=True,
-            append_images=frames[1:],
-            **kwargs
-        )
+        frames[0].save(save_file, save_all=True, append_images=frames[1:], **kwargs)
     else:
-        raise FileExistsError('File already exists')
+        raise FileExistsError("File already exists")
 
 
 def make_lat_imgs(
     save_dir,
     ckpt_dir,
     data_loader,
-    pattern='**/*.ckpt',
+    pattern="**/*.ckpt",
     figsize=(5, 5),
     xlim=(-5, 5),
     ylim=(-5, 5),
     overwrite=True,
     timesort=True,
-    **kwargs
+    **kwargs,
 ):
-    '''
+    """
     Load checkpoints and save latent space visualizations.
 
     Summary
@@ -92,7 +82,7 @@ def make_lat_imgs(
     This function loads all checkpoints in a directory and saves
     visualizations of the corresponding 2D latent spaces.
 
-    '''
+    """
 
     save_dir = Path(save_dir)
     ckpt_dir = Path(ckpt_dir)
@@ -104,15 +94,14 @@ def make_lat_imgs(
     # get sorted checkpoint files
     ckpt_files = sorted(
         ckpt_dir.glob(pattern),
-        key=(lambda f: f.stat().st_mtime) if timesort else None  # sort according to creation time
+        key=(lambda f: f.stat().st_mtime) if timesort else None,  # sort according to creation time
     )
 
     # set device
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # loop over checkpoints
     for ckpt_idx, ckpt_file in enumerate(ckpt_files):
-
         # import model
         vae = DenseVAE.load_from_checkpoint(ckpt_file)
 
@@ -120,38 +109,34 @@ def make_lat_imgs(
         vae = vae.to(device)
 
         # encode loader
-        z_mu, z_sigma, y = encode_loader(
-            vae,
-            data_loader,
-            return_targets=True
-        )
+        z_mu, z_sigma, y = encode_loader(vae, data_loader, return_targets=True)
 
         # create figure
         fig, ax = plt.subplots(figsize=figsize)
         for idx in range(10):
             ax.scatter(
-                z_mu[y==idx, 0][::2].numpy(),
-                z_mu[y==idx, 1][::2].numpy(),
+                z_mu[y == idx, 0][::2].numpy(),
+                z_mu[y == idx, 1][::2].numpy(),
                 color=plt.cm.tab10(idx),
                 alpha=0.3,
-                edgecolors='none',
-                label=f'{idx}'
+                edgecolors="none",
+                label=f"{idx}",
             )
         ax.set(xlim=xlim, ylim=ylim)
-        ax.set_aspect('equal', adjustable='box')
-        ax.legend(loc='center right')
-        ax.grid(color='lightgray', linestyle='-')
+        ax.set_aspect("equal", adjustable="box")
+        ax.legend(loc="center right")
+        ax.grid(color="lightgray", linestyle="-")
         ax.set_axisbelow(True)
         fig.tight_layout()
 
         # save figure
-        file_name = '{}.png'.format(ckpt_file.stem)
+        file_name = "{}.png".format(ckpt_file.stem)
         save_file = save_dir / file_name
 
         if not save_file.exists() or overwrite:
             fig.savefig(save_file, **kwargs)
         else:
-            raise FileExistsError('File already exists')
+            raise FileExistsError("File already exists")
 
         plt.close(fig)
 
@@ -160,16 +145,16 @@ def make_gen_imgs(
     save_dir,
     ckpt_dir,
     num_latents=None,
-    pattern='**/*.ckpt',
+    pattern="**/*.ckpt",
     random_seed=None,
     nrows=5,
     ncols=5,
     figsize=(5, 5.5),
     overwrite=True,
     timesort=True,
-    **kwargs
+    **kwargs,
 ):
-    '''
+    """
     Load checkpoints and save generative visualizations.
 
     Summary
@@ -177,7 +162,7 @@ def make_gen_imgs(
     This function reads a directory of checkpoints and saves
     visualizations of generated data from the corresponding models.
 
-    '''
+    """
 
     save_dir = Path(save_dir)
     ckpt_dir = Path(ckpt_dir)
@@ -189,7 +174,7 @@ def make_gen_imgs(
     # get sorted checkpoint files
     ckpt_files = sorted(
         ckpt_dir.glob(pattern),
-        key=(lambda f: f.stat().st_mtime) if timesort else None  # sort according to creation time
+        key=(lambda f: f.stat().st_mtime) if timesort else None,  # sort according to creation time
     )
 
     # get number of latent variables
@@ -208,11 +193,10 @@ def make_gen_imgs(
     z_samples = torch.randn(num_samples, *sample_shape)
 
     # set device
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # loop over checkpoints
     for ckpt_idx, ckpt_file in enumerate(ckpt_files):
-
         # import model
         vae = ConvVAE.load_from_checkpoint(ckpt_file)
 
@@ -226,18 +210,18 @@ def make_gen_imgs(
         fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=figsize)
         for ax_idx, ax in enumerate(axes.ravel()):
             image = x_gen[ax_idx, 0].numpy().clip(0, 1)  # TODO: Generalize to RGB channels
-            ax.imshow(image, cmap='gray', vmin=0, vmax=1)
-            ax.set(xticks=[], yticks=[], xlabel='', ylabel='')
+            ax.imshow(image, cmap="gray", vmin=0, vmax=1)
+            ax.set(xticks=[], yticks=[], xlabel="", ylabel="")
         fig.suptitle(ckpt_file.stem)
         fig.tight_layout()
 
         # save figure
-        file_name = '{}.png'.format(ckpt_file.stem)
+        file_name = "{}.png".format(ckpt_file.stem)
         save_file = save_dir / file_name
 
         if not save_file.exists() or overwrite:
             fig.savefig(save_file, **kwargs)
         else:
-            raise FileExistsError('File already exists')
+            raise FileExistsError("File already exists")
 
         plt.close(fig)

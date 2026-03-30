@@ -1,4 +1,4 @@
-'''
+"""
 Variational autoencoder.
 
 Modules
@@ -9,15 +9,9 @@ dense : Dense VAE
 lr_schedule : Learning rate schedules.
 utils : Utilities.
 
-'''
+"""
 
-from . import (
-    base,
-    conv,
-    dense,
-    lr_schedule,
-    utils
-)
+from . import base, conv, dense, lr_schedule, utils
 from .base import LIKELIHOOD_TYPES, VAE
 from .conv import ConvVAE
 from .dense import DenseVAE

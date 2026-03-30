@@ -1,4 +1,4 @@
-'''Utilities.'''
+"""Utilities."""
 
 from collections.abc import Sequence
 
@@ -14,9 +14,9 @@ def generate(
     sample_shape: Sequence[int] | None = None,
     num_samples: int | None = None,
     z_samples: torch.Tensor | None = None,
-    random_seed: int | None = None
+    random_seed: int | None = None,
 ) -> torch.Tensor:
-    '''Generate random samples.'''
+    """Generate random samples."""
 
     vae.sample(False)  # actually not necessary
     vae.train(False)  # activate train mode
@@ -28,18 +28,18 @@ def generate(
     # sample latent variables
     if z_samples is None:
         if sample_shape is None:
-            raise TypeError('A sample shape has to be specified')
+            raise TypeError("A sample shape has to be specified")
         elif num_samples is None:
-            raise TypeError('The number of samples has to be specified')
+            raise TypeError("The number of samples has to be specified")
         else:
             z_samples = torch.randn(num_samples, *sample_shape)
 
     # use passed variables as latents
     else:
         if sample_shape is not None:
-            raise TypeError('A sample shape should not be specified')
+            raise TypeError("A sample shape should not be specified")
         elif num_samples is not None:
-            raise TypeError('The number of samples should not be specified')
+            raise TypeError("The number of samples should not be specified")
         else:
             z_samples = torch.as_tensor(z_samples)
 
@@ -53,9 +53,9 @@ def generate(
         if len(x_gen) == 2:
             x_gen = x_gen[0]  # get first entry of a (mu, logsigma)-tuple (Gaussian/Laplace)
         else:
-            raise ValueError(f'Two dist. parameters expected, found: {len(x_gen)}')
+            raise ValueError(f"Two dist. parameters expected, found: {len(x_gen)}")
     else:
-        raise TypeError(f'Invalid decoder output type : {type(x_gen)}')
+        raise TypeError(f"Invalid decoder output type : {type(x_gen)}")
 
     x_gen = x_gen.cpu()
 
@@ -63,12 +63,8 @@ def generate(
 
 
 @torch.no_grad()
-def reconstruct(
-    vae: VAE,
-    x: torch.Tensor,
-    sample_mode: bool = False
-) -> torch.Tensor:
-    '''Reconstruct inputs.'''
+def reconstruct(vae: VAE, x: torch.Tensor, sample_mode: bool = False) -> torch.Tensor:
+    """Reconstruct inputs."""
 
     vae.sample(sample_mode)  # set sampling mode
     vae.train(False)  # activate train mode
@@ -85,12 +81,8 @@ def reconstruct(
 
 
 @torch.no_grad()
-def encode_loader(
-    vae: VAE,
-    data_loader: DataLoader,
-    return_targets: bool = False
-) -> tuple[torch.Tensor, ...]:
-    '''Encode all items in a data loader.'''
+def encode_loader(vae: VAE, data_loader: DataLoader, return_targets: bool = False) -> tuple[torch.Tensor, ...]:
+    """Encode all items in a data loader."""
 
     vae.sample(False)  # actually not necessary
     vae.train(False)  # activate train mode
@@ -103,7 +95,6 @@ def encode_loader(
 
     # loop over batches
     for x_batch, y_batch in data_loader:
-
         if return_targets:
             y_list.append(y_batch)
 

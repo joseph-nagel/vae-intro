@@ -1,4 +1,4 @@
-'''MNIST datamodule.'''
+"""MNIST datamodule."""
 
 import torch
 from torch.utils.data import random_split
@@ -8,7 +8,7 @@ from .base import BaseDataModule
 
 
 class MNISTDataModule(BaseDataModule):
-    '''DataModule for the (binarized) MNIST dataset.'''
+    """DataModule for the (binarized) MNIST dataset."""
 
     def __init__(
         self,
@@ -17,14 +17,11 @@ class MNISTDataModule(BaseDataModule):
         mean: float | None = None,
         std: float | None = None,
         batch_size: int = 32,
-        num_workers: int = 0
+        num_workers: int = 0,
     ):
 
         # call base class init
-        super().__init__(
-            batch_size=batch_size,
-            num_workers=num_workers
-        )
+        super().__init__(batch_size=batch_size, num_workers=num_workers)
 
         # set data location
         self.data_dir = data_dir
@@ -32,13 +29,13 @@ class MNISTDataModule(BaseDataModule):
         # create transforms
         train_transforms = [
             transforms.RandomRotation(5),  # TODO: refine data augmentation
-            transforms.ToTensor()
+            transforms.ToTensor(),
         ]
 
         test_transforms = [transforms.ToTensor()]
 
         if binarize_threshold is not None:  # binarize to {0, 1}
-            binarize_fn = lambda x: torch.where(x > binarize_threshold, 1, 0).float()
+            binarize_fn = lambda x: torch.where(x > binarize_threshold, 1, 0).float()  # noqa: E731
 
             train_transforms.append(binarize_fn)
             test_transforms.append(binarize_fn)
@@ -54,45 +51,39 @@ class MNISTDataModule(BaseDataModule):
 
         # create inverse normalization
         if (mean is not None) and (std is not None):
-            self.renormalize = transforms.Compose([
-                transforms.Lambda(lambda x: x * std + mean),  # reverse normalization
-                transforms.Lambda(lambda x: x.clamp(0, 1))  # clip to valid range
-            ])
+            self.renormalize = transforms.Compose(
+                [
+                    transforms.Lambda(lambda x: x * std + mean),  # reverse normalization
+                    transforms.Lambda(lambda x: x.clamp(0, 1)),  # clip to valid range
+                ]
+            )
 
     def prepare_data(self) -> None:
-        '''Download data.'''
-        train_set = datasets.MNIST(
-            self.data_dir,
-            train=True,
-            download=True
-        )
-        test_set = datasets.MNIST(
-            self.data_dir,
-            train=False,
-            download=True
-        )
+        """Download data."""
+        _ = datasets.MNIST(self.data_dir, train=True, download=True)
+        _ = datasets.MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage: str) -> None:
-        '''Set up train/test/val. datasets.'''
+        """Set up train/test/val. datasets."""
 
         # create train/val. datasets
-        if stage in ('fit', 'validate'):
+        if stage in ("fit", "validate"):
             train_set = datasets.MNIST(
                 self.data_dir,
                 train=True,
-                transform=self.train_transform
+                transform=self.train_transform,
             )
 
             self.train_set, self.val_set = random_split(
                 train_set,
                 [50000, 10000],
-                generator=torch.Generator().manual_seed(42)
+                generator=torch.Generator().manual_seed(42),
             )
 
         # create test dataset
-        elif stage == 'test':
+        elif stage == "test":
             self.test_set = datasets.MNIST(
                 self.data_dir,
                 train=False,
-                transform=self.test_transform
+                transform=self.test_transform,
             )
