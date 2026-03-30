@@ -3,7 +3,7 @@ Generated images animation.
 
 Example
 -------
-python scripts/make_gen_gif.py --save-dir run/anim_gen/ --ckpt-dir run/mnist_conv/version_0/checkpoints/ --random-seed 100000
+python scripts/make_gen_gif.py --save-dir run/anim_gen/ --ckpt-dir run/mnist_conv/version_0/checkpoints/
 
 """
 

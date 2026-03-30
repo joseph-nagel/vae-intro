@@ -108,7 +108,7 @@ class VAE(LightningModule):
         self.sample(True)
 
         # store hyperparams
-        self.save_hyperparameters(ignore=["encoder", "decoder"], logger=True)
+        self.save_hyperparameters(ignore=["encoder", "decoder"])
 
     @property
     def sampling(self) -> bool:
